@@ -154,19 +154,26 @@ class LocalPlaylistManager {
      * 加载播放列表到主界面
      */
     loadPlaylistToMain(playlistId) {
+        console.log('📋 加载播放列表到主界面:', playlistId);
+
         const playlist = this.playlists[playlistId];
         if (!playlist) {
             this.showNotification('播放列表不存在', 'error');
             return false;
         }
 
-        // 清空当前临时队列
-        this.clearTemporaryQueue();
+        // 清空当前视频表格
+        this.clearVideoTable();
 
         // 加载播放列表视频到主界面
+        console.log(`📋 加载 ${playlist.videos.length} 个视频到主界面`);
+
         playlist.videos.forEach((video, index) => {
-            // 使用全局的addVideo函数来正确添加视频
-            if (typeof window.addVideo === 'function') {
+            // 使用全局的addVideoToList函数来正确添加视频
+            if (typeof window.addVideoToList === 'function') {
+                window.addVideoToList(video.id, video.title, video.duration, video.thumbnail, false);
+            } else if (typeof window.addVideo === 'function') {
+                // 备用方案：使用addVideo函数
                 window.addVideo(video.title, video.duration, video.id);
             } else {
                 // 降级方案：直接操作数组和界面
@@ -187,17 +194,121 @@ class LocalPlaylistManager {
         this.savePlaylists();
 
         this.showNotification(`已加载播放列表 "${playlist.name}" (${playlist.videos.length} 个视频)`, 'success');
+        console.log('✅ 播放列表加载完成');
         return true;
     }
     
     /**
+     * 清空视频表格
+     */
+    clearVideoTable() {
+        const table = document.getElementById('videosTable');
+        if (table) {
+            table.innerHTML = '';
+            console.log('🧹 视频表格已清空');
+        }
+
+        // 清空全局videos数组
+        if (typeof window.videos !== 'undefined') {
+            window.videos = [];
+            console.log('🧹 全局videos数组已清空');
+        }
+    }
+
+    /**
+     * 加载临时队列到表格
+     */
+    loadTemporaryQueueToTable() {
+        console.log('📋 加载临时播放队列到表格...');
+
+        // 获取临时队列数据
+        const tempQueue = this.getTemporaryQueue();
+
+        if (tempQueue && tempQueue.length > 0) {
+            console.log(`📋 临时队列有 ${tempQueue.length} 个视频`);
+
+            // 重新构建videos数组
+            if (typeof window.videos !== 'undefined') {
+                window.videos = [...tempQueue];
+            }
+
+            // 重新构建表格
+            tempQueue.forEach((video, index) => {
+                if (typeof window.addVideoToList === 'function') {
+                    window.addVideoToList(video.id, video.title, video.duration, video.thumbnail, false);
+                }
+            });
+
+            console.log('✅ 临时队列已加载到表格');
+        } else {
+            console.log('ℹ️ 临时队列为空');
+
+            // 显示欢迎消息
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'block';
+            }
+        }
+    }
+
+    /**
+     * 获取临时队列数据
+     */
+    getTemporaryQueue() {
+        const tempQueueData = localStorage.getItem('streamly_temp_queue');
+        if (tempQueueData) {
+            try {
+                return JSON.parse(tempQueueData);
+            } catch (e) {
+                console.error('❌ 解析临时队列数据失败:', e);
+                return [];
+            }
+        }
+
+        // 如果没有临时队列数据，返回当前的videos数组
+        if (typeof window.videos !== 'undefined' && Array.isArray(window.videos)) {
+            return window.videos;
+        }
+
+        return [];
+    }
+
+    /**
+     * 保存当前队列到临时存储
+     */
+    saveCurrentQueueToTemp() {
+        const currentVideos = this.getCurrentQueueVideos();
+        if (currentVideos.length > 0) {
+            localStorage.setItem('streamly_temp_queue', JSON.stringify(currentVideos));
+            console.log('💾 当前队列已保存到临时存储');
+        }
+    }
+
+    /**
      * 切换到临时播放队列模式
      */
     switchToTemporaryQueue() {
+        console.log('🔄 切换到临时播放队列...');
+
+        // 如果当前不是临时队列，先保存当前队列
+        if (!this.isTemporaryQueue && this.currentPlaylist) {
+            this.saveCurrentQueueToTemp();
+        }
+
         this.currentPlaylist = null;
         this.isTemporaryQueue = true;
+
+        // 清空当前视频表格
+        this.clearVideoTable();
+
+        // 重新加载临时队列的视频
+        this.loadTemporaryQueueToTable();
+
+        // 更新播放列表选择器
         this.updatePlaylistSelector();
+
         this.showNotification('已切换到临时播放队列', 'info');
+        console.log('✅ 已切换到临时播放队列');
     }
     
     /**
@@ -358,6 +469,110 @@ class LocalPlaylistManager {
     }
     
     /**
+     * 检测浏览器类型和版本
+     */
+    detectBrowser() {
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform;
+
+        let browser = 'Unknown';
+        let os = 'Unknown';
+
+        // 检测操作系统
+        if (platform.indexOf('Win') !== -1) {
+            os = 'Windows';
+        } else if (platform.indexOf('Mac') !== -1) {
+            os = 'macOS';
+        } else if (platform.indexOf('Linux') !== -1) {
+            os = 'Linux';
+        }
+
+        // 检测浏览器
+        if (userAgent.indexOf('Chrome') !== -1 && userAgent.indexOf('Edg') === -1) {
+            browser = 'Chrome';
+        } else if (userAgent.indexOf('Edg') !== -1) {
+            browser = 'Edge';
+        } else if (userAgent.indexOf('Firefox') !== -1) {
+            browser = 'Firefox';
+        } else if (userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1) {
+            browser = 'Safari';
+        }
+
+        return { browser, os };
+    }
+
+    /**
+     * 获取localStorage存储路径
+     */
+    getLocalStoragePath() {
+        const { browser, os } = this.detectBrowser();
+        const domain = window.location.hostname;
+
+        let path = '';
+
+        switch (browser) {
+            case 'Chrome':
+                switch (os) {
+                    case 'Windows':
+                        path = `%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Local Storage\\leveldb\\`;
+                        break;
+                    case 'macOS':
+                        path = `~/Library/Application Support/Google/Chrome/Default/Local Storage/leveldb/`;
+                        break;
+                    case 'Linux':
+                        path = `~/.config/google-chrome/Default/Local Storage/leveldb/`;
+                        break;
+                }
+                break;
+
+            case 'Edge':
+                switch (os) {
+                    case 'Windows':
+                        path = `%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Local Storage\\leveldb\\`;
+                        break;
+                    case 'macOS':
+                        path = `~/Library/Application Support/Microsoft Edge/Default/Local Storage/leveldb/`;
+                        break;
+                    case 'Linux':
+                        path = `~/.config/microsoft-edge/Default/Local Storage/leveldb/`;
+                        break;
+                }
+                break;
+
+            case 'Firefox':
+                switch (os) {
+                    case 'Windows':
+                        path = `%APPDATA%\\Mozilla\\Firefox\\Profiles\\[profile]\\webappsstore.sqlite`;
+                        break;
+                    case 'macOS':
+                        path = `~/Library/Application Support/Firefox/Profiles/[profile]/webappsstore.sqlite`;
+                        break;
+                    case 'Linux':
+                        path = `~/.mozilla/firefox/[profile]/webappsstore.sqlite`;
+                        break;
+                }
+                break;
+
+            case 'Safari':
+                if (os === 'macOS') {
+                    path = `~/Library/Safari/LocalStorage/${domain}_0.localstorage`;
+                }
+                break;
+
+            default:
+                path = '浏览器数据目录/Local Storage/';
+        }
+
+        return {
+            browser,
+            os,
+            path,
+            domain,
+            storageKey: 'streamly-local-playlists'
+        };
+    }
+
+    /**
      * 显示通知
      */
     showNotification(message, type = 'info') {
@@ -367,7 +582,7 @@ class LocalPlaylistManager {
             warning: '#ff9800',
             error: '#f44336'
         };
-        
+
         const notification = document.createElement('div');
         notification.style.cssText = `
             position: fixed;
@@ -383,9 +598,9 @@ class LocalPlaylistManager {
             animation: slideInRight 0.3s ease-out;
         `;
         notification.textContent = message;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.style.animation = 'slideOutRight 0.3s ease-in';
             setTimeout(() => {
@@ -442,22 +657,176 @@ function switchPlaylist(value) {
 }
 
 function showCreatePlaylistDialog() {
+    console.log('🔧 显示创建播放列表对话框...');
     const modal = document.getElementById('quickCreatePlaylistModal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
-}
 
-function closeQuickCreateDialog() {
-    const modal = document.getElementById('quickCreatePlaylistModal');
     if (modal) {
-        modal.style.display = 'none';
-        
+        // 强制隐藏footer区域
+        const footer = document.querySelector('footer');
+        if (footer) {
+            footer.style.display = 'none';
+            footer.style.visibility = 'hidden';
+            footer.style.opacity = '0';
+            footer.style.zIndex = '-1';
+            console.log('✅ 已隐藏footer区域');
+        }
+
+        // 使用最高z-index显示模态框
+        modal.style.cssText = `
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 2147483647 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+        `;
+
+        // 确保模态框内容可见
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.cssText = `
+                background: rgba(15, 15, 35, 0.98) !important;
+                border: 1px solid rgba(79, 195, 247, 0.3) !important;
+                border-radius: 15px !important;
+                width: 500px !important;
+                max-width: calc(100vw - 40px) !important;
+                max-height: calc(100vh - 40px) !important;
+                overflow: hidden !important;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+                position: relative !important;
+                z-index: 2147483647 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                margin-top: 20px !important;
+                margin-bottom: 20px !important;
+            `;
+
+            // 设置模态框头部
+            const modalHeader = modalContent.querySelector('.modal-header');
+            if (modalHeader) {
+                modalHeader.style.cssText = `
+                    flex-shrink: 0 !important;
+                    padding: 12px 20px !important;
+                    border-bottom: 1px solid rgba(79, 195, 247, 0.2) !important;
+                `;
+            }
+
+            // 确保模态框主体可以滚动
+            const modalBody = modalContent.querySelector('.modal-body');
+            if (modalBody) {
+                modalBody.style.cssText = `
+                    flex: 1 !important;
+                    overflow-y: auto !important;
+                    padding: 15px 20px !important;
+                    max-height: none !important;
+                    padding-bottom: 20px !important;
+                `;
+            }
+
+            // 设置模态框底部
+            const modalFooter = modalContent.querySelector('.modal-footer');
+            if (modalFooter) {
+                modalFooter.style.cssText = `
+                    flex-shrink: 0 !important;
+                    padding: 12px 20px !important;
+                    border-top: 1px solid rgba(79, 195, 247, 0.2) !important;
+                `;
+            }
+        }
+
         // 清空输入框
         const nameInput = document.getElementById('quickPlaylistName');
         const descInput = document.getElementById('quickPlaylistDescription');
         if (nameInput) nameInput.value = '';
         if (descInput) descInput.value = '';
+
+        // 更新存储路径信息
+        updateStoragePathInfo();
+
+        // 确保弹窗底部内容可见
+        setTimeout(() => {
+            if (window.ensureModalBottomVisible) {
+                window.ensureModalBottomVisible();
+            }
+        }, 100);
+
+        console.log('✅ 模态框已强制显示');
+    } else {
+        console.error('❌ 未找到模态框元素');
+        alert('错误：未找到创建播放列表对话框');
+    }
+}
+
+function closeQuickCreateDialog() {
+    console.log('🔧 关闭创建播放列表对话框...');
+    const modal = document.getElementById('quickCreatePlaylistModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.style.visibility = 'hidden';
+        modal.style.opacity = '0';
+
+
+
+        // 清空输入框
+        const nameInput = document.getElementById('quickPlaylistName');
+        const descInput = document.getElementById('quickPlaylistDescription');
+        if (nameInput) nameInput.value = '';
+        if (descInput) descInput.value = '';
+
+        // 恢复footer显示
+        const footer = document.querySelector('footer');
+        if (footer) {
+            footer.style.display = 'flex';
+            footer.style.visibility = 'visible';
+            footer.style.opacity = '1';
+            footer.style.zIndex = '1000';
+            footer.style.minHeight = '300px';
+            footer.style.height = 'auto';
+            console.log('✅ 已恢复footer区域显示');
+        }
+
+        console.log('✅ 模态框已关闭，播放区已恢复');
+    } else {
+        console.error('❌ 未找到模态框元素');
+    }
+}
+
+/**
+ * 恢复播放区显示
+ */
+function restoreFooterDisplay() {
+    console.log('🔧 恢复播放区显示...');
+
+    const footer = document.querySelector('footer');
+    if (footer) {
+        // 确保footer可见并恢复正确的高度
+        footer.style.display = 'flex';
+        footer.style.visibility = 'visible';
+        footer.style.opacity = '1';
+        footer.style.minHeight = '300px';
+        footer.style.height = 'auto';
+        footer.style.position = 'relative';
+        footer.style.zIndex = '1000';
+
+        console.log('✅ 播放区已恢复显示，高度已修复');
+    } else {
+        console.error('❌ 未找到footer元素');
+    }
+
+    // 同时检查并恢复其他可能被隐藏的元素
+    const body = document.body;
+    if (body) {
+        // 移除可能的overflow hidden
+        body.style.overflow = '';
     }
 }
 
@@ -770,6 +1139,70 @@ window.forceInitPlaylistManager = function() {
     } catch (e) {
         console.error('❌ 强制初始化失败:', e);
         return { error: e.message };
+    }
+};
+
+// 调试模态框功能
+window.debugModal = function() {
+    console.log('=== 模态框调试信息 ===');
+
+    const modal = document.getElementById('quickCreatePlaylistModal');
+    console.log('quickCreatePlaylistModal 元素:', modal);
+
+    if (modal) {
+        console.log('模态框样式:');
+        console.log('  display:', modal.style.display);
+        console.log('  visibility:', modal.style.visibility);
+        console.log('  opacity:', modal.style.opacity);
+        console.log('  zIndex:', modal.style.zIndex);
+
+        const computedStyle = window.getComputedStyle(modal);
+        console.log('计算样式:');
+        console.log('  display:', computedStyle.display);
+        console.log('  visibility:', computedStyle.visibility);
+        console.log('  opacity:', computedStyle.opacity);
+        console.log('  zIndex:', computedStyle.zIndex);
+    }
+
+    // 测试显示函数
+    console.log('showCreatePlaylistDialog 函数:', typeof showCreatePlaylistDialog);
+    console.log('closeQuickCreateDialog 函数:', typeof closeQuickCreateDialog);
+
+    return {
+        modalExists: !!modal,
+        showFunction: typeof showCreatePlaylistDialog,
+        closeFunction: typeof closeQuickCreateDialog
+    };
+};
+
+// 强制显示模态框的函数
+window.forceShowModal = function() {
+    const modal = document.getElementById('quickCreatePlaylistModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        modal.style.zIndex = '2147483647';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.right = '0';
+        modal.style.bottom = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+
+        // 强制设置模态框内容的z-index
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.zIndex = '2147483647';
+            modalContent.style.position = 'relative';
+        }
+
+        console.log('✅ 强制显示模态框');
+        return true;
+    } else {
+        console.error('❌ 模态框不存在');
+        return false;
     }
 };
 

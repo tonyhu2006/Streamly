@@ -61,6 +61,62 @@ function toggleSearchClose() {
 function toggleMenu(which) {
   let menu = "#" + which + "Window";
   let shadow = "#" + which + "Shadow";
+
+  // 特殊处理设置窗口，使其与其他弹窗位置一致
+  if (which === "settings") {
+    const settingsWindow = document.getElementById('settingsWindow');
+    if (settingsWindow) {
+      const isVisible = settingsWindow.style.display !== 'none';
+
+      if (isVisible) {
+        // 关闭设置窗口
+        settingsWindow.style.display = 'none';
+        $(shadow).css("display", "none");
+
+        // 恢复footer显示
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.style.display = 'flex';
+          footer.style.visibility = 'visible';
+          footer.style.opacity = '1';
+          footer.style.zIndex = '1000';
+          footer.style.minHeight = '300px';
+          footer.style.height = 'auto';
+        }
+      } else {
+        // 显示设置窗口 - 使用与创建新播放列表弹窗相同的定位逻辑
+
+        // 强制隐藏footer区域
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.style.display = 'none';
+          footer.style.visibility = 'hidden';
+          footer.style.opacity = '0';
+          footer.style.zIndex = '-1';
+        }
+
+        // 设置窗口样式，使其与创建新播放列表弹窗位置一致
+        settingsWindow.style.cssText = `
+          display: block !important;
+          position: fixed !important;
+          top: 20px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          z-index: 2147483647 !important;
+          width: 500px !important;
+          max-width: calc(100vw - 40px) !important;
+          max-height: calc(100vh - 40px) !important;
+          margin-top: 20px !important;
+          margin-bottom: 20px !important;
+        `;
+
+        $(shadow).css("display", "block");
+      }
+      return;
+    }
+  }
+
+  // 原有的通用逻辑
   if ($(menu).css("display") !== "none") {
     state = "none";
   }

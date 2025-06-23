@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模态框层级测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(79, 195, 247, 0.3);
+        }
+
+        .test-button {
+            background: #4fc3f7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .test-button:hover {
+            background: #29b6f6;
+        }
+
+        .mock-player {
+            width: 100%;
+            height: 300px;
+            background: #000;
+            border: 2px solid #4fc3f7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .mock-player-text {
+            color: white;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .z-index-info {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+        }
+
+        .status.warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 模态框层级修复测试</h1>
+        
+        <div class="test-section">
+            <h2>📊 当前状态检查</h2>
+            <button class="test-button" onclick="checkCurrentStatus()">检查当前状态</button>
+            <div id="statusResult" class="status" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎬 模拟播放器区域</h2>
+            <div class="mock-player" id="mockPlayer">
+                <div class="mock-player-text">
+                    🎥 模拟播放器区域<br>
+                    (高z-index: 1000)
+                </div>
+            </div>
+            <div class="z-index-info">
+                当前播放器z-index: <span id="playerZIndex">1000</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 测试功能</h2>
+            <button class="test-button" onclick="testShowModal()">测试显示模态框</button>
+            <button class="test-button" onclick="testForceModal()">强制显示模态框</button>
+            <button class="test-button" onclick="checkZIndexes()">检查所有z-index</button>
+            <button class="test-button" onclick="resetPlayerZIndex()">重置播放器z-index</button>
+            <div id="testResult" class="status" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 z-index 层级信息</h2>
+            <div id="zIndexInfo" class="z-index-info">
+                点击"检查所有z-index"按钮查看详细信息
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkCurrentStatus() {
+            const statusDiv = document.getElementById('statusResult');
+            const modal = document.getElementById('quickCreatePlaylistModal');
+            
+            let status = '';
+            let className = 'success';
+            
+            if (modal) {
+                status = '✅ 找到模态框元素<br>';
+                status += `模态框当前显示状态: ${modal.style.display || '未设置'}<br>`;
+                status += `模态框z-index: ${modal.style.zIndex || window.getComputedStyle(modal).zIndex}<br>`;
+                
+                if (typeof showCreatePlaylistDialog === 'function') {
+                    status += '✅ showCreatePlaylistDialog 函数可用<br>';
+                } else {
+                    status += '❌ showCreatePlaylistDialog 函数不可用<br>';
+                    className = 'error';
+                }
+                
+                if (typeof window.forceShowModal === 'function') {
+                    status += '✅ forceShowModal 函数可用';
+                } else {
+                    status += '❌ forceShowModal 函数不可用';
+                    className = 'error';
+                }
+            } else {
+                status = '❌ 未找到模态框元素';
+                className = 'error';
+            }
+            
+            statusDiv.innerHTML = status;
+            statusDiv.className = `status ${className}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function testShowModal() {
+            const resultDiv = document.getElementById('testResult');
+            
+            try {
+                if (typeof showCreatePlaylistDialog === 'function') {
+                    showCreatePlaylistDialog();
+                    resultDiv.innerHTML = '✅ 调用 showCreatePlaylistDialog() 成功';
+                    resultDiv.className = 'status success';
+                } else {
+                    resultDiv.innerHTML = '❌ showCreatePlaylistDialog 函数不存在';
+                    resultDiv.className = 'status error';
+                }
+            } catch (e) {
+                resultDiv.innerHTML = `❌ 调用失败: ${e.message}`;
+                resultDiv.className = 'status error';
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+
+        function testForceModal() {
+            const resultDiv = document.getElementById('testResult');
+            
+            try {
+                if (typeof window.forceShowModal === 'function') {
+                    const success = window.forceShowModal();
+                    if (success) {
+                        resultDiv.innerHTML = '✅ 强制显示模态框成功';
+                        resultDiv.className = 'status success';
+                    } else {
+                        resultDiv.innerHTML = '❌ 强制显示模态框失败';
+                        resultDiv.className = 'status error';
+                    }
+                } else {
+                    resultDiv.innerHTML = '❌ forceShowModal 函数不存在';
+                    resultDiv.className = 'status error';
+                }
+            } catch (e) {
+                resultDiv.innerHTML = `❌ 调用失败: ${e.message}`;
+                resultDiv.className = 'status error';
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+
+        function checkZIndexes() {
+            const infoDiv = document.getElementById('zIndexInfo');
+            const elements = [
+                '#quickCreatePlaylistModal',
+                '#playlistInterface',
+                '#youtubeContainer',
+                '#playerStatus',
+                '#mockPlayer'
+            ];
+            
+            let info = '<strong>当前z-index层级:</strong><br><br>';
+            
+            elements.forEach(selector => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    const computed = window.getComputedStyle(element);
+                    const inline = element.style.zIndex;
+                    info += `${selector}:<br>`;
+                    info += `  内联样式: ${inline || '未设置'}<br>`;
+                    info += `  计算样式: ${computed.zIndex}<br>`;
+                    info += `  显示状态: ${computed.display}<br><br>`;
+                } else {
+                    info += `${selector}: 元素不存在<br><br>`;
+                }
+            });
+            
+            infoDiv.innerHTML = info;
+        }
+
+        function resetPlayerZIndex() {
+            const mockPlayer = document.getElementById('mockPlayer');
+            const playerZIndexSpan = document.getElementById('playerZIndex');
+            
+            mockPlayer.style.zIndex = '1000';
+            playerZIndexSpan.textContent = '1000';
+            
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.innerHTML = '✅ 播放器z-index已重置为1000';
+            resultDiv.className = 'status success';
+            resultDiv.style.display = 'block';
+        }
+
+        // 页面加载时检查状态
+        window.addEventListener('load', function() {
+            setTimeout(checkCurrentStatus, 1000);
+        });
+    </script>
+</body>
+</html>

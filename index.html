@@ -67,7 +67,12 @@
     </h1>
     <div id="inputBoxContainer">
       <form action="javascript:input(0);" method="get" id="searchForm">
-        <input type="text" id="inputBox" placeholder="🎬 搜索视频、电影、纪录片或频道..." />
+        <div class="search-input-wrapper">
+          <input type="text" id="inputBox" placeholder="🎬 搜索视频、电影、纪录片或频道..." />
+          <button type="submit" id="searchButton" class="search-btn" title="开始搜索">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
       </form>
       <div id="searchProgress">
         <div class="spinner">
@@ -355,7 +360,7 @@
     <div id="quickCreatePlaylistModal" class="modal" style="display: none;" onclick="if(event.target === this) { closeQuickCreateDialog(); }">
       <div class="modal-content" onclick="event.stopPropagation();">
         <div class="modal-header">
-          <h3>创建新播放列表</h3>
+          <h3>📋 创建新播放列表</h3>
           <button class="modal-close" onclick="closeQuickCreateDialog();">×</button>
         </div>
         <div class="modal-body">
@@ -363,9 +368,68 @@
             <input type="text" id="quickPlaylistName" placeholder="播放列表名称..." maxlength="50">
             <textarea id="quickPlaylistDescription" placeholder="描述（可选）..." rows="2" maxlength="200"></textarea>
           </div>
+
+          <!-- 存储信息区域 -->
+          <div class="storage-info-section">
+            <div class="storage-info-header" onclick="toggleStorageInfo();">
+              <h4>📍 存储位置信息</h4>
+              <button type="button" class="info-toggle-btn">
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+
+            <div id="storageInfoContent" class="storage-info-content" style="display: none;">
+              <!-- 存储路径信息 -->
+              <div class="storage-path-info">
+                <h5>💾 本地存储路径</h5>
+                <div class="path-display">
+                  <code id="storagePath">检测中...</code>
+                  <button type="button" class="copy-path-btn" onclick="copyStoragePath();" title="复制路径">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                </div>
+                <div class="storage-key-info">
+                  <small><strong>存储键名:</strong> <code>streamly-local-playlists</code></small>
+                </div>
+              </div>
+
+              <!-- 存储限制信息 -->
+              <div class="storage-limits">
+                <h5>📊 存储限制</h5>
+                <ul>
+                  <li><strong>localStorage容量限制:</strong> 通常为 5-10MB</li>
+                  <li><strong>数据持久性:</strong> 除非用户手动清除或使用隐私模式，否则数据永久保存</li>
+                  <li><strong>域名隔离:</strong> 只能在相同域名下访问数据</li>
+                </ul>
+              </div>
+
+              <!-- 隐私和安全信息 -->
+              <div class="privacy-security">
+                <h5>🔒 隐私和安全</h5>
+                <ul class="security-list">
+                  <li class="security-good">✅ 数据完全存储在用户本地浏览器中</li>
+                  <li class="security-good">✅ 不会上传到任何服务器</li>
+                  <li class="security-good">✅ 只有当前网站可以访问这些数据</li>
+                  <li class="security-warning">⚠️ 清除浏览器数据会删除所有播放列表</li>
+                  <li class="security-warning">⚠️ 隐私模式下的数据在关闭浏览器后会丢失</li>
+                </ul>
+              </div>
+
+              <!-- 备份建议 -->
+              <div class="backup-suggestion">
+                <h5>💾 备份建议</h5>
+                <p>建议定期导出播放列表数据进行备份，可通过浏览器开发者工具或应用内导出功能实现。</p>
+                <button type="button" class="backup-btn" onclick="showBackupInstructions();">
+                  <i class="fas fa-download"></i> 查看备份方法
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="action-button" onclick="createQuickPlaylist();">创建</button>
+          <button class="action-button" onclick="createQuickPlaylist();">
+            <i class="fas fa-plus"></i> 创建播放列表
+          </button>
           <button class="action-button secondary" onclick="closeQuickCreateDialog();">取消</button>
         </div>
       </div>
@@ -492,6 +556,9 @@
   <!-- 本地播放列表管理器 -->
   <script src="res/js/local-playlist-manager.js" type="text/javascript"></script>
 
+  <!-- 稳定窗口管理器 -->
+  <script src="res/js/stable-window-manager.js" type="text/javascript"></script>
+
   <!-- 现代化界面增强脚本 -->
   <script>
     // 页面加载完成后的初始化
@@ -571,6 +638,602 @@
     // 全局函数，供其他脚本调用
     window.modernUI = {
       hideWelcomeMessage: hideWelcomeMessage
+    };
+
+    // 测试模态框显示函数
+    function testShowModal() {
+      console.log('🔧 测试显示模态框...');
+
+      // 首先隐藏footer
+      const footer = document.querySelector('footer');
+      if (footer) {
+        footer.style.display = 'none';
+        footer.style.visibility = 'hidden';
+        footer.style.opacity = '0';
+        footer.style.zIndex = '-1';
+        console.log('✅ 已隐藏footer区域');
+      }
+
+      const modal = document.getElementById('quickCreatePlaylistModal');
+
+      if (modal) {
+        console.log('✅ 找到模态框元素');
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        modal.style.zIndex = '2147483647';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.background = 'rgba(0, 0, 0, 0.8)';
+
+        console.log('✅ 模态框样式已设置');
+
+        // 清空输入框
+        const nameInput = document.getElementById('quickPlaylistName');
+        const descInput = document.getElementById('quickPlaylistDescription');
+        if (nameInput) nameInput.value = '';
+        if (descInput) descInput.value = '';
+
+        console.log('✅ 输入框已清空');
+      } else {
+        console.error('❌ 未找到 quickCreatePlaylistModal 元素');
+        alert('未找到模态框元素！');
+      }
+    }
+
+    // 关闭模态框函数
+    function closeQuickCreateDialog() {
+      console.log('🔧 关闭模态框...');
+      const modal = document.getElementById('quickCreatePlaylistModal');
+      if (modal) {
+        modal.style.display = 'none';
+
+        // 恢复播放区显示
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.style.display = 'flex';
+          footer.style.visibility = 'visible';
+          footer.style.opacity = '1';
+          footer.style.minHeight = '300px';
+          footer.style.height = 'auto';
+          footer.style.zIndex = '1000';
+
+          console.log('✅ 播放区已恢复显示');
+        }
+
+        console.log('✅ 模态框已关闭');
+      }
+    }
+
+    // 创建播放列表函数
+    function createQuickPlaylist() {
+      console.log('🔧 创建播放列表...');
+      const nameInput = document.getElementById('quickPlaylistName');
+
+      if (nameInput && nameInput.value.trim()) {
+        alert('播放列表 "' + nameInput.value + '" 创建成功！');
+        closeQuickCreateDialog();
+      } else {
+        alert('请输入播放列表名称！');
+      }
+    }
+
+    // 更新存储路径信息
+    function updateStoragePathInfo() {
+      if (window.localPlaylistManager) {
+        const storageInfo = window.localPlaylistManager.getLocalStoragePath();
+        const pathElement = document.getElementById('storagePath');
+
+        if (pathElement) {
+          pathElement.textContent = storageInfo.path || '无法检测路径';
+          pathElement.title = `浏览器: ${storageInfo.browser} | 系统: ${storageInfo.os} | 域名: ${storageInfo.domain}`;
+        }
+      }
+    }
+
+    // 切换存储信息显示
+    function toggleStorageInfo() {
+      console.log('🔧 切换存储信息显示...');
+
+      const content = document.getElementById('storageInfoContent');
+      const toggleBtn = document.querySelector('.info-toggle-btn');
+
+      console.log('📋 找到元素:', {
+        content: !!content,
+        toggleBtn: !!toggleBtn,
+        currentDisplay: content ? content.style.display : 'null'
+      });
+
+      if (content && toggleBtn) {
+        const isHidden = content.style.display === 'none' || content.style.display === '';
+
+        if (isHidden) {
+          console.log('📖 显示存储信息内容');
+          content.style.display = 'block';
+          content.style.visibility = 'visible';
+          content.style.opacity = '1';
+          content.style.maxHeight = '1000px';
+          toggleBtn.classList.add('expanded');
+
+          // 检查内容是否完整显示并确保最后一项可见
+          setTimeout(() => {
+            const allItems = content.querySelectorAll('li');
+            console.log('📋 存储信息项目数量:', allItems.length);
+
+            const lastItem = allItems[allItems.length - 1];
+            const modalBody = content.closest('.modal-body');
+
+            if (lastItem && modalBody) {
+              // 确保有足够的底部间距
+              const storageSection = content.closest('.storage-info-section');
+              if (storageSection) {
+                storageSection.style.paddingBottom = '20px';
+              }
+
+              // 检查最后一项是否完全可见
+              setTimeout(() => {
+                const rect = lastItem.getBoundingClientRect();
+                const modalRect = modalBody.getBoundingClientRect();
+                const isFullyVisible = rect.bottom <= (modalRect.bottom - 10); // 留10px缓冲
+
+                console.log('📋 最后一项信息:', {
+                  text: lastItem.textContent,
+                  fullyVisible: isFullyVisible,
+                  itemBottom: rect.bottom,
+                  modalBottom: modalRect.bottom,
+                  buffer: modalRect.bottom - rect.bottom
+                });
+
+                // 如果最后一项不完全可见，调整滚动位置
+                if (!isFullyVisible) {
+                  const scrollOffset = rect.bottom - modalRect.bottom + 20; // 额外20px缓冲
+                  modalBody.scrollTop += scrollOffset;
+                  console.log('📜 调整滚动位置:', scrollOffset);
+                }
+              }, 200);
+            }
+          }, 100);
+        } else {
+          console.log('📖 隐藏存储信息内容');
+          content.style.display = 'none';
+          content.style.visibility = 'hidden';
+          content.style.opacity = '0';
+          toggleBtn.classList.remove('expanded');
+        }
+
+        console.log('✅ 切换完成，当前状态:', content.style.display);
+      } else {
+        console.error('❌ 未找到必要的元素');
+        if (!content) console.error('❌ 未找到 storageInfoContent 元素');
+        if (!toggleBtn) console.error('❌ 未找到 info-toggle-btn 元素');
+      }
+    }
+
+    // 复制存储路径
+    function copyStoragePath() {
+      const pathElement = document.getElementById('storagePath');
+      if (pathElement) {
+        const path = pathElement.textContent;
+
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(path).then(() => {
+            showCopyFeedback('路径已复制到剪贴板');
+          }).catch(() => {
+            fallbackCopyText(path);
+          });
+        } else {
+          fallbackCopyText(path);
+        }
+      }
+    }
+
+    // 备用复制方法
+    function fallbackCopyText(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+
+      try {
+        document.execCommand('copy');
+        showCopyFeedback('路径已复制到剪贴板');
+      } catch (err) {
+        showCopyFeedback('复制失败，请手动复制', 'error');
+      }
+
+      document.body.removeChild(textArea);
+    }
+
+    // 显示复制反馈
+    function showCopyFeedback(message, type = 'success') {
+      const feedback = document.createElement('div');
+      feedback.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: ${type === 'success' ? '#4caf50' : '#f44336'};
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        z-index: 100001;
+        font-size: 12px;
+        animation: fadeInOut 2s ease;
+      `;
+      feedback.textContent = message;
+
+      document.body.appendChild(feedback);
+
+      setTimeout(() => {
+        if (document.body.contains(feedback)) {
+          document.body.removeChild(feedback);
+        }
+      }, 2000);
+    }
+
+    // 显示备份说明
+    function showBackupInstructions() {
+      const instructions = `
+📋 播放列表备份方法：
+
+方法一：通过开发者工具
+1. 按 F12 打开开发者工具
+2. 转到 Application 标签页
+3. 在左侧找到 Local Storage
+4. 展开网站域名
+5. 找到 'streamly-local-playlists' 键
+6. 复制其值并保存到文件
+
+方法二：通过控制台
+1. 按 F12 打开开发者工具
+2. 转到 Console 标签页
+3. 输入：localStorage.getItem('streamly-local-playlists')
+4. 复制输出结果并保存
+
+恢复方法：
+将备份的数据通过控制台输入：
+localStorage.setItem('streamly-local-playlists', '备份数据')
+然后刷新页面即可。
+      `;
+
+      alert(instructions);
+    }
+
+    // 滚动到存储信息底部的函数
+    function scrollToStorageBottom() {
+      const content = document.getElementById('storageInfoContent');
+      const modalBody = content ? content.closest('.modal-body') : null;
+
+      if (modalBody) {
+        // 滚动到底部
+        modalBody.scrollTop = modalBody.scrollHeight;
+        console.log('📜 已滚动到存储信息底部');
+      }
+    }
+
+    // 确保弹窗底部内容可见
+    function ensureModalBottomVisible() {
+      const modal = document.getElementById('quickCreatePlaylistModal');
+      const modalContent = modal ? modal.querySelector('.modal-content') : null;
+      const modalFooter = modalContent ? modalContent.querySelector('.modal-footer') : null;
+
+      if (modal && modalContent && modalFooter) {
+        // 检查弹窗是否超出屏幕高度
+        const modalRect = modalContent.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        if (modalRect.bottom > viewportHeight - 20) {
+          // 如果弹窗底部超出屏幕，调整位置
+          modal.style.alignItems = 'flex-start';
+          modal.style.paddingTop = '20px';
+          modal.style.paddingBottom = '20px';
+
+          console.log('✅ 已调整弹窗位置以确保底部可见');
+        }
+      }
+    }
+
+    // 全局调试函数
+    window.debugStorageInfo = function() {
+      const content = document.getElementById('storageInfoContent');
+      const modalBody = content ? content.closest('.modal-body') : null;
+
+      if (content && modalBody) {
+        const allItems = content.querySelectorAll('li');
+        const lastItem = allItems[allItems.length - 1];
+
+        console.log('=== 存储信息调试 ===');
+        console.log('总项目数:', allItems.length);
+        console.log('内容高度:', content.scrollHeight);
+        console.log('模态框主体高度:', modalBody.clientHeight);
+        console.log('滚动位置:', modalBody.scrollTop);
+        console.log('最大滚动:', modalBody.scrollHeight - modalBody.clientHeight);
+
+        if (lastItem) {
+          console.log('最后一项文本:', lastItem.textContent);
+          const rect = lastItem.getBoundingClientRect();
+          const modalRect = modalBody.getBoundingClientRect();
+          console.log('最后一项可见:', rect.bottom <= modalRect.bottom);
+        }
+
+        return {
+          totalItems: allItems.length,
+          contentHeight: content.scrollHeight,
+          modalHeight: modalBody.clientHeight,
+          scrollTop: modalBody.scrollTop,
+          maxScroll: modalBody.scrollHeight - modalBody.clientHeight,
+          lastItemText: lastItem ? lastItem.textContent : 'none'
+        };
+      }
+
+      return null;
+    };
+
+    // 强制显示所有内容的函数
+    window.forceShowAllStorageInfo = function() {
+      const modal = document.getElementById('quickCreatePlaylistModal');
+      const modalContent = modal ? modal.querySelector('.modal-content') : null;
+      const modalBody = modalContent ? modalContent.querySelector('.modal-body') : null;
+
+      if (modalBody) {
+        modalBody.style.maxHeight = '80vh';
+        modalBody.style.overflowY = 'auto';
+        console.log('✅ 已强制设置模态框主体高度');
+
+        // 展开存储信息
+        const content = document.getElementById('storageInfoContent');
+        if (content && content.style.display === 'none') {
+          toggleStorageInfo();
+        }
+
+        // 滚动到底部
+        setTimeout(() => {
+          scrollToStorageBottom();
+        }, 300);
+      }
+    };
+
+    // 全局恢复播放区函数
+    window.restoreFooter = function() {
+      console.log('🔧 全局恢复播放区...');
+      const footer = document.querySelector('footer');
+
+      if (footer) {
+        footer.style.display = 'flex';
+        footer.style.visibility = 'visible';
+        footer.style.opacity = '1';
+        footer.style.position = 'relative';
+        footer.style.zIndex = '1000';
+        footer.style.minHeight = '300px';
+        footer.style.height = 'auto';
+
+        console.log('✅ 播放区已全局恢复');
+        return true;
+      } else {
+        console.error('❌ 未找到footer元素');
+        return false;
+      }
+    };
+
+    // 检查播放区状态的函数
+    window.checkFooterStatus = function() {
+      const footer = document.querySelector('footer');
+
+      if (footer) {
+        const computedStyle = window.getComputedStyle(footer);
+        const status = {
+          exists: true,
+          display: footer.style.display || computedStyle.display,
+          visibility: footer.style.visibility || computedStyle.visibility,
+          opacity: footer.style.opacity || computedStyle.opacity,
+          zIndex: footer.style.zIndex || computedStyle.zIndex
+        };
+
+        console.log('📊 播放区状态:', status);
+        return status;
+      } else {
+        console.error('❌ 未找到footer元素');
+        return { exists: false };
+      }
+    };
+
+    // 强制修复播放区高度的函数
+    window.fixFooterHeight = function() {
+      console.log('🔧 强制修复播放区高度...');
+      const footer = document.querySelector('footer');
+
+      if (footer) {
+        // 移除所有可能的高度限制
+        footer.style.height = '';
+        footer.style.maxHeight = '';
+        footer.style.minHeight = '300px';
+
+        // 确保正确的显示属性
+        footer.style.display = 'flex';
+        footer.style.visibility = 'visible';
+        footer.style.opacity = '1';
+        footer.style.position = 'relative';
+        footer.style.zIndex = '1000';
+
+        // 强制重新计算布局
+        footer.offsetHeight;
+
+        console.log('✅ 播放区高度已强制修复');
+        console.log('📏 当前高度:', footer.offsetHeight + 'px');
+        return footer.offsetHeight;
+      } else {
+        console.error('❌ 未找到footer元素');
+        return 0;
+      }
+    };
+
+    // 页面加载完成后自动修复footer高度
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        fixFooterHeight();
+      }, 1000);
+
+      // 初始化搜索按钮功能
+      initializeSearchButton();
+    });
+
+    // 初始化搜索按钮功能
+    function initializeSearchButton() {
+      const searchBtn = document.getElementById('searchButton');
+      const inputBox = document.getElementById('inputBox');
+
+      if (searchBtn && inputBox) {
+        // 点击搜索按钮时执行搜索
+        searchBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          performSearch();
+        });
+
+        // 回车键搜索
+        inputBox.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+          }
+        });
+
+        // 输入框获得焦点时搜索按钮高亮
+        inputBox.addEventListener('focus', function() {
+          searchBtn.style.background = 'linear-gradient(135deg, #29b6f6, #0288d1)';
+          searchBtn.style.boxShadow = '0 4px 15px rgba(79, 195, 247, 0.5)';
+        });
+
+        // 输入框失去焦点时搜索按钮恢复
+        inputBox.addEventListener('blur', function() {
+          searchBtn.style.background = 'linear-gradient(135deg, #4fc3f7, #29b6f6)';
+          searchBtn.style.boxShadow = '0 2px 8px rgba(79, 195, 247, 0.3)';
+        });
+
+        console.log('✅ 搜索按钮功能已初始化');
+      }
+    }
+
+    // 执行搜索的函数
+    function performSearch() {
+      const inputBox = document.getElementById('inputBox');
+      const searchBtn = document.getElementById('searchButton');
+
+      if (inputBox && inputBox.value.trim()) {
+        console.log('🔍 开始搜索:', inputBox.value.trim());
+
+        // 添加搜索按钮的加载动画
+        if (searchBtn) {
+          searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          searchBtn.style.background = 'linear-gradient(135deg, #ff9800, #f57c00)';
+        }
+
+        // 调用原有的搜索函数
+        if (typeof input === 'function') {
+          input(0);
+        }
+
+        // 恢复搜索按钮
+        setTimeout(() => {
+          if (searchBtn) {
+            searchBtn.innerHTML = '<i class="fas fa-search"></i>';
+            searchBtn.style.background = 'linear-gradient(135deg, #4fc3f7, #29b6f6)';
+          }
+        }, 1000);
+      } else {
+        // 输入框为空时的提示
+        if (inputBox) {
+          inputBox.focus();
+          inputBox.style.borderColor = '#ff5722';
+          inputBox.style.boxShadow = '0 0 10px rgba(255, 87, 34, 0.3)';
+
+          setTimeout(() => {
+            inputBox.style.borderColor = 'rgba(79, 195, 247, 0.3)';
+            inputBox.style.boxShadow = '';
+          }, 2000);
+        }
+
+        console.log('⚠️ 请输入搜索关键词');
+      }
+    }
+
+    // 强制确保模态框在最顶层的函数
+    window.forceModalToTop = function() {
+      const modal = document.getElementById('quickCreatePlaylistModal');
+      if (modal) {
+        // 设置绝对最高的z-index
+        modal.style.zIndex = '2147483647';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.right = '0';
+        modal.style.bottom = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+
+        // 设置所有子元素的z-index
+        const allElements = modal.querySelectorAll('*');
+        allElements.forEach(element => {
+          element.style.zIndex = '2147483647';
+          element.style.position = 'relative';
+        });
+
+        console.log('✅ 模态框已强制置顶');
+        return true;
+      }
+      return false;
+    };
+
+    // 监听模态框显示，自动设置最高层级
+    function setupModalObserver() {
+      const modal = document.getElementById('quickCreatePlaylistModal');
+      if (modal) {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+              if (modal.style.display === 'flex' || modal.style.display === 'block') {
+                setTimeout(() => {
+                  forceModalToTop();
+                }, 10);
+              }
+            }
+          });
+        });
+
+        observer.observe(modal, {
+          attributes: true,
+          attributeFilter: ['style']
+        });
+
+        console.log('✅ 模态框观察器已设置');
+      }
+    }
+
+    // 页面加载完成后设置观察器
+    document.addEventListener('DOMContentLoaded', function() {
+      setupModalObserver();
+
+      // 立即检查并强制设置模态框层级
+      setTimeout(() => {
+        forceModalToTop();
+      }, 100);
+    });
+
+    // 重写showCreatePlaylistDialog函数以确保层级
+    const originalShowCreatePlaylistDialog = window.showCreatePlaylistDialog;
+    window.showCreatePlaylistDialog = function() {
+      if (originalShowCreatePlaylistDialog) {
+        originalShowCreatePlaylistDialog.apply(this, arguments);
+      }
+
+      // 强制设置最高层级
+      setTimeout(() => {
+        forceModalToTop();
+      }, 50);
     };
   </script>
 </body>
