@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamly 2.0 - 现代化界面演示</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 60px 0;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6, #81c784);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(79, 195, 247, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            color: #b0bec5;
+            margin-bottom: 40px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4fc3f7, #29b6f6, #81c784);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(79, 195, 247, 0.2);
+            border-color: rgba(79, 195, 247, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .feature-card h3 {
+            color: #4fc3f7;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .feature-card p {
+            color: #b0bec5;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            color: #e0e0e0;
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .feature-list li::before {
+            content: '✨';
+            position: absolute;
+            left: 0;
+        }
+        
+        .cta-section {
+            text-align: center;
+            padding: 60px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin: 40px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+            color: white;
+            border-color: #4fc3f7;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(79, 195, 247, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #4fc3f7;
+            border-color: #4fc3f7;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(79, 195, 247, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .comparison-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-card.old {
+            border-left: 4px solid #ff5252;
+        }
+        
+        .comparison-card.new {
+            border-left: 4px solid #4caf50;
+        }
+        
+        .comparison-card h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .old h4 {
+            color: #ff5252;
+        }
+        
+        .new h4 {
+            color: #4caf50;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feature-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .feature-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        .feature-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        
+        .feature-card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Streamly 2.0</h1>
+            <p>全新现代化界面 - 专业音乐流媒体播放器</p>
+        </div>
+        
+        <div class="demo-grid">
+            <div class="feature-card">
+                <i class="fas fa-palette feature-icon"></i>
+                <h3>现代化设计</h3>
+                <p>全新的视觉设计语言，采用现代化的渐变背景、毛玻璃效果和流畅动画。</p>
+                <ul class="feature-list">
+                    <li>动态渐变背景</li>
+                    <li>毛玻璃模糊效果</li>
+                    <li>流畅的过渡动画</li>
+                    <li>响应式设计</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-search feature-icon"></i>
+                <h3>智能搜索</h3>
+                <p>增强的搜索体验，支持实时搜索建议和智能结果排序。</p>
+                <ul class="feature-list">
+                    <li>实时搜索提示</li>
+                    <li>智能结果排序</li>
+                    <li>备用搜索机制</li>
+                    <li>快速响应</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-play feature-icon"></i>
+                <h3>高级播放器</h3>
+                <p>现代化的播放器界面，支持多种播放模式和高质量音频。</p>
+                <ul class="feature-list">
+                    <li>双播放器支持</li>
+                    <li>高质量音频</li>
+                    <li>可视化进度条</li>
+                    <li>智能播放控制</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-list feature-icon"></i>
+                <h3>播放列表管理</h3>
+                <p>强大的播放列表功能，支持拖拽排序、批量操作和智能推荐。</p>
+                <ul class="feature-list">
+                    <li>拖拽排序</li>
+                    <li>批量操作</li>
+                    <li>智能推荐</li>
+                    <li>云端同步</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="comparison">
+            <div class="comparison-card old">
+                <h4>🔴 旧版界面</h4>
+                <ul class="feature-list">
+                    <li>静态背景</li>
+                    <li>基础样式</li>
+                    <li>有限的交互</li>
+                    <li>简单布局</li>
+                </ul>
+            </div>
+            
+            <div class="comparison-card new">
+                <h4>🟢 新版界面</h4>
+                <ul class="feature-list">
+                    <li>动态渐变背景</li>
+                    <li>现代化设计</li>
+                    <li>丰富的交互效果</li>
+                    <li>响应式布局</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h2 style="color: #4fc3f7; margin-bottom: 20px;">立即体验全新界面</h2>
+            <p style="color: #b0bec5; margin-bottom: 30px;">享受专业级的音乐流媒体播放体验</p>
+            
+            <div class="cta-buttons">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    开始使用 Streamly
+                </a>
+                <a href="/guide.html" class="btn btn-secondary">
+                    <i class="fas fa-book"></i>
+                    查看使用指南
+                </a>
+                <a href="/test-search.html" class="btn btn-secondary">
+                    <i class="fas fa-search"></i>
+                    测试搜索功能
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

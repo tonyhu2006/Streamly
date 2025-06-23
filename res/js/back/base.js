@@ -48,13 +48,20 @@ function playVideo() {
   document.title = "Streamly - " + decodeURIComponent(videos[videoIteration][0]);
 
   if (!stationRemote) {
-    $("#youtube").css("display", "block");
+    // 尝试使用服务器端播放器
+    if (typeof playVideoWithServer === 'function') {
+      playVideoWithServer(videos[videoIteration][2]);
+    } else {
+      // 回退到 YouTube iframe 播放器
+      $("#youtube").css("display", "block");
+      $("#videoPlayer").css("display", "none");
 
-    if (!videoPaused) {
-      player.loadVideoById(videos[videoIteration][2]);
-    }
-    else {
-      player.cueVideoById(videos[videoIteration][2]);
+      if (!videoPaused) {
+        player.loadVideoById(videos[videoIteration][2]);
+      }
+      else {
+        player.cueVideoById(videos[videoIteration][2]);
+      }
     }
     console.log("Debug: playVideo");
   }

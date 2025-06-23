@@ -1,0 +1,2013 @@
+/**
+ * Streamly 2.0 - Modern Professional Theme
+ * 现代化专业主题样式
+ */
+
+/* 全局重置和基础样式 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+    color: #e0e0e0;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* 动态背景效果 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+        url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1920&auto=format&fit=crop&q=80') center/cover no-repeat;
+    z-index: -2;
+    animation: backgroundShift 30s ease-in-out infinite;
+}
+
+/* 备用背景图片 */
+body.bg-studio::before {
+    background:
+        linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+        url('https://images.unsplash.com/photo-1640957454144-392c8b05d5a5?w=1920&auto=format&fit=crop&q=80') center/cover no-repeat;
+}
+
+body.bg-modern::before {
+    background:
+        linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+        url('https://images.unsplash.com/photo-1627407660893-fe01f60d44c4?w=1920&auto=format&fit=crop&q=80') center/cover no-repeat;
+}
+
+body.bg-mixing::before {
+    background:
+        linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+        url('https://images.unsplash.com/photo-1518972559570-7cc1309f3229?w=1920&auto=format&fit=crop&q=80') center/cover no-repeat;
+}
+
+body.bg-gradient::before {
+    background:
+        linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(26, 26, 46, 0.95)),
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.15) 0%, transparent 60%);
+}
+
+@keyframes backgroundShift {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* 现代化头部导航 */
+header {
+    background: rgba(15, 15, 35, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(79, 195, 247, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    height: 70px !important;
+    display: flex !important;
+    align-items: center;
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+header:hover {
+    background: rgba(15, 15, 35, 0.98);
+    box-shadow: 0 6px 30px rgba(79, 195, 247, 0.2);
+}
+
+/* Logo 样式改进 */
+#logo {
+    height: 50px !important;
+    margin: 0 !important;
+    filter: drop-shadow(0 0 10px rgba(79, 195, 247, 0.3));
+    transition: all 0.3s ease;
+}
+
+#logo:hover {
+    filter: drop-shadow(0 0 15px rgba(79, 195, 247, 0.5));
+    transform: scale(1.05);
+}
+
+/* 现代化搜索框 */
+#inputBoxContainer {
+    flex: 1;
+    max-width: 600px;
+    margin: 0 30px;
+    position: relative;
+}
+
+#inputBox {
+    width: 100% !important;
+    padding: 12px 20px !important;
+    border: 2px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 25px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #e0e0e0 !important;
+    font-size: 16px !important;
+    transition: all 0.3s ease !important;
+    backdrop-filter: blur(10px);
+}
+
+#inputBox::placeholder {
+    color: rgba(224, 224, 224, 0.6);
+}
+
+#inputBox:focus {
+    outline: none !important;
+    border-color: #4fc3f7 !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 20px rgba(79, 195, 247, 0.3) !important;
+    transform: translateY(-1px);
+}
+
+/* 头部按钮样式 */
+.headerButton, #saveButton {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    color: #4fc3f7 !important;
+    padding: 10px 15px !important;
+    border-radius: 12px !important;
+    margin-left: 10px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    backdrop-filter: blur(10px);
+}
+
+.headerButton:hover, #saveButton:hover {
+    background: rgba(79, 195, 247, 0.2) !important;
+    border-color: #4fc3f7 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3) !important;
+}
+
+/* 主内容区域 */
+#main {
+    margin: 90px 20px 40vh 20px !important;
+    padding: 30px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    position: relative;
+    min-height: 60vh;
+}
+
+/* 确保主内容区域不会过度遮挡背景 */
+#main.zen {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* 播放列表名称输入框 */
+#playlistNameBox {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 2px solid rgba(79, 195, 247, 0.3) !important;
+    color: #e0e0e0 !important;
+    border-radius: 15px !important;
+    padding: 15px 20px !important;
+    font-size: 1.8em !important;
+    margin-bottom: 20px !important;
+    transition: all 0.3s ease !important;
+    backdrop-filter: blur(10px);
+}
+
+#playlistNameBox:focus {
+    outline: none !important;
+    border-color: #4fc3f7 !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 20px rgba(79, 195, 247, 0.3) !important;
+}
+
+/* 表格样式现代化 */
+table {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 15px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+td {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 15px !important;
+    transition: all 0.3s ease !important;
+}
+
+td:hover {
+    background: rgba(79, 195, 247, 0.1) !important;
+    transform: translateX(5px);
+}
+
+.selected td {
+    background: rgba(79, 195, 247, 0.2) !important;
+    border-left: 4px solid #4fc3f7 !important;
+}
+
+/* 底部链接区域 */
+#links {
+    display: block !important;
+    text-align: center !important;
+    margin-top: 30px !important;
+    padding: 20px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+#links a {
+    color: #4fc3f7 !important;
+    text-decoration: none !important;
+    margin: 0 10px !important;
+    padding: 8px 15px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    display: inline-block !important;
+}
+
+#links a:hover {
+    background: rgba(79, 195, 247, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* 浮动菜单现代化 */
+.floatingMenu {
+    background: rgba(15, 15, 35, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    color: #e0e0e0 !important;
+}
+
+.floatingMenu h2 {
+    color: #4fc3f7 !important;
+    border-bottom: 2px solid rgba(79, 195, 247, 0.3) !important;
+    padding-bottom: 10px !important;
+}
+
+.floatingMenuCloseButton {
+    background: rgba(255, 82, 82, 0.1) !important;
+    border: 1px solid rgba(255, 82, 82, 0.3) !important;
+    color: #ff5252 !important;
+    border-radius: 8px !important;
+    padding: 5px 10px !important;
+    transition: all 0.3s ease !important;
+}
+
+.floatingMenuCloseButton:hover {
+    background: rgba(255, 82, 82, 0.2) !important;
+    transform: scale(1.05) !important;
+}
+
+/* 设置界面专用样式 */
+#settingsWindow {
+    width: 500px !important;
+    max-width: 90vw !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+}
+
+#settingsWindow h2 {
+    color: #4fc3f7 !important;
+    text-align: center !important;
+    margin-bottom: 20px !important;
+    font-size: 1.5rem !important;
+    border-bottom: 2px solid rgba(79, 195, 247, 0.3) !important;
+    padding-bottom: 10px !important;
+}
+
+.settings-section {
+    margin-bottom: 25px !important;
+    padding: 20px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.settings-section h3 {
+    color: #81c784 !important;
+    font-size: 1.2rem !important;
+    margin-bottom: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.setting-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 15px !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    flex-wrap: wrap !important;
+}
+
+.setting-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+
+.setting-item label {
+    color: #e0e0e0 !important;
+    font-weight: 500 !important;
+    flex: 1 !important;
+    margin-right: 15px !important;
+    min-width: 200px !important;
+}
+
+.setting-item input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+    accent-color: #4fc3f7 !important;
+    cursor: pointer !important;
+}
+
+.setting-item input[type="range"] {
+    width: 120px !important;
+    accent-color: #4fc3f7 !important;
+    cursor: pointer !important;
+}
+
+.setting-item select {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 5px !important;
+    color: #e0e0e0 !important;
+    padding: 5px 10px !important;
+    cursor: pointer !important;
+    min-width: 120px !important;
+}
+
+.setting-item select option {
+    background: #1a1a2e !important;
+    color: #e0e0e0 !important;
+}
+
+.setting-item small {
+    display: block !important;
+    color: #b0bec5 !important;
+    font-size: 0.8rem !important;
+    margin-top: 5px !important;
+    font-style: italic !important;
+    width: 100% !important;
+}
+
+.settings-button {
+    background: linear-gradient(45deg, #4fc3f7, #29b6f6) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    margin: 5px !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    font-size: 0.9rem !important;
+}
+
+.settings-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3) !important;
+}
+
+.settings-button.danger {
+    background: linear-gradient(45deg, #f44336, #d32f2f) !important;
+}
+
+.settings-button.danger:hover {
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3) !important;
+}
+
+.about-info {
+    background: rgba(255, 255, 255, 0.05) !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.about-info p {
+    color: #b0bec5 !important;
+    margin: 5px 0 !important;
+    font-size: 0.9rem !important;
+}
+
+.about-info a {
+    color: #4fc3f7 !important;
+    text-decoration: none !important;
+}
+
+.about-info a:hover {
+    text-decoration: underline !important;
+}
+
+#volumeValue {
+    color: #4fc3f7 !important;
+    font-weight: 500 !important;
+    min-width: 40px !important;
+    text-align: center !important;
+}
+
+/* 设置界面动画 */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 设置项悬停效果 */
+.setting-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* 设置界面滚动条样式 */
+#settingsWindow::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+#settingsWindow::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 4px !important;
+}
+
+#settingsWindow::-webkit-scrollbar-thumb {
+    background: rgba(79, 195, 247, 0.5) !important;
+    border-radius: 4px !important;
+}
+
+#settingsWindow::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 195, 247, 0.7) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    #settingsWindow {
+        width: 95vw !important;
+        max-height: 90vh !important;
+    }
+
+    .setting-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+
+    .setting-item label {
+        min-width: auto !important;
+        margin-right: 0 !important;
+    }
+
+    .settings-section {
+        padding: 15px !important;
+    }
+}
+
+/* 播放列表管理样式 */
+#playlistManagerWindow {
+    width: 600px !important;
+    max-width: 95vw !important;
+    max-height: 80vh !important;
+}
+
+.playlist-section {
+    margin-bottom: 30px !important;
+    padding: 20px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.playlist-section h3 {
+    color: #81c784 !important;
+    font-size: 1.3rem !important;
+    margin-bottom: 15px !important;
+    border-bottom: 2px solid rgba(129, 199, 132, 0.3) !important;
+    padding-bottom: 8px !important;
+}
+
+.create-playlist-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+}
+
+.create-playlist-form input,
+.create-playlist-form textarea {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 8px !important;
+    color: #e0e0e0 !important;
+    padding: 12px !important;
+    font-size: 1rem !important;
+    resize: vertical !important;
+}
+
+.create-playlist-form input:focus,
+.create-playlist-form textarea:focus {
+    outline: none !important;
+    border-color: #4fc3f7 !important;
+    box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2) !important;
+}
+
+.action-button {
+    background: linear-gradient(45deg, #4fc3f7, #29b6f6) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: white !important;
+    padding: 12px 20px !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.action-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3) !important;
+}
+
+.action-button.secondary {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.action-button.secondary:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.playlists-container {
+    max-height: 400px !important;
+    overflow-y: auto !important;
+}
+
+.playlist-item {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    margin-bottom: 15px !important;
+    transition: all 0.3s ease !important;
+}
+
+.playlist-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(79, 195, 247, 0.3) !important;
+}
+
+.playlist-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 15px !important;
+}
+
+.playlist-info {
+    flex: 1 !important;
+}
+
+.playlist-name {
+    color: #4fc3f7 !important;
+    font-size: 1.2rem !important;
+    margin-bottom: 5px !important;
+}
+
+.playlist-meta {
+    color: #b0bec5 !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 5px !important;
+}
+
+.playlist-description {
+    color: #e0e0e0 !important;
+    font-size: 0.9rem !important;
+    font-style: italic !important;
+}
+
+.playlist-actions {
+    display: flex !important;
+    gap: 10px !important;
+}
+
+.playlist-action-btn {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 6px !important;
+    color: #4fc3f7 !important;
+    padding: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.playlist-action-btn:hover {
+    background: rgba(79, 195, 247, 0.2) !important;
+    transform: scale(1.1) !important;
+}
+
+.playlist-videos {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 15px !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+.playlist-video-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    margin-bottom: 10px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    transition: all 0.3s ease !important;
+}
+
+.playlist-video-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.video-thumbnail {
+    width: 60px !important;
+    height: 45px !important;
+    object-fit: cover !important;
+    border-radius: 6px !important;
+}
+
+.video-info {
+    flex: 1 !important;
+}
+
+.video-title {
+    color: #e0e0e0 !important;
+    font-weight: 500 !important;
+    margin-bottom: 5px !important;
+    font-size: 0.9rem !important;
+}
+
+.video-duration {
+    color: #b0bec5 !important;
+    font-size: 0.8rem !important;
+}
+
+.remove-video-btn {
+    background: rgba(244, 67, 54, 0.1) !important;
+    border: 1px solid rgba(244, 67, 54, 0.3) !important;
+    border-radius: 6px !important;
+    color: #f44336 !important;
+    padding: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    width: 30px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.remove-video-btn:hover {
+    background: rgba(244, 67, 54, 0.2) !important;
+    transform: scale(1.1) !important;
+}
+
+.empty-state {
+    text-align: center !important;
+    color: #b0bec5 !important;
+    font-style: italic !important;
+    padding: 40px 20px !important;
+}
+
+/* 模态框样式 */
+.modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10000 !important;
+    cursor: pointer !important;
+}
+
+.modal[style*="display: none"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.modal-content {
+    background: rgba(15, 15, 35, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 15px !important;
+    width: 400px !important;
+    max-width: 90vw !important;
+    max-height: 80vh !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    position: relative !important;
+    z-index: 10001 !important;
+    cursor: default !important;
+    pointer-events: auto !important;
+}
+
+.modal-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-header h3 {
+    color: #4fc3f7 !important;
+    margin: 0 !important;
+}
+
+.modal-close {
+    background: rgba(255, 82, 82, 0.1) !important;
+    border: 1px solid rgba(255, 82, 82, 0.3) !important;
+    color: #ff5252 !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.modal-close:hover {
+    background: rgba(255, 82, 82, 0.2) !important;
+    transform: scale(1.05) !important;
+}
+
+.modal-body {
+    padding: 20px !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+}
+
+.modal-footer {
+    padding: 20px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    text-align: right !important;
+}
+
+.playlist-selector-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.playlist-selector-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 15px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.playlist-selector-item:hover {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border-color: rgba(79, 195, 247, 0.3) !important;
+    transform: translateX(5px) !important;
+}
+
+.playlist-selector-info {
+    flex: 1 !important;
+}
+
+.playlist-selector-name {
+    color: #e0e0e0 !important;
+    font-weight: 500 !important;
+    margin-bottom: 5px !important;
+}
+
+.playlist-selector-count {
+    color: #b0bec5 !important;
+    font-size: 0.9rem !important;
+}
+
+/* 搜索结果操作区域 */
+#searchActions {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+#selectedCount {
+    font-weight: 500 !important;
+}
+
+/* 视频复选框样式 */
+.video-checkbox {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 2px solid rgba(79, 195, 247, 0.5) !important;
+    border-radius: 4px !important;
+}
+
+.video-checkbox:checked {
+    background: #4fc3f7 !important;
+    border-color: #4fc3f7 !important;
+}
+
+/* 播放列表管理按钮样式 */
+#playlistManagerButton {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    color: #4fc3f7 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 1.2rem !important;
+}
+
+#playlistManagerButton:hover {
+    background: rgba(79, 195, 247, 0.2) !important;
+    transform: scale(1.05) !important;
+}
+
+/* 临时播放队列中的播放列表按钮 */
+.addToPlaylistButton {
+    color: #81c784 !important;
+    margin-left: 5px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 1.1rem !important;
+    position: relative !important;
+    z-index: 999 !important;
+    pointer-events: auto !important;
+    display: inline-block !important;
+    padding: 4px 6px !important;
+    border-radius: 4px !important;
+    background: rgba(129, 199, 132, 0.1) !important;
+    border: 1px solid rgba(129, 199, 132, 0.2) !important;
+}
+
+.addToPlaylistButton:hover {
+    color: #4caf50 !important;
+    transform: scale(1.2) !important;
+    background: rgba(76, 175, 80, 0.2) !important;
+    border-color: rgba(76, 175, 80, 0.4) !important;
+    z-index: 1000 !important;
+}
+
+/* 表格按钮容器样式优化 */
+.tableButtons {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    margin-top: 8px !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 100 !important;
+    cursor: default !important;
+    background: rgba(0, 0, 0, 0.1) !important;
+    padding: 4px 8px !important;
+    border-radius: 8px !important;
+}
+
+.tableButtons span {
+    padding: 4px 6px !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 101 !important;
+    display: inline-block !important;
+}
+
+.tableButtons span:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 视频标题文本样式 */
+.video-title-text {
+    display: inline-block !important;
+    cursor: move !important;
+    flex: 1 !important;
+    margin-right: 10px !important;
+}
+
+/* 表格左侧单元格样式 */
+.tableLeft {
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 1 !important;
+    padding-right: 150px !important;
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* 确保拖拽手柄只在标题文本区域有效 */
+.tableLeft .video-title-text {
+    cursor: move !important;
+}
+
+.tableLeft .tableButtons {
+    cursor: default !important;
+}
+
+/* 防止按钮区域被拖拽影响 */
+.tableButtons,
+.tableButtons *,
+.autoplayButton,
+.playButton,
+.removeButton,
+.addToPlaylistButton {
+    -webkit-user-drag: none !important;
+    -khtml-user-drag: none !important;
+    -moz-user-drag: none !important;
+    -o-user-drag: none !important;
+    user-drag: none !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* jQuery UI sortable 特定样式覆盖 */
+.ui-sortable .tableButtons {
+    pointer-events: auto !important;
+    cursor: default !important;
+}
+
+.ui-sortable .tableButtons span {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* 拖拽时的视觉反馈 */
+.ui-sortable-helper {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+}
+
+.ui-sortable-placeholder {
+    background: rgba(79, 195, 247, 0.05) !important;
+    border: 2px dashed rgba(79, 195, 247, 0.3) !important;
+    visibility: visible !important;
+}
+
+/* 强制确保addToPlaylistButton在最顶层 */
+.fa-plus-circle.addToPlaylistButton {
+    z-index: 9999 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    text-align: center !important;
+    line-height: 1 !important;
+}
+
+/* 确保表格行不会覆盖按钮 */
+#videosTable tr {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+#videosTable tr td {
+    position: relative !important;
+    z-index: 2 !important;
+    overflow: visible !important;
+}
+
+/* 移除所有可能的覆盖元素 */
+.addToPlaylistButton {
+    isolation: isolate !important;
+    will-change: transform !important;
+}
+
+.tableButtons {
+    isolation: isolate !important;
+}
+
+/* 播放列表选择器样式 */
+.playlist-selector {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 8px 12px !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+#currentPlaylistSelect {
+    background: transparent !important;
+    border: none !important;
+    color: #e0e0e0 !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    outline: none !important;
+    min-width: 200px !important;
+    padding: 4px 8px !important;
+}
+
+#currentPlaylistSelect option {
+    background: #1a1a2e !important;
+    color: #e0e0e0 !important;
+    padding: 8px !important;
+}
+
+#currentPlaylistSelect option:disabled {
+    color: #666 !important;
+    font-style: italic !important;
+}
+
+#newPlaylistBtn,
+#saveQueueBtn,
+#managePlaylistsBtn {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    color: #4fc3f7 !important;
+    border-radius: 8px !important;
+    padding: 6px 10px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 1rem !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#newPlaylistBtn:hover,
+#saveQueueBtn:hover,
+#managePlaylistsBtn:hover {
+    background: rgba(79, 195, 247, 0.2) !important;
+    transform: scale(1.05) !important;
+}
+
+#saveQueueBtn {
+    background: rgba(76, 175, 80, 0.1) !important;
+    border-color: rgba(76, 175, 80, 0.3) !important;
+    color: #4caf50 !important;
+}
+
+#saveQueueBtn:hover {
+    background: rgba(76, 175, 80, 0.2) !important;
+}
+
+/* 快速创建表单样式 */
+.quick-create-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+}
+
+.quick-create-form input,
+.quick-create-form textarea {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 8px !important;
+    color: #e0e0e0 !important;
+    padding: 12px !important;
+    font-size: 1rem !important;
+    resize: vertical !important;
+    font-family: inherit !important;
+}
+
+.quick-create-form input:focus,
+.quick-create-form textarea:focus {
+    outline: none !important;
+    border-color: #4fc3f7 !important;
+    box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2) !important;
+}
+
+.quick-create-form input::placeholder,
+.quick-create-form textarea::placeholder {
+    color: #b0bec5 !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .playlist-selector {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    #currentPlaylistSelect {
+        min-width: 150px !important;
+        font-size: 0.9rem !important;
+    }
+
+    #newPlaylistBtn,
+    #saveQueueBtn,
+    #managePlaylistsBtn {
+        min-width: 32px !important;
+        height: 32px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* 本地播放列表管理样式 */
+.current-status {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 10px !important;
+    padding: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.status-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+}
+
+.status-item:last-child {
+    margin-bottom: 0 !important;
+}
+
+.status-label {
+    color: #b0bec5 !important;
+    font-weight: 500 !important;
+}
+
+.quick-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+}
+
+.quick-actions .action-button {
+    flex: 1 !important;
+    min-width: 140px !important;
+}
+
+.current-playlist {
+    border-color: rgba(76, 175, 80, 0.5) !important;
+    background: rgba(76, 175, 80, 0.05) !important;
+}
+
+.current-playlist .playlist-name {
+    color: #4caf50 !important;
+}
+
+/* 播放列表项增强样式 */
+.playlist-item {
+    position: relative !important;
+}
+
+.playlist-item::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 3px !important;
+    background: transparent !important;
+    border-radius: 0 3px 3px 0 !important;
+    transition: all 0.3s ease !important;
+}
+
+.current-playlist::before {
+    background: #4caf50 !important;
+}
+
+.playlist-item:hover::before {
+    background: rgba(79, 195, 247, 0.5) !important;
+}
+
+/* 状态指示器 */
+#currentModeDisplay {
+    font-weight: 600 !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    background: rgba(79, 195, 247, 0.1) !important;
+}
+
+#currentQueueCount,
+#localPlaylistCount {
+    background: rgba(129, 199, 132, 0.1) !important;
+    color: #81c784 !important;
+    padding: 2px 8px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    min-width: 24px !important;
+    text-align: center !important;
+}
+
+/* 本地播放列表选择器样式 */
+.local-playlist-selector-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+}
+
+.local-playlist-selector-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 15px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.local-playlist-selector-item:hover {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border-color: rgba(79, 195, 247, 0.3) !important;
+    transform: translateX(5px) !important;
+}
+
+.local-playlist-selector-info {
+    flex: 1 !important;
+}
+
+.local-playlist-selector-name {
+    color: #e0e0e0 !important;
+    font-weight: 500 !important;
+    margin-bottom: 5px !important;
+    font-size: 1rem !important;
+}
+
+.local-playlist-selector-count {
+    color: #4fc3f7 !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 3px !important;
+}
+
+.local-playlist-selector-desc {
+    color: #b0bec5 !important;
+    font-size: 0.8rem !important;
+    font-style: italic !important;
+}
+
+.local-playlist-selector-item i {
+    color: #4fc3f7 !important;
+    font-size: 1.2rem !important;
+    transition: transform 0.3s ease !important;
+}
+
+.local-playlist-selector-item:hover i {
+    transform: translateX(3px) !important;
+}
+
+/* 创建信息提示样式 */
+.create-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 12px !important;
+    background: rgba(79, 195, 247, 0.1) !important;
+    border: 1px solid rgba(79, 195, 247, 0.3) !important;
+    border-radius: 8px !important;
+    color: #4fc3f7 !important;
+    font-size: 0.9rem !important;
+}
+
+.create-info i {
+    color: #4fc3f7 !important;
+}
+
+/* 空状态样式增强 */
+.local-playlist-selector-list:empty::before {
+    content: '暂无播放列表，请先创建一个播放列表' !important;
+    display: block !important;
+    text-align: center !important;
+    color: #b0bec5 !important;
+    font-style: italic !important;
+    padding: 40px 20px !important;
+}
+
+/* 模态框滚动条样式 */
+.local-playlist-selector-list::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.local-playlist-selector-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 3px !important;
+}
+
+.local-playlist-selector-list::-webkit-scrollbar-thumb {
+    background: rgba(79, 195, 247, 0.5) !important;
+    border-radius: 3px !important;
+}
+
+.local-playlist-selector-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 195, 247, 0.7) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .local-playlist-selector-item {
+        padding: 12px !important;
+    }
+
+    .local-playlist-selector-name {
+        font-size: 0.9rem !important;
+    }
+
+    .local-playlist-selector-count,
+    .local-playlist-selector-desc {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* 搜索结果样式 */
+#searchResults {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#searchResults::-webkit-scrollbar {
+    width: 8px;
+}
+
+#searchResults::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+#searchResults::-webkit-scrollbar-thumb {
+    background: rgba(79, 195, 247, 0.5);
+    border-radius: 4px;
+}
+
+#searchResults::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 195, 247, 0.7);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    header {
+        padding: 0 15px;
+        height: 60px !important;
+    }
+    
+    #inputBoxContainer {
+        margin: 0 15px;
+    }
+    
+    #main {
+        margin: 80px 15px 35vh 15px !important;
+        padding: 20px !important;
+    }
+    
+    .headerButton, #saveButton {
+        padding: 8px 12px !important;
+        margin-left: 8px !important;
+    }
+    
+    #logo {
+        height: 40px !important;
+    }
+}
+
+/* 加载动画 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#main {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+/* 搜索进度指示器现代化 */
+.spinner > div {
+    background-color: #4fc3f7 !important;
+    box-shadow: 0 0 10px rgba(79, 195, 247, 0.5) !important;
+}
+
+/* 表格行悬停效果增强 */
+tr:hover td {
+    background: rgba(79, 195, 247, 0.15) !important;
+    box-shadow: 0 2px 10px rgba(79, 195, 247, 0.2) !important;
+}
+
+/* 按钮点击效果 */
+.headerButton:active, #saveButton:active {
+    transform: translateY(-1px) scale(0.98) !important;
+}
+
+/* 搜索框输入时的动画 */
+#inputBox:not(:placeholder-shown) {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border-color: #4fc3f7 !important;
+}
+
+/* 播放列表表格美化 */
+table tr:first-child td {
+    border-top: none !important;
+}
+
+table tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* 添加微妙的脉冲动画到活动元素 */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(79, 195, 247, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(79, 195, 247, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(79, 195, 247, 0); }
+}
+
+.playing {
+    animation: pulse 2s infinite !important;
+}
+
+/* 改进滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4fc3f7, #29b6f6);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #29b6f6, #4fc3f7);
+}
+
+/* 现代化底部播放器 */
+footer {
+    background: rgba(15, 15, 35, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(79, 195, 247, 0.2) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 15px 20px !important;
+    height: 35% !important;
+}
+
+/* 播放器界面现代化 */
+#playlistInterface {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+#youtubeContainer {
+    border-radius: 15px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+}
+
+/* 视频预览现代化 */
+#previousVideo, #nextVideo {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 15px !important;
+    backdrop-filter: blur(10px) !important;
+    transition: all 0.3s ease !important;
+}
+
+#previousVideo:hover, #nextVideo:hover {
+    background: rgba(79, 195, 247, 0.1) !important;
+    border-color: rgba(79, 195, 247, 0.3) !important;
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 25px rgba(79, 195, 247, 0.2) !important;
+}
+
+/* 进度条现代化 */
+#progressContainer {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    height: 6px !important;
+    border-radius: 3px !important;
+}
+
+#progress {
+    background: linear-gradient(90deg, #4fc3f7, #29b6f6) !important;
+    box-shadow: 0 0 10px rgba(79, 195, 247, 0.5) !important;
+}
+
+/* 控制按钮现代化 */
+#settings {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 15px !important;
+    backdrop-filter: blur(10px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    padding: 10px !important;
+}
+
+#settings span {
+    color: #4fc3f7 !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+#settings span:hover {
+    background: rgba(79, 195, 247, 0.2) !important;
+    transform: scale(1.1) !important;
+}
+
+#settings .selected {
+    background: rgba(79, 195, 247, 0.3) !important;
+    color: #fff !important;
+}
+
+/* 时间显示现代化 */
+#currentTime, #videoTime {
+    color: #4fc3f7 !important;
+    font-weight: 500 !important;
+    text-shadow: 0 0 10px rgba(79, 195, 247, 0.3) !important;
+}
+
+/* 欢迎消息样式 */
+.welcome-message {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(79, 195, 247, 0.1);
+    border: 1px solid rgba(79, 195, 247, 0.3);
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+.welcome-message h2 {
+    color: #4fc3f7;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.welcome-message p {
+    color: #b0bec5;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+/* Fork me 按钮隐藏在移动端 */
+@media (max-width: 768px) {
+    #forkme {
+        display: none !important;
+    }
+
+    footer {
+        padding: 10px 15px !important;
+    }
+
+    #settings {
+        width: 140px !important;
+        padding: 8px !important;
+    }
+}
+
+/* ===== 全面响应式设计 ===== */
+
+/* 超小屏幕 (手机竖屏) */
+@media (max-width: 480px) {
+    /* 头部导航 */
+    header {
+        padding: 0 10px !important;
+        height: 50px !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    #inputBoxContainer {
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    #inputBox {
+        font-size: 14px !important;
+        padding: 8px 12px !important;
+    }
+
+    /* 播放列表选择器 */
+    .playlist-selector {
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 6px !important;
+    }
+
+    #currentPlaylistSelect {
+        min-width: 100% !important;
+        font-size: 14px !important;
+        padding: 8px !important;
+    }
+
+    #newPlaylistBtn,
+    #saveQueueBtn,
+    #managePlaylistsBtn {
+        min-width: 100% !important;
+        height: 40px !important;
+        font-size: 14px !important;
+        padding: 8px 12px !important;
+    }
+
+    /* 主要内容区域 */
+    .mainContent {
+        padding: 10px !important;
+        margin: 10px !important;
+    }
+
+    /* 视频表格 */
+    #videosTable {
+        font-size: 12px !important;
+    }
+
+    .tableLeft {
+        padding-right: 120px !important;
+        font-size: 13px !important;
+    }
+
+    .video-title-text {
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+    }
+
+    .tableButtons {
+        right: 5px !important;
+        padding: 2px 4px !important;
+        gap: 4px !important;
+    }
+
+    .tableButtons span {
+        font-size: 12px !important;
+        padding: 3px 4px !important;
+    }
+
+    /* 浮动窗口 */
+    .floatingMenu {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 90vh !important;
+        margin: 5px !important;
+        padding: 15px !important;
+    }
+
+    .floatingMenuCloseButton {
+        top: 10px !important;
+        right: 10px !important;
+        font-size: 18px !important;
+    }
+
+    /* 模态框 */
+    .modal-content {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin: 10px !important;
+    }
+
+    .modal-header h3 {
+        font-size: 16px !important;
+    }
+
+    .modal-body {
+        padding: 15px !important;
+    }
+
+    .modal-footer {
+        padding: 15px !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .action-button {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 14px !important;
+    }
+
+    /* 播放列表项 */
+    .playlist-item {
+        margin-bottom: 10px !important;
+    }
+
+    .playlist-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        padding: 12px !important;
+    }
+
+    .playlist-actions {
+        width: 100% !important;
+        justify-content: space-around !important;
+    }
+
+    .playlist-action-btn {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 14px !important;
+    }
+
+    /* 搜索结果 */
+    .searchResult {
+        padding: 10px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .searchResultTitle {
+        font-size: 14px !important;
+        line-height: 1.3 !important;
+    }
+
+    .searchResultDescription {
+        font-size: 12px !important;
+        line-height: 1.4 !important;
+    }
+}
+
+/* 小屏幕 (手机横屏/小平板) */
+@media (min-width: 481px) and (max-width: 768px) {
+    /* 头部导航 */
+    header {
+        padding: 0 15px !important;
+        height: 55px !important;
+    }
+
+    #inputBoxContainer {
+        margin: 0 15px !important;
+        max-width: 400px !important;
+    }
+
+    /* 播放列表选择器 */
+    .playlist-selector {
+        gap: 10px !important;
+    }
+
+    #currentPlaylistSelect {
+        min-width: 180px !important;
+        font-size: 15px !important;
+    }
+
+    #newPlaylistBtn,
+    #saveQueueBtn,
+    #managePlaylistsBtn {
+        min-width: 38px !important;
+        height: 38px !important;
+        font-size: 15px !important;
+    }
+
+    /* 主要内容 */
+    .mainContent {
+        padding: 15px !important;
+        margin: 15px !important;
+    }
+
+    .tableLeft {
+        padding-right: 140px !important;
+    }
+
+    .tableButtons {
+        right: 8px !important;
+        gap: 6px !important;
+    }
+
+    /* 浮动窗口 */
+    .floatingMenu {
+        width: 90vw !important;
+        max-width: 90vw !important;
+        max-height: 85vh !important;
+    }
+
+    /* 模态框 */
+    .modal-content {
+        width: 85vw !important;
+        max-width: 500px !important;
+    }
+
+    .modal-footer {
+        flex-direction: row !important;
+        gap: 15px !important;
+    }
+
+    .action-button {
+        flex: 1 !important;
+        min-width: 120px !important;
+    }
+}
+
+/* 中等屏幕 (平板) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* 头部导航 */
+    header {
+        padding: 0 20px !important;
+        height: 60px !important;
+    }
+
+    #inputBoxContainer {
+        margin: 0 20px !important;
+        max-width: 500px !important;
+    }
+
+    /* 播放列表选择器 */
+    #currentPlaylistSelect {
+        min-width: 220px !important;
+    }
+
+    /* 主要内容 */
+    .mainContent {
+        padding: 20px !important;
+        margin: 20px !important;
+    }
+
+    /* 浮动窗口 */
+    .floatingMenu {
+        width: 80vw !important;
+        max-width: 700px !important;
+        max-height: 80vh !important;
+    }
+
+    /* 模态框 */
+    .modal-content {
+        width: 70vw !important;
+        max-width: 600px !important;
+    }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1025px) {
+    /* 确保大屏幕上的最佳体验 */
+    #inputBoxContainer {
+        max-width: 600px !important;
+    }
+
+    .floatingMenu {
+        max-width: 800px !important;
+    }
+
+    .modal-content {
+        max-width: 500px !important;
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    /* 增大触摸目标 */
+    .tableButtons span {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .playlist-action-btn {
+        min-width: 44px !important;
+        min-height: 44px !important;
+    }
+
+    .action-button {
+        min-height: 44px !important;
+        padding: 12px 16px !important;
+    }
+
+    /* 移除悬停效果 */
+    .tableButtons span:hover,
+    .playlist-action-btn:hover,
+    .action-button:hover {
+        transform: none !important;
+    }
+
+    /* 优化点击反馈 */
+    .tableButtons span:active,
+    .playlist-action-btn:active,
+    .action-button:active {
+        transform: scale(0.95) !important;
+        transition: transform 0.1s ease !important;
+    }
+}
+
+/* 横屏模式优化 */
+@media (orientation: landscape) and (max-height: 500px) {
+    header {
+        height: 45px !important;
+        padding: 0 15px !important;
+    }
+
+    .floatingMenu {
+        max-height: 95vh !important;
+        padding: 10px !important;
+    }
+
+    .modal-content {
+        max-height: 95vh !important;
+    }
+
+    .modal-body {
+        max-height: 300px !important;
+        overflow-y: auto !important;
+    }
+
+    /* 横屏时优化播放列表选择器 */
+    .playlist-selector {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+    }
+}
+
+/* 高分辨率屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* 确保在高分辨率屏幕上的清晰度 */
+    .tableButtons span {
+        font-size: 1.1rem !important;
+    }
+
+    .playlist-action-btn {
+        font-size: 1rem !important;
+    }
+
+    /* 优化边框和阴影 */
+    .floatingMenu,
+    .modal-content {
+        border-width: 0.5px !important;
+    }
+}
+
+/* 超宽屏幕优化 */
+@media (min-width: 1440px) {
+    .mainContent {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+    }
+
+    header {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    header,
+    .floatingMenu,
+    .modal,
+    .tableButtons,
+    #forkme {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    #videosTable {
+        color: black !important;
+    }
+}

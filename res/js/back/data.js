@@ -14,20 +14,38 @@
 // * This function loads the video name
 // * Updated video data capture method because of deprecation of player.getVideoData() in API (11/15/2017)
 
-function getVideoName(id, callback) {
-  let url = "https://www.youtube.com/watch?v=" + id;
-  let get = {
-    url: url
-  };
+async function getVideoName(id, callback) {
+  try {
+    // 使用服务器端 API 获取视频信息
+    const response = await fetch(`/api/video/${id}/info`);
 
-  $.ajax({
-    dataType: "json",
-    url: "https://noembed.com/embed",
-    data: get,
-    success: function(result) {
-      callback(result.title);
+    if (!response.ok) {
+      throw new Error(`获取视频信息失败: ${response.status}`);
     }
-  });
+
+    const videoInfo = await response.json();
+    callback(videoInfo.title);
+
+  } catch (error) {
+    console.error('获取视频名称错误:', error);
+    // 回退到原来的方法
+    let url = "https://www.youtube.com/watch?v=" + id;
+    let get = {
+      url: url
+    };
+
+    $.ajax({
+      dataType: "json",
+      url: "https://noembed.com/embed",
+      data: get,
+      success: function(result) {
+        callback(result.title);
+      },
+      error: function() {
+        callback("未知视频");
+      }
+    });
+  }
 }
 
 // * This function utilizes function above to add videos with applicable data

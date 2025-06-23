@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamly 搜索测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .search-container {
+            margin-bottom: 30px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: white;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .video-item {
+            border: 1px solid #333;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #2a2a2a;
+        }
+        .video-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #4fc3f7;
+        }
+        .video-channel {
+            color: #888;
+            margin-bottom: 5px;
+        }
+        .video-description {
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        .video-meta {
+            font-size: 12px;
+            color: #666;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+        .error {
+            color: #ff6b6b;
+            padding: 10px;
+            background: #2a1a1a;
+            border: 1px solid #ff6b6b;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .source-info {
+            background: #1a2a1a;
+            border: 1px solid #4caf50;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #4caf50;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Streamly 搜索测试</h1>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="搜索音乐、视频..." value="music">
+        <button onclick="searchVideos()">搜索</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        async function searchVideos() {
+            const query = document.getElementById('searchInput').value;
+            const resultsDiv = document.getElementById('results');
+            
+            if (!query.trim()) {
+                resultsDiv.innerHTML = '<div class="error">请输入搜索关键词</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="loading">搜索中...</div>';
+            
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&maxResults=5`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '搜索失败');
+                }
+                
+                displayResults(data);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">搜索错误: ${error.message}</div>`;
+            }
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (!data.items || data.items.length === 0) {
+                resultsDiv.innerHTML = '<div class="error">没有找到相关视频</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // 显示数据源信息
+            if (data.source) {
+                const sourceText = data.source === 'fallback' ? '备用搜索' : 
+                                 data.source === 'mock' ? '模拟数据' : 'YouTube API';
+                html += `<div class="source-info">数据源: ${sourceText}</div>`;
+            }
+            
+            data.items.forEach(video => {
+                html += `
+                    <div class="video-item">
+                        <div class="video-title">${escapeHtml(video.title)}</div>
+                        <div class="video-channel">频道: ${escapeHtml(video.channelTitle)}</div>
+                        ${video.description ? `<div class="video-description">${escapeHtml(video.description.substring(0, 200))}...</div>` : ''}
+                        <div class="video-meta">
+                            视频ID: ${video.id} | 
+                            ${video.duration ? `时长: ${video.duration} | ` : ''}
+                            ${video.viewCount ? `观看次数: ${video.viewCount} | ` : ''}
+                            发布时间: ${video.publishedAt}
+                        </div>
+                        <button onclick="playVideo('${video.id}')" style="margin-top: 10px;">播放视频</button>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function playVideo(videoId) {
+            // 这里可以集成到播放器
+            alert(`播放视频: ${videoId}\n\n您可以在这里集成视频播放功能`);
+        }
+        
+        // 回车键搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchVideos();
+            }
+        });
+        
+        // 页面加载时自动搜索
+        window.onload = function() {
+            searchVideos();
+        };
+    </script>
+</body>
+</html>

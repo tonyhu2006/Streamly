@@ -145,22 +145,10 @@ function input(type) {
         if (inputBox.slice(-2) === " l") {
           inputBox = inputBox + "yric";
         }
-        /***REVERT TO POPUP***/
-        popup = window.open("https://www.youtube.com/results?search_query=" + inputBox.replace(/ /g, "+"), "YouTube", "height=500,width=800");
-        dropOverlay.open();
-
-        function checkIfClosed() {
-            if (popup.closed) {
-              dropOverlay.close();
-              clearInterval(checkIfClosedTimer);
-            }
-        }
-        let checkIfClosedTimer = setInterval(checkIfClosed, 500);
-        /******/
-        //REVERT TO POPUP inBoxSearch = true;
-        //REVERT TO POPUP quickSearch(inputBox);
-        //$("#inputBox").val("").attr("placeholder", loadingPlaceholder).blur();
-        $("#inputBox").blur().focus();
+        // 使用新的服务器端搜索功能
+        inBoxSearch = true;
+        serverSearch(inputBox);
+        $("#inputBox").val("").attr("placeholder", loadingPlaceholder).blur();
       }
       else {
         inputBox = inputBox.replace("\\", "");

@@ -1,6 +1,16 @@
 ![Streamly Logo](https://raw.githubusercontent.com/LNFWebsite/Streamly/master/res/img/logo/logo_streamly_color/logo_streamly_color_low_res.png)
 
-Open-source, web-based, YouTube video queues.
+# Streamly 2.0 - 服务器端增强版
+
+开源的、基于网页的 YouTube 视频队列 - 现已支持服务器端搜索和播放！
+
+## 🎉 2.0 版本新功能
+
+- ✅ **服务器端视频搜索** - 内置搜索功能，无需外部浏览器
+- ✅ **服务器端视频播放** - 直接播放 YouTube 视频流
+- ✅ **双播放器支持** - HTML5 播放器 + YouTube iframe 自动切换
+- ✅ **改进的用户界面** - 中文化界面，更好的用户体验
+- ✅ **RESTful API** - 完整的后端 API 支持
 
 Streamly on Desktop        | Streamly on Mobile
 :-------------------------:|:-------------------------:
@@ -8,32 +18,66 @@ Streamly on Desktop        | Streamly on Mobile
 **Side-by-side view**
 ![](https://raw.githubusercontent.com/LNFWebsite/Streamly/master/examples/05302019/streamlysbs.jpg) |
 
-## What is Streamly?
+## 什么是 Streamly？
 
-Streamly is an open-source, web-based YouTube video queue.
+Streamly 是一个开源的、基于网页的 YouTube 视频队列管理系统。
 
-Streamly can be used for a multitude of purposes, including queuing music videos, listening to lectures or audiobooks, or just simply creating a playlist of videos that can be accessed from any computer (or tablet/phone).
+Streamly 2.0 现在是一个全栈应用，支持服务器端视频搜索和播放功能。它可以用于多种用途，包括排队音乐视频、收听讲座或有声读物，或者简单地创建可以从任何计算机（或平板电脑/手机）访问的视频播放列表。
 
-This differs from YouTube's normal playlist functionality by allowing you to manipulate the playlist while playing it (thus making it a queue).
+这与 YouTube 的普通播放列表功能不同，它允许您在播放时操作播放列表（因此使其成为一个队列）。
 
-Features:
+## 🚀 主要特性
 
-- Puts you in charge of your playlist by saving all video information necessary to play (name, time, video id) with the playlist. To save your playlist, simply bookmark the open tab of Streamly or click "Save Playlist" to copy a link to your clipboard. Additionally, your playlists should be automatically saved within your browsing history.
+### 2.0 版本新特性：
+- **🔍 内置搜索功能** - 服务器端 YouTube 视频搜索，无需外部浏览器
+- **🎵 服务器端播放** - 直接播放 YouTube 视频流，支持多种质量选项
+- **🔄 智能播放器切换** - 自动在 HTML5 播放器和 YouTube iframe 之间切换
+- **💾 服务器端播放列表** - 支持保存和管理播放列表到服务器
+- **🌐 RESTful API** - 完整的后端 API，支持第三方集成
 
-- Runs independently from any server and requires no association with YouTube (API keys, etc...).
-  
-  <sub>Note: You may even use Streamly just stored on your computer, but likely YouTube will prevent many videos from playing. This is because those content creators have blocked their videos from being loaded on a non-website page. You may resolve this easily by placing Streamly on a file hosting service that allows you to access the file without downloading (ie. forking on GitHub), or your own web server.<sub>
-
-- Works on all modern browsers (Firefox, Chrome, more...) as well as browsers on phones/tablets. (Latest Firefox is recommended on PC, IE is not supported)
+### 继承的经典特性：
+- **📋 完整的播放列表控制** - 保存所有必要的视频信息（名称、时长、视频ID）
+- **🔗 URL 分享** - 通过书签或链接分享播放列表
+- **📱 跨平台兼容** - 支持所有现代浏览器和移动设备
+- **⚡ 实时操作** - 播放时可以添加、删除、重新排序视频
 
 ### *[Subscribe to Streamly on Reddit for updates.](https://www.reddit.com/r/StreamlyReddit/)*
 
-## How do I use Streamly?
+## 🛠️ 如何使用 Streamly 2.0？
 
-Go to the website! <http://streamly.us.to> or <https://lnfwebsite.github.io/Streamly>
-Or clone into your web server...
+### 快速开始
 
-***Be sure to read the [Getting Started](https://github.com/LNFWebsite/Streamly/wiki/Getting-Started) page.***
+1. **克隆项目**
+   ```bash
+   git clone https://github.com/tonyhu2006/Streamly.git
+   cd Streamly
+   ```
+
+2. **安装依赖**
+   ```bash
+   npm install
+   pip install yt-dlp
+   ```
+
+3. **配置环境变量（可选）**
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件，添加 YouTube API 密钥（用于搜索功能）
+   ```
+
+4. **启动服务器**
+   ```bash
+   npm start
+   ```
+
+5. **访问应用**
+   打开浏览器访问: http://localhost:3000
+
+### 在线版本
+- 原版 Streamly: <https://lnfwebsite.github.io/Streamly>
+- 2.0 版本需要本地部署或自己的服务器
+
+***详细使用说明请查看 [USAGE.md](USAGE.md) 文件。***
 
 ## FAQ
 
@@ -55,23 +99,40 @@ Or clone into your web server...
 
 Thanks for taking the time to read! I hope that you will find Streamly as useful as I have. Happy Streaming!
 
-## What makes Streamly different?
+## 🔧 技术架构
 
-Streamly is the first ever online YouTube video queue that prides itself in not using an API key.
+### Streamly 2.0 的技术栈
 
-## Why does that matter?
+**后端:**
+- Node.js + Express.js - Web 服务器框架
+- YouTube Data API v3 - 官方搜索 API（可选）
+- yt-dlp - 视频流提取工具
+- 文件系统存储 - 播放列表持久化
 
-This matters greatly for reliability. Streamly incurs no operational cost here on Github, and requires nothing from YouTube or the original developer of it (me).
+**前端:**
+- 原有的 HTML/CSS/JavaScript 架构
+- 新增 HTML5 视频播放器
+- 保持与原版的兼容性
 
-You, as either a user or a developer, may easily copy all of the Streamly files into your own server/repository and use Streamly out-of-the-box.
+### 2.0 版本的改进
 
-## How does Streamly do it?
+**服务器端功能:**
+- 🔍 内置视频搜索（无需外部浏览器）
+- 🎵 直接视频流播放
+- 💾 服务器端播放列表存储
+- 🔄 智能播放器回退机制
 
-Streamly essentially runs as a helper to the YouTube embed player. It retrieves public data about the video such as the title and time of the video readily accessible on the net. It then builds a playlist off of these values and plays each video in a native embed player.
+**保持的优势:**
+- 📱 跨平台兼容性
+- 🔗 URL 播放列表分享
+- ⚡ 实时播放列表操作
+- 🎛️ 完整的播放控制
 
-The playlist you create is stored in the URL (or web address) of Streamly. This allows you to store it as a bookmark, create a short link from it by throwing it into a link shortener such as <https://tiny.cc> or <https://bit.ly>, throw it into a text file on your computer, or store it any way you like.
+### 部署选项
 
-And, you don't have to worry about losing anything because Streamly requires nothing other than the playlist you create.
+1. **本地开发** - 使用 `npm start` 快速启动
+2. **服务器部署** - 支持 Docker、PM2 等部署方式
+3. **云平台** - 可部署到 Heroku、Vercel 等平台
 
 If you'd like to know why Streamly was made, head over to the [About](https://github.com/LNFWebsite/Streamly/wiki/About) page in the wiki!
 

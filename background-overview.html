@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>背景系统总览 - Streamly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6, #81c784);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .header p {
+            color: #b0bec5;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4fc3f7, #29b6f6, #81c784);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(79, 195, 247, 0.2);
+            border-color: rgba(79, 195, 247, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .feature-title {
+            color: #4fc3f7;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .feature-description {
+            color: #b0bec5;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            color: #e0e0e0;
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .feature-list li::before {
+            content: '✨';
+            position: absolute;
+            left: 0;
+        }
+        
+        .feature-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+            color: white;
+            border-color: #4fc3f7;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #4fc3f7;
+            border-color: #4fc3f7;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(79, 195, 247, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .quick-access {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 40px;
+        }
+        
+        .quick-access h2 {
+            color: #4fc3f7;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .quick-access p {
+            color: #b0bec5;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .quick-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .stats-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stats-title {
+            color: #4fc3f7;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-number {
+            color: #4fc3f7;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #b0bec5;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Streamly 背景系统</h1>
+            <p>完整的背景管理解决方案，为您的视频体验增添视觉魅力</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-images feature-icon"></i>
+                <h3 class="feature-title">背景图库</h3>
+                <p class="feature-description">精心挑选的高质量背景图片，每一张都经过专业优化。</p>
+                <ul class="feature-list">
+                    <li>5种不同风格的背景</li>
+                    <li>4K高清质量</li>
+                    <li>专业摄影师作品</li>
+                    <li>免费商用许可</li>
+                </ul>
+                <div class="feature-actions">
+                    <a href="/background-gallery.html" class="btn btn-primary">
+                        <i class="fas fa-eye"></i>
+                        浏览图库
+                    </a>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-magic feature-icon"></i>
+                <h3 class="feature-title">动态演示</h3>
+                <p class="feature-description">实时预览背景切换效果，支持自动演示模式。</p>
+                <ul class="feature-list">
+                    <li>实时背景预览</li>
+                    <li>自动切换演示</li>
+                    <li>可调节切换间隔</li>
+                    <li>流畅过渡动画</li>
+                </ul>
+                <div class="feature-actions">
+                    <a href="/background-showcase.html" class="btn btn-primary">
+                        <i class="fas fa-play"></i>
+                        观看演示
+                    </a>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-cogs feature-icon"></i>
+                <h3 class="feature-title">高级设置</h3>
+                <p class="feature-description">全面的背景系统配置选项，满足个性化需求。</p>
+                <ul class="feature-list">
+                    <li>预加载控制</li>
+                    <li>动画效果设置</li>
+                    <li>键盘快捷键</li>
+                    <li>使用统计分析</li>
+                </ul>
+                <div class="feature-actions">
+                    <a href="/background-settings.html" class="btn btn-primary">
+                        <i class="fas fa-cog"></i>
+                        打开设置
+                    </a>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-bolt feature-icon"></i>
+                <h3 class="feature-title">智能功能</h3>
+                <p class="feature-description">AI驱动的智能背景管理，提供最佳用户体验。</p>
+                <ul class="feature-list">
+                    <li>智能预加载</li>
+                    <li>随机背景选择</li>
+                    <li>使用习惯分析</li>
+                    <li>性能优化</li>
+                </ul>
+                <div class="feature-actions">
+                    <a href="/background-test.html" class="btn btn-primary">
+                        <i class="fas fa-flask"></i>
+                        功能测试
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-access">
+            <h2>🚀 快速开始</h2>
+            <p>选择您想要的功能，立即开始体验 Streamly 的背景系统</p>
+            
+            <div class="quick-buttons">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home"></i>
+                    返回主页
+                </a>
+                <a href="/guide.html#background" class="btn btn-secondary">
+                    <i class="fas fa-book"></i>
+                    使用指南
+                </a>
+                <a href="/interface-comparison.html" class="btn btn-secondary">
+                    <i class="fas fa-chart-line"></i>
+                    界面对比
+                </a>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <h3 class="stats-title">📊 系统特性</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">精选背景</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">4K</div>
+                    <div class="stat-label">图片质量</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">0ms</div>
+                    <div class="stat-label">切换延迟</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">响应式设计</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">使用次数</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">快捷键</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

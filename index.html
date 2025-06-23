@@ -18,13 +18,18 @@
 <head>
   <title>Streamly</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Portable, independent, web-based, simple streaming YouTube video queues and playlists for music videos, audiobooks, etc." />
+  <meta name="description" content="Streamly - 现代化的在线视频流媒体播放器，支持 YouTube 视频搜索和播放，提供优雅的用户界面和流畅的播放体验。" />
   
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@5/css/all.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css" type="text/css" />
+  <!-- 现代化字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- 外部样式库 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6/css/all.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" type="text/css" />
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" type="text/css" />
-  
+
   <!-- Icon Stuff -->
   <link rel="shortcut icon" id="favicon" href="res/img/favicon.png" type="image/x-icon" />
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -37,12 +42,13 @@
   <link rel="shortcut icon" sizes="128x128" href="res/img/icon.png">
   
   <!-- Meta tags for Open Graph Protocol -->
-  <meta property="og:title" id="ogTitle" content="Streamly - Open-source, web-based, YouTube video queues." />
+  <meta property="og:title" id="ogTitle" content="Streamly - 现代化视频流媒体播放器" />
   <meta property="og:url" content="https://lnfwebsite.github.io/Streamly" />
   <meta property="og:image" content="https://raw.githubusercontent.com/LNFWebsite/Streamly/master/res/img/icon.png" />
   
   <!-- CSS Stylesheet -->
   <link rel="stylesheet" href="res/css/styles.css" type="text/css" />
+  <link rel="stylesheet" href="res/css/modern-theme.css" type="text/css" />
   <!--<link rel="stylesheet" href="res/css/sbs.css" type="text/css" />-->
 
   <!-- External scripts -->
@@ -53,7 +59,6 @@
 </head>
 <body>
   <div id="dataFramesContainer"></div>
-  <a id="forkme" href="https://github.com/LNFWebsite/Streamly" target="_blank"><img id="forkmeImage" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
   <header>
     <h1 id="title">
       <a href="">
@@ -62,7 +67,7 @@
     </h1>
     <div id="inputBoxContainer">
       <form action="javascript:input(0);" method="get" id="searchForm">
-        <input type="text" id="inputBox" />
+        <input type="text" id="inputBox" placeholder="🎬 搜索视频、电影、纪录片或频道..." />
       </form>
       <div id="searchProgress">
         <div class="spinner">
@@ -72,7 +77,7 @@
         </div>
       </div>
     </div>
-    <button id="saveButton" data-clipboard-text="https://lnfwebsite.github.io/Streamly/" onclick="saveButton();" title="Copy your playlist to clipboard"></button>
+    <button id="playlistManagerButton" onclick="togglePlaylistManager();" title="播放列表管理">📋</button>
     <span class="fas fa-columns headerButton" id="sbsButton" onclick="toggleSBS();" title="Toggle side-by-side view"></span>
     <span class="fas fa-cog headerButton" id="settingsButton" onclick="toggleMenu('settings');" title="Settings"></span>
     <span class="fas fa-exchange" id="stationIcon" onclick="disconnectStation();" title="Streamly Station is connected. Click to disconnect..."></span>
@@ -81,58 +86,289 @@
     <div id="dropShadow"></div>
     <div id="dropOverlay"><p>(Drop videos/playlists anywhere on screen)</p></div>
     <div id="searchResultsWindow" class="floatingMenu">
-      <h2>Search Results:</h2>
-      <div class="floatingMenuCloseButton" onclick="toggleMenu('searchResults');">Close</div>
+      <h2>搜索结果:</h2>
+      <div class="floatingMenuCloseButton" onclick="toggleMenu('searchResults');">关闭</div>
+      <div id="searchStatus" style="padding: 10px; font-style: italic; color: #666; display: none;"></div>
       <div id="searchResults" class="floatingMenuContents"></div>
     </div>
     <div id="settingsWindow" class="floatingMenu">
-      <div class="floatingMenuCloseButton" onclick="toggleMenu('settings');">Close</div>
-      <h2>Settings</h2>
+      <div class="floatingMenuCloseButton" onclick="toggleMenu('settings');">×</div>
+      <h2>🎬 Streamly 设置</h2>
       <div class="floatingMenuContents">
-        <h3>General</h3><hr>
-        <p>
-            <label for="SBStoggle">Side by side view:</label>
+
+        <!-- 播放设置 -->
+        <div class="settings-section">
+          <h3>🎵 播放设置</h3>
+          <div class="setting-item">
+            <label for="autoplayNext">自动播放下一个视频:</label>
+            <input type="checkbox" id="autoplayNext" checked onchange="toggleAutoplayNext();">
+          </div>
+          <div class="setting-item">
+            <label for="defaultVolume">默认音量:</label>
+            <input type="range" id="defaultVolume" min="0" max="100" value="80" onchange="setDefaultVolume(this.value);">
+            <span id="volumeValue">80%</span>
+          </div>
+          <div class="setting-item">
+            <label for="playbackQuality">默认播放质量:</label>
+            <select id="playbackQuality" onchange="setPlaybackQuality(this.value);">
+              <option value="auto">自动</option>
+              <option value="hd1080">1080p</option>
+              <option value="hd720">720p</option>
+              <option value="large">480p</option>
+              <option value="medium">360p</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 界面设置 -->
+        <div class="settings-section">
+          <h3>🎨 界面设置</h3>
+          <div class="setting-item">
+            <label for="SBStoggle">分屏显示模式:</label>
             <input type="checkbox" id="SBStoggle" onchange="toggleSBS();">
-        </p>
-        <p>
-          <label for="searchClose">Close search window on adding video:</label>
-          <input type="checkbox" id="searchClose" onchange="toggleSearchClose();">
-          <br><sup>Note: To do the reverse of this setting for one search press <code>Shift+\</code></sup>
-        </p>
-        <p>
-          <label for="autoplayListOverride">Use YouTube Mix/Playlist as Radio:</label>
-          <input type="checkbox" id="autoplayListOverride" onchange="toggleAutoplayListOverride();">
-        </p>
-        <h3>Streamly Station</h3><hr>
-        <p><i>Connect to a Streamly Station (Not implemented yet)</i></p>
-        <form action="javascript:actionConnectStation();" method="get">
-          <p>
-            <label for="connectStationBox">Address:</label>
-            <input type="textbox" id="connectStationBox" placeholder="Enter the Streamly Station address (ex. 192.168.0.15)..." title="Enter the Streamly Station address">
-          </p>
-          <p>
-            <label for="stationRemote">Remote?</label>
-            <input type="checkbox" id="stationRemote" onchange="toggleRemote();">
-          </p>
-          <p>
-            <label for="zenModeToggle">Zen Mode?</label>
+          </div>
+          <div class="setting-item">
+            <label for="darkMode">深色主题:</label>
+            <input type="checkbox" id="darkMode" checked onchange="toggleDarkMode();">
+          </div>
+          <div class="setting-item">
+            <label for="showThumbnails">显示视频缩略图:</label>
+            <input type="checkbox" id="showThumbnails" checked onchange="toggleThumbnails();">
+          </div>
+          <div class="setting-item">
+            <label for="zenModeToggle">专注模式 (隐藏干扰元素):</label>
             <input type="checkbox" id="zenModeToggle" onchange="toggleZen();">
-          </p>
-        </form>
+          </div>
+        </div>
+
+        <!-- 搜索设置 -->
+        <div class="settings-section">
+          <h3>🔍 搜索设置</h3>
+          <div class="setting-item">
+            <label for="searchClose">添加视频后自动关闭搜索窗口:</label>
+            <input type="checkbox" id="searchClose" onchange="toggleSearchClose();">
+            <small>提示: 按 Shift+\ 可临时反转此设置</small>
+          </div>
+          <div class="setting-item">
+            <label for="searchResults">搜索结果数量:</label>
+            <select id="searchResults" onchange="setSearchResultsCount(this.value);">
+              <option value="10">10个结果</option>
+              <option value="20" selected>20个结果</option>
+              <option value="30">30个结果</option>
+              <option value="50">50个结果</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="safeSearch">安全搜索:</label>
+            <select id="safeSearch" onchange="setSafeSearch(this.value);">
+              <option value="moderate" selected>中等</option>
+              <option value="strict">严格</option>
+              <option value="none">关闭</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 播放列表设置 -->
+        <div class="settings-section">
+          <h3>📋 播放列表设置</h3>
+          <div class="setting-item">
+            <label for="autoplayListOverride">使用 YouTube 混合播放列表作为电台:</label>
+            <input type="checkbox" id="autoplayListOverride" onchange="toggleAutoplayListOverride();">
+          </div>
+          <div class="setting-item">
+            <label for="shuffleMode">默认随机播放:</label>
+            <input type="checkbox" id="shuffleMode" onchange="toggleShuffleMode();">
+          </div>
+          <div class="setting-item">
+            <label for="repeatMode">默认重复播放:</label>
+            <select id="repeatMode" onchange="setRepeatMode(this.value);">
+              <option value="none">不重复</option>
+              <option value="one">单曲循环</option>
+              <option value="all">列表循环</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 高级设置 -->
+        <div class="settings-section">
+          <h3>⚙️ 高级设置</h3>
+          <div class="setting-item">
+            <label for="preloadVideos">预加载视频:</label>
+            <input type="checkbox" id="preloadVideos" checked onchange="togglePreloadVideos();">
+            <small>提高播放流畅度，但会增加数据使用量</small>
+          </div>
+          <div class="setting-item">
+            <label for="keyboardShortcuts">启用键盘快捷键:</label>
+            <input type="checkbox" id="keyboardShortcuts" checked onchange="toggleKeyboardShortcuts();">
+          </div>
+          <div class="setting-item">
+            <label for="analyticsEnabled">使用统计 (匿名):</label>
+            <input type="checkbox" id="analyticsEnabled" onchange="toggleAnalytics();">
+            <small>帮助改进 Streamly</small>
+          </div>
+        </div>
+
+        <!-- 数据管理 -->
+        <div class="settings-section">
+          <h3>💾 数据管理</h3>
+          <div class="setting-item">
+            <button class="settings-button" onclick="exportSettings();">导出设置</button>
+            <button class="settings-button" onclick="importSettings();">导入设置</button>
+          </div>
+          <div class="setting-item">
+            <button class="settings-button" onclick="clearCache();">清除缓存</button>
+            <button class="settings-button danger" onclick="resetSettings();">重置所有设置</button>
+          </div>
+        </div>
+
+        <!-- 关于信息 -->
+        <div class="settings-section">
+          <h3>ℹ️ 关于 Streamly</h3>
+          <div class="about-info">
+            <p><strong>版本:</strong> 2.0.0</p>
+            <p><strong>构建日期:</strong> <span id="buildDate">2024-01-01</span></p>
+            <p><strong>开源项目:</strong> <a href="https://github.com/tonyhu2006/Streamly" target="_blank">GitHub</a></p>
+            <p><strong>许可证:</strong> Apache 2.0</p>
+          </div>
+        </div>
+
       </div>
     </div>
-    <div id="blurBackground"></div>
+
+    <!-- 播放列表管理窗口 -->
+    <div id="playlistManagerWindow" class="floatingMenu" style="display: none;">
+      <div class="floatingMenuCloseButton" onclick="togglePlaylistManager();">×</div>
+      <h2>📋 播放列表管理</h2>
+      <div class="floatingMenuContents">
+
+        <!-- 当前状态 -->
+        <div class="playlist-section">
+          <h3>当前状态</h3>
+          <div class="current-status">
+            <div class="status-item">
+              <span class="status-label">当前模式:</span>
+              <span id="currentModeDisplay">临时播放队列</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">队列中视频:</span>
+              <span id="currentQueueCount">0</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">本地播放列表:</span>
+              <span id="localPlaylistCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 快速操作 -->
+        <div class="playlist-section">
+          <h3>快速操作</h3>
+          <div class="quick-actions">
+            <button class="action-button" onclick="saveCurrentQueueAsPlaylist();">
+              <i class="fas fa-save"></i> 保存当前队列
+            </button>
+            <button class="action-button" onclick="showCreatePlaylistDialog();">
+              <i class="fas fa-plus"></i> 创建新播放列表
+            </button>
+            <button class="action-button secondary" onclick="switchPlaylist('temp');">
+              <i class="fas fa-list"></i> 切换到临时队列
+            </button>
+          </div>
+        </div>
+
+        <!-- 本地播放列表 -->
+        <div class="playlist-section">
+          <h3>本地播放列表</h3>
+          <div id="localPlaylistsList" class="playlists-container">
+            <!-- 本地播放列表将在这里动态生成 -->
+          </div>
+        </div>
+
+        <!-- 临时播放列表（原有功能） -->
+        <div class="playlist-section">
+          <h3>临时播放列表</h3>
+          <div class="create-playlist-form">
+            <input type="text" id="newPlaylistName" placeholder="输入播放列表名称..." maxlength="50">
+            <textarea id="newPlaylistDescription" placeholder="描述（可选）..." rows="2" maxlength="200"></textarea>
+            <button class="action-button" onclick="createNewPlaylist();">
+              <i class="fas fa-plus"></i> 创建临时播放列表
+            </button>
+          </div>
+
+          <div id="playlistsList" class="playlists-container">
+            <!-- 临时播放列表将在这里动态生成 -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 播放列表选择弹窗 -->
+    <div id="playlistSelectorModal" class="modal" style="display: none;" onclick="if(event.target === this) { closePlaylistSelector(); }">
+      <div class="modal-content" onclick="event.stopPropagation();">
+        <div class="modal-header">
+          <h3>选择播放列表</h3>
+          <button class="modal-close" onclick="closePlaylistSelector();">×</button>
+        </div>
+        <div class="modal-body">
+          <div id="playlistSelectorList" class="playlist-selector-list">
+            <!-- 播放列表选项将在这里生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="action-button secondary" onclick="closePlaylistSelector();">取消</button>
+        </div>
+      </div>
+    </div>
     <form action="javascript:input(2);" method="get">
-      <input type="textbox" id="playlistNameBox" placeholder="Streamly Playlist" title="Enter your playlist name" />
+      <div id="playlistSelector" class="playlist-selector">
+        <select id="currentPlaylistSelect" onchange="switchPlaylist(this.value);" title="选择播放列表">
+          <option value="temp">📝 临时播放队列</option>
+        </select>
+        <button id="newPlaylistBtn" onclick="showCreatePlaylistDialog();" title="创建新播放列表">➕</button>
+        <button id="saveQueueBtn" onclick="saveCurrentQueueAsPlaylist();" title="保存当前队列为播放列表">💾</button>
+        <button id="managePlaylistsBtn" onclick="togglePlaylistManager();" title="管理播放列表">📋</button>
+      </div>
     </form>
+
+    <!-- 欢迎消息 -->
+    <div id="welcomeMessage" class="welcome-message" style="display: none;">
+      <h2>🎬 欢迎使用 Streamly 2.0</h2>
+      <p>全新的服务器端视频流媒体播放器</p>
+      <p>✨ 在上方搜索框中输入视频名、频道或关键词开始您的观影之旅</p>
+      <p>🎯 支持智能搜索、高质量播放和播放列表管理</p>
+      <p>🚀 无需外部浏览器，享受纯净的视频体验</p>
+    </div>
+
     <table id="videosTable"></table>
     <div id="links">
-      <a href="https://github.com/LNFWebsite/Streamly/wiki/Getting-Started" target="_blank">Getting Started</a> |
-      <a href="https://github.com/LNFWebsite/Streamly/wiki/Playlists" target="_blank">Playlists Wiki</a> |
-      <a href="https://lnfwebsite.github.io/Streamly-Import/" target="_blank">Import Playlists</a> |
+      <a href="/guide.html">使用指南</a> |
+      <a href="https://github.com/LNFWebsite/Streamly/wiki/Playlists" target="_blank">播放列表帮助</a> |
+      <a href="https://lnfwebsite.github.io/Streamly-Import/" target="_blank">导入播放列表</a> |
       <a href="https://www.reddit.com/r/StreamlyReddit/" target="_blank">StreamlyReddit</a>
       <br>
-      <a style="color:red;" href="https://www.reddit.com/r/StreamlyReddit/comments/mp6wna/quick_search_and_inbox_search_not_working/" target="_blank">Quick Search and In-Box Search not available</a>
+      <span style="color:#4CAF50;">✓ 服务器端视频搜索和播放功能已启用</span> |
+      <span style="color:#2196F3;">支持内置视频流媒体播放，无需外部浏览器</span>
+    </div>
+
+    <!-- 快速创建播放列表对话框 -->
+    <div id="quickCreatePlaylistModal" class="modal" style="display: none;" onclick="if(event.target === this) { closeQuickCreateDialog(); }">
+      <div class="modal-content" onclick="event.stopPropagation();">
+        <div class="modal-header">
+          <h3>创建新播放列表</h3>
+          <button class="modal-close" onclick="closeQuickCreateDialog();">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="quick-create-form">
+            <input type="text" id="quickPlaylistName" placeholder="播放列表名称..." maxlength="50">
+            <textarea id="quickPlaylistDescription" placeholder="描述（可选）..." rows="2" maxlength="200"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="action-button" onclick="createQuickPlaylist();">创建</button>
+          <button class="action-button secondary" onclick="closeQuickCreateDialog();">取消</button>
+        </div>
+      </div>
     </div>
   </div>
   <footer>
@@ -151,7 +387,12 @@
     <div id="playlistInterface">
       <div id="youtubeContainer">
         <span id="remotePauseIcon" class="fas fa-play"></span>
-        <iframe id="youtube" src="" allowfullscreen></iframe>
+        <div id="playerStatus" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; z-index: 1000; display: none;"></div>
+        <video id="videoPlayer" controls preload="metadata" style="width: 100%; height: 100%; display: none;">
+          <source id="videoSource" src="" type="video/mp4">
+          您的浏览器不支持 HTML5 视频播放。
+        </video>
+        <iframe id="youtube" src="" allowfullscreen style="display: none;"></iframe>
       </div>
       <div id="currentVideoTiming">
         <span id="currentTime">0:00</span>
@@ -190,6 +431,7 @@
   ---->
   <script src="res/js/front/initialize.js"></script>
   <script src="res/js/front/youtube.js"></script>
+  <script src="res/js/front/videoplayer.js"></script>
   <script src="res/js/front/share.js"></script>
   <script src="res/js/front/events.js"></script>
 
@@ -237,5 +479,99 @@
   src="//c.statcounter.com/10543623/0/4c623aaf/1/" alt="Web
   Analytics"></a></div></noscript>
   <!-- End of StatCounter Code for Default Guide -->
+
+  <!-- 背景选择器 -->
+  <script src="res/js/background-selector.js" type="text/javascript"></script>
+
+  <!-- 设置管理器 -->
+  <script src="res/js/settings-manager.js" type="text/javascript"></script>
+
+  <!-- 播放列表管理器 -->
+  <script src="res/js/playlist-manager.js" type="text/javascript"></script>
+
+  <!-- 本地播放列表管理器 -->
+  <script src="res/js/local-playlist-manager.js" type="text/javascript"></script>
+
+  <!-- 现代化界面增强脚本 -->
+  <script>
+    // 页面加载完成后的初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 显示欢迎消息（如果播放列表为空）
+      function checkPlaylistEmpty() {
+        const table = document.getElementById('videosTable');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+
+        if (table && welcomeMessage) {
+          if (table.children.length === 0) {
+            welcomeMessage.style.display = 'block';
+            welcomeMessage.classList.add('animate__animated', 'animate__fadeInUp');
+          } else {
+            welcomeMessage.style.display = 'none';
+          }
+        }
+      }
+
+      // 初始检查
+      setTimeout(checkPlaylistEmpty, 1000);
+
+      // 监听表格变化
+      const observer = new MutationObserver(checkPlaylistEmpty);
+      const table = document.getElementById('videosTable');
+      if (table) {
+        observer.observe(table, { childList: true, subtree: true });
+      }
+
+      // 添加搜索框焦点效果
+      const inputBox = document.getElementById('inputBox');
+      if (inputBox) {
+        inputBox.addEventListener('focus', function() {
+          this.parentElement.parentElement.style.transform = 'scale(1.02)';
+        });
+
+        inputBox.addEventListener('blur', function() {
+          this.parentElement.parentElement.style.transform = 'scale(1)';
+        });
+      }
+
+      // 添加页面加载动画
+      document.body.style.opacity = '0';
+      document.body.style.transition = 'opacity 0.5s ease-in-out';
+
+      setTimeout(function() {
+        document.body.style.opacity = '1';
+      }, 100);
+
+      // 添加滚动效果
+      let lastScrollTop = 0;
+      const header = document.querySelector('header');
+
+      window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        if (scrollTop > lastScrollTop && scrollTop > 100) {
+          // 向下滚动
+          header.style.transform = 'translateY(-100%)';
+        } else {
+          // 向上滚动
+          header.style.transform = 'translateY(0)';
+        }
+
+        lastScrollTop = scrollTop;
+      });
+    });
+
+    // 搜索结果显示时隐藏欢迎消息
+    function hideWelcomeMessage() {
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      if (welcomeMessage) {
+        welcomeMessage.style.display = 'none';
+      }
+    }
+
+    // 全局函数，供其他脚本调用
+    window.modernUI = {
+      hideWelcomeMessage: hideWelcomeMessage
+    };
+  </script>
 </body>
 </html>

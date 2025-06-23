@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamly 背景图库</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #b0bec5;
+            font-size: 1.1rem;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(79, 195, 247, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(79, 195, 247, 1);
+            transform: translateY(-2px);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .background-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .background-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(79, 195, 247, 0.2);
+            border-color: rgba(79, 195, 247, 0.3);
+        }
+        
+        .background-preview {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .background-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(15, 15, 35, 0.3), rgba(26, 26, 46, 0.3));
+        }
+        
+        .preview-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(79, 195, 247, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .background-card:hover .preview-overlay {
+            opacity: 1;
+        }
+        
+        .card-content {
+            padding: 20px;
+        }
+        
+        .card-title {
+            color: #4fc3f7;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .card-description {
+            color: #b0bec5;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+            color: white;
+            border-color: #4fc3f7;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #4fc3f7;
+            border-color: #4fc3f7;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(79, 195, 247, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .info-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-section h3 {
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .info-section p {
+            color: #b0bec5;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card-actions {
+                flex-direction: column;
+            }
+        }
+        
+        /* 背景预览样式 */
+        .bg-studio {
+            background-image: linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+                              url('https://images.unsplash.com/photo-1640957454144-392c8b05d5a5?w=1920&auto=format&fit=crop&q=80');
+        }
+        
+        .bg-modern {
+            background-image: linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+                              url('https://images.unsplash.com/photo-1627407660893-fe01f60d44c4?w=1920&auto=format&fit=crop&q=80');
+        }
+        
+        .bg-mixing {
+            background-image: linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+                              url('https://images.unsplash.com/photo-1518972559570-7cc1309f3229?w=1920&auto=format&fit=crop&q=80');
+        }
+        
+        .bg-default {
+            background-image: linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)),
+                              url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1920&auto=format&fit=crop&q=80');
+        }
+        
+        .bg-gradient {
+            background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(26, 26, 46, 0.95)),
+                        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.15) 0%, transparent 60%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.12) 0%, transparent 60%),
+                        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.15) 0%, transparent 60%);
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        返回主页
+    </a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Streamly 背景图库</h1>
+            <p>为您的视频播放器选择完美的背景</p>
+        </div>
+        
+        <div class="gallery-grid">
+            <div class="background-card">
+                <div class="background-preview bg-default">
+                    <div class="preview-overlay">点击预览</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">🎬 专业工作室</h3>
+                    <p class="card-description">专业制作工作室氛围，营造沉浸式视频体验。暖色调灯光与专业设备的完美结合。</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="applyBackground('default')">
+                            <i class="fas fa-check"></i>
+                            应用背景
+                        </button>
+                        <a href="https://unsplash.com/photos/music-room-with-lights-turned-on-gUK3lA3K7Yo" target="_blank" class="btn btn-secondary">
+                            <i class="fas fa-external-link-alt"></i>
+                            查看原图
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="background-card">
+                <div class="background-preview bg-studio">
+                    <div class="preview-overlay">点击预览</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">🌙 暗色制作室</h3>
+                    <p class="card-description">神秘暗色调制作环境，专业设备特写。适合深夜视频观看和创作。</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="applyBackground('studio')">
+                            <i class="fas fa-check"></i>
+                            应用背景
+                        </button>
+                        <a href="https://unsplash.com/photos/a-microphone-and-a-microphone-stand-in-a-dark-room-fqObrs1EVbY" target="_blank" class="btn btn-secondary">
+                            <i class="fas fa-external-link-alt"></i>
+                            查看原图
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="background-card">
+                <div class="background-preview bg-modern">
+                    <div class="preview-overlay">点击预览</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">💻 现代制作室</h3>
+                    <p class="card-description">现代化视频制作环境，展现数字视频创作的魅力。简洁而富有科技感。</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="applyBackground('modern')">
+                            <i class="fas fa-check"></i>
+                            应用背景
+                        </button>
+                        <a href="https://unsplash.com/photos/black-flat-screen-computer-monitor-on-brown-wooden-desk-aLPY2rRTYQI" target="_blank" class="btn btn-secondary">
+                            <i class="fas fa-external-link-alt"></i>
+                            查看原图
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="background-card">
+                <div class="background-preview bg-mixing">
+                    <div class="preview-overlay">点击预览</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">🎛️ 控制台特写</h3>
+                    <p class="card-description">专业控制设备特写，展现视频制作的精密与专业。适合视频爱好者。</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="applyBackground('mixing')">
+                            <i class="fas fa-check"></i>
+                            应用背景
+                        </button>
+                        <a href="https://unsplash.com/photos/close-up-photography-of-turned-on-audio-mixer-VRdZBLqnoMU" target="_blank" class="btn btn-secondary">
+                            <i class="fas fa-external-link-alt"></i>
+                            查看原图
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="background-card">
+                <div class="background-preview bg-gradient">
+                    <div class="preview-overlay">点击预览</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">✨ 抽象渐变</h3>
+                    <p class="card-description">原始抽象渐变背景，简洁优雅。专注于内容本身，不会分散注意力。</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="applyBackground('gradient')">
+                            <i class="fas fa-check"></i>
+                            应用背景
+                        </button>
+                        <button class="btn btn-secondary" onclick="showGradientInfo()">
+                            <i class="fas fa-info-circle"></i>
+                            了解更多
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>🎨 关于背景图片</h3>
+            <p>所有背景图片均来自 Unsplash，由专业摄影师拍摄，免费提供给用户使用。</p>
+            <p>背景图片经过优化处理，确保在不同设备上都能提供最佳的视觉体验。</p>
+            <p>您的背景选择会自动保存到本地存储，下次访问时会自动应用您的偏好设置。</p>
+        </div>
+    </div>
+    
+    <script>
+        function applyBackground(backgroundId) {
+            // 保存背景选择
+            try {
+                localStorage.setItem('streamly-background', backgroundId);
+                
+                // 显示成功消息
+                showMessage(`背景 "${getBackgroundName(backgroundId)}" 已应用！`, 'success');
+                
+                // 延迟跳转到主页
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } catch (e) {
+                showMessage('保存背景设置失败', 'error');
+            }
+        }
+        
+        function getBackgroundName(id) {
+            const names = {
+                'default': '音乐工作室',
+                'studio': '暗色录音室',
+                'modern': '现代制作室',
+                'mixing': '调音台特写',
+                'gradient': '抽象渐变'
+            };
+            return names[id] || '未知背景';
+        }
+        
+        function showMessage(text, type = 'info') {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease-out;
+            `;
+            message.textContent = text;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    document.body.removeChild(message);
+                }, 300);
+            }, 2000);
+        }
+        
+        function showGradientInfo() {
+            alert('抽象渐变背景使用纯CSS渐变效果，不依赖外部图片，加载速度更快，适合网络环境较差的用户。');
+        }
+        
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -37,11 +37,13 @@ function addVideoToList(name, time, spot, smooth) {
   //let trElement = "<tr" + smooth + "><td class=\"tableLeft\">" + name + "<div class=\"tableButtonDiv\"><button class=\"tableButton removeButton\" onclick=\"buttonRemoveVideo(this);\" title=\"Remove\"><span class=\"fa fa-times\"></span></button>" +
   //"<button class=\"tableButton playButton\" onclick=\"buttonPlayVideo(this);\" title=\"Play\"><span class=\"fa fa-play\"></span></button></div></td><td>" + time + "</td></tr>";
 
-  let trElement = "<tr" + smooth + "><td class=\"tableLeft\">" + name +
-  "<div class=\"tableButtons\">" +
-  "<span class=\"fa fa-rss autoplayButton\" onclick=\"playlistButtons.autoplay(this);\" title=\"Start Radio\"></span>" +
-  "<span class=\"fa fa-play playButton\" onclick=\"playlistButtons.play(this);\" title=\"Play\"></span>" +
-  "<span class=\"fa fa-times removeButton\" onclick=\"playlistButtons.remove(this);\" title=\"Remove\"></span>" +
+  let trElement = "<tr" + smooth + "><td class=\"tableLeft\">" +
+  "<span class=\"video-title-text\">" + name + "</span>" +
+  "<div class=\"tableButtons\" style=\"pointer-events: auto; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 9999; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 8px;\">" +
+  "<span class=\"fa fa-rss autoplayButton\" onclick=\"playlistButtons.autoplay(this); event.stopPropagation();\" title=\"Start Radio\" style=\"color: #ff9800; margin-right: 8px;\"></span>" +
+  "<span class=\"fa fa-play playButton\" onclick=\"playlistButtons.play(this); event.stopPropagation();\" title=\"Play\" style=\"color: #4fc3f7; margin-right: 8px;\"></span>" +
+  "<span class=\"fa fa-times removeButton\" onclick=\"playlistButtons.remove(this); event.stopPropagation();\" title=\"Remove\" style=\"color: #f44336; margin-right: 8px;\"></span>" +
+  "<span class=\"fa fa-plus-circle addToPlaylistButton\" onclick=\"playlistButtons.addToPlaylist(this); event.stopPropagation();\" title=\"加入播放列表\" style=\"color: #4caf50; z-index: 10000; position: relative;\"></span>" +
   "</div></td><td>" + time + "</td></tr>";
   
   if ($("#videosTable > tr").length > 0) {
@@ -115,6 +117,56 @@ let PlaylistButtons = function() {
     addAutoplayVideo(index, 'reset');
     playlistFeatures.toggleSelected(playlistAutoplay, ".fa-rss");
   }
+  this.addToPlaylist = function(element) {
+    let index = $(".addToPlaylistButton").index(element) + 1;
+
+    if (typeof videos !== 'undefined' && videos[index]) {
+      const video = {
+        id: videos[index][2], // YouTube video ID
+        title: videos[index][0], // Video title
+        thumbnail: `https://i.ytimg.com/vi/${videos[index][2]}/default.jpg`,
+        duration: videos[index][1] // 时长（秒）
+      };
+
+      // 尝试多次检查本地播放列表管理器
+      const checkAndExecute = (attempts = 0) => {
+        if (window.localPlaylistManager && typeof window.localPlaylistManager.playlists !== 'undefined') {
+          // 管理器已初始化，执行操作
+          const playlistCount = Object.keys(window.localPlaylistManager.playlists).length;
+
+          if (playlistCount === 0) {
+            // 没有播放列表，提示创建
+            if (confirm('您还没有创建任何播放列表。是否现在创建一个新的播放列表？')) {
+              showCreatePlaylistForVideo(video);
+            }
+          } else {
+            // 有播放列表，显示选择器
+            showLocalPlaylistSelector(video);
+          }
+        } else if (attempts < 10) {
+          // 继续等待，最多尝试10次
+          setTimeout(() => checkAndExecute(attempts + 1), 200);
+        } else {
+          // 超时，手动初始化
+          console.warn('本地播放列表管理器初始化超时，尝试手动初始化...');
+          try {
+            if (!window.localPlaylistManager) {
+              window.localPlaylistManager = new LocalPlaylistManager();
+            }
+            // 再次尝试
+            setTimeout(() => checkAndExecute(0), 300);
+          } catch (e) {
+            console.error('手动初始化失败:', e);
+            alert('播放列表管理器初始化失败，请刷新页面重试。');
+          }
+        }
+      };
+
+      checkAndExecute();
+    } else {
+      alert('无法获取视频信息，请重试。');
+    }
+  }
 }
 let playlistButtons = new PlaylistButtons;
 
@@ -131,7 +183,11 @@ function makeSortable() {
     start: function(event, ui) {
       oldIndex = ui.item.index();
     },
-    cancel: "span"
+    cancel: ".tableButtons, .tableButtons *, .autoplayButton, .playButton, .removeButton, .addToPlaylistButton",
+    handle: ".video-title-text",
+    cursor: "move",
+    tolerance: "pointer",
+    distance: 5
   });
 }
 

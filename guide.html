@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamly 使用指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            color: #4fc3f7;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #b0bec5;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 195, 247, 0.4);
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section h2 {
+            color: #4fc3f7;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4fc3f7;
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #81c784;
+            font-size: 1.4rem;
+            margin: 25px 0 15px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #4fc3f7;
+        }
+        
+        .feature-card h4 {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-block code {
+            color: #f8f8f2;
+        }
+        
+        .step-list {
+            counter-reset: step-counter;
+        }
+        
+        .step-list li {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+        
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #4fc3f7;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(79, 195, 247, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-btn:hover {
+            background: rgba(79, 195, 247, 1);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">← 返回主页</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Streamly 使用指南</h1>
+            <p>全功能视频流媒体播放器 - 服务器端搜索与播放</p>
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="#quick-start" class="nav-btn">快速开始</a>
+            <a href="#features" class="nav-btn">功能特色</a>
+            <a href="#search" class="nav-btn">搜索功能</a>
+            <a href="#background" class="nav-btn">背景选择</a>
+            <a href="#player" class="nav-btn">播放器使用</a>
+            <a href="#api" class="nav-btn">API 配置</a>
+            <a href="#troubleshooting" class="nav-btn">故障排除</a>
+        </div>
+        
+        <div id="quick-start" class="section">
+            <h2>🚀 快速开始</h2>
+            <p>欢迎使用 Streamly 2.0！这是一个功能强大的视频流媒体播放器，支持服务器端搜索和播放。</p>
+
+            <h3>基本使用步骤</h3>
+            <ol class="step-list">
+                <li><strong>搜索视频</strong>：在顶部搜索框中输入视频名、频道或关键词</li>
+                <li><strong>选择视频</strong>：从搜索结果中点击您想要播放的视频</li>
+                <li><strong>享受观影</strong>：视频将自动开始播放，您可以使用播放控制按钮</li>
+                <li><strong>管理播放列表</strong>：添加更多视频到您的播放列表</li>
+            </ol>
+
+            <div class="success">
+                <strong>✅ 新功能亮点：</strong> Streamly 2.0 现在支持服务器端搜索，无需外部浏览器即可搜索和播放 YouTube 视频！
+            </div>
+        </div>
+        
+        <div id="features" class="section">
+            <h2>✨ 功能特色</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔍 智能搜索</h4>
+                    <p>内置 YouTube 搜索功能，支持备用搜索机制，确保始终能找到您想要的视频。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🎬 双播放器支持</h4>
+                    <p>自动在 HTML5 播放器和 YouTube iframe 播放器之间切换，提供最佳播放体验。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>📱 响应式设计</h4>
+                    <p>完美适配桌面、平板和手机设备，随时随地享受视频。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🎛️ 播放列表管理</h4>
+                    <p>创建、编辑和管理您的个人播放列表，支持导入和导出功能。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>⚡ 高性能缓存</h4>
+                    <p>智能缓存机制，减少加载时间，提供流畅的播放体验。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🌐 多语言支持</h4>
+                    <p>支持中文界面，更符合本地用户使用习惯。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🎨 自定义背景</h4>
+                    <p>多种精美背景图片可选，打造个性化视频体验。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="search" class="section">
+            <h2>🔍 搜索功能详解</h2>
+            
+            <h3>搜索方式</h3>
+            <ul>
+                <li><strong>视频名搜索</strong>：直接输入视频标题</li>
+                <li><strong>频道搜索</strong>：输入频道名称或创作者</li>
+                <li><strong>组合搜索</strong>：使用 "频道 - 视频名" 格式</li>
+                <li><strong>关键词搜索</strong>：使用相关关键词或内容描述</li>
+            </ul>
+            
+            <h3>搜索技巧</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>精确搜索</h4>
+                    <p>使用引号包围关键词进行精确匹配，如 "Bohemian Rhapsody"</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>排除词汇</h4>
+                    <p>使用减号排除不想要的结果，如 music -cover</p>
+                </div>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ 注意：</strong> 如果搜索结果较少，系统会自动使用备用搜索方法或提供相关建议。
+            </div>
+        </div>
+        
+        <div id="background" class="section">
+            <h2>🎨 背景选择功能</h2>
+
+            <h3>如何更换背景</h3>
+            <ol class="step-list">
+                <li>点击页面右上角的 <strong>🎨</strong> 背景选择按钮</li>
+                <li>在弹出的背景选择面板中浏览可用背景</li>
+                <li>点击您喜欢的背景选项</li>
+                <li>背景会立即应用并自动保存</li>
+            </ol>
+
+            <h3>可用背景类型</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎬 专业工作室</h4>
+                    <p>专业制作工作室氛围，暖色调灯光营造沉浸式体验</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🌙 暗色制作室</h4>
+                    <p>神秘暗色调环境，适合深夜视频观看</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>💻 现代制作室</h4>
+                    <p>现代化数字视频制作环境，科技感十足</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🎛️ 控制台特写</h4>
+                    <p>专业控制设备特写，展现视频制作精密性</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>✨ 抽象渐变</h4>
+                    <p>简洁优雅的渐变背景，专注内容本身</p>
+                </div>
+            </div>
+
+            <h3>高级功能</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>⌨️ 键盘快捷键</h4>
+                    <p><strong>Ctrl+B</strong>：快速打开背景选择器<br>
+                    <strong>Ctrl+R</strong>：随机选择背景</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🎲 随机背景</h4>
+                    <p>点击右上角的骰子按钮或使用快捷键随机切换背景</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>ℹ️ 背景信息</h4>
+                    <p>点击右下角的信息按钮查看当前背景的详细信息</p>
+                </div>
+
+                <div class="feature-card">
+                    <h4>⚡ 智能预加载</h4>
+                    <p>系统会自动预加载背景图片，确保切换时的流畅体验</p>
+                </div>
+            </div>
+
+            <h3>背景管理页面</h3>
+            <ul>
+                <li><strong>背景图库</strong>：浏览所有可用背景，查看详细信息</li>
+                <li><strong>背景演示</strong>：实时预览背景切换效果，支持自动演示</li>
+                <li><strong>背景设置</strong>：自定义背景行为和偏好设置</li>
+            </ul>
+
+            <div class="success">
+                <strong>💡 小贴士：</strong> 您的背景选择会自动保存到本地存储，下次访问时会自动应用您的偏好设置。
+            </div>
+        </div>
+
+        <div id="player" class="section">
+            <h2>🎬 播放器使用指南</h2>
+            
+            <h3>播放控制</h3>
+            <ul>
+                <li><strong>播放/暂停</strong>：点击播放按钮或使用空格键</li>
+                <li><strong>音量控制</strong>：使用音量滑块或键盘上下箭头</li>
+                <li><strong>进度控制</strong>：拖动进度条或使用左右箭头键</li>
+                <li><strong>全屏模式</strong>：双击播放器或点击全屏按钮</li>
+            </ul>
+            
+            <h3>播放列表操作</h3>
+            <ul>
+                <li><strong>添加到播放列表</strong>：点击搜索结果旁的 "+" 按钮</li>
+                <li><strong>移除视频</strong>：在播放列表中点击 "×" 按钮</li>
+                <li><strong>重新排序</strong>：拖拽播放列表中的视频进行排序</li>
+                <li><strong>循环播放</strong>：点击循环按钮设置播放模式</li>
+            </ul>
+            
+            <h3>快捷键</h3>
+            <div class="code-block">
+                <code>
+空格键    - 播放/暂停<br>
+↑/↓      - 音量调节<br>
+←/→      - 快进/快退<br>
+M        - 静音/取消静音<br>
+F        - 全屏切换<br>
+N        - 下一首<br>
+P        - 上一首
+                </code>
+            </div>
+        </div>
+
+        <div id="api" class="section">
+            <h2>🔧 API 配置</h2>
+
+            <h3>YouTube Data API v3 配置（可选）</h3>
+            <p>为了获得更好的搜索体验，您可以配置 YouTube Data API v3 密钥：</p>
+
+            <ol class="step-list">
+                <li>访问 <a href="https://console.cloud.google.com/" target="_blank" style="color: #4fc3f7;">Google Cloud Console</a></li>
+                <li>创建新项目或选择现有项目</li>
+                <li>启用 "YouTube Data API v3"</li>
+                <li>创建 API 密钥</li>
+                <li>在项目根目录创建 <code>.env</code> 文件</li>
+                <li>添加配置：<code>YOUTUBE_API_KEY=your_api_key_here</code></li>
+            </ol>
+
+            <div class="success">
+                <strong>✅ 无需 API 密钥也能使用：</strong> Streamly 内置了备用搜索功能，即使没有配置 API 密钥也能正常搜索和播放视频！
+            </div>
+
+            <h3>服务器配置</h3>
+            <div class="code-block">
+                <code>
+# .env 文件示例<br>
+PORT=3000<br>
+YOUTUBE_API_KEY=your_youtube_api_key_here<br>
+NODE_ENV=production
+                </code>
+            </div>
+        </div>
+
+        <div id="troubleshooting" class="section">
+            <h2>🛠️ 故障排除</h2>
+
+            <h3>常见问题</h3>
+
+            <div class="feature-card">
+                <h4>❓ 搜索没有结果</h4>
+                <ul>
+                    <li>检查网络连接是否正常</li>
+                    <li>尝试使用不同的关键词</li>
+                    <li>系统会自动使用备用搜索方法</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h4>❓ 视频无法播放</h4>
+                <ul>
+                    <li>检查视频是否在您的地区可用</li>
+                    <li>尝试刷新页面</li>
+                    <li>系统会自动切换播放器类型</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h4>❓ 页面加载缓慢</h4>
+                <ul>
+                    <li>清除浏览器缓存</li>
+                    <li>检查网络连接速度</li>
+                    <li>尝试使用其他浏览器</li>
+                </ul>
+            </div>
+
+            <h3>技术支持</h3>
+            <p>如果您遇到其他问题，可以：</p>
+            <ul>
+                <li>查看浏览器控制台的错误信息</li>
+                <li>检查服务器日志</li>
+                <li>访问 <a href="https://github.com/tonyhu2006/Streamly" target="_blank" style="color: #4fc3f7;">GitHub 项目页面</a> 提交问题</li>
+            </ul>
+
+            <div class="warning">
+                <strong>💡 提示：</strong> 大多数问题都可以通过刷新页面或重启服务器来解决。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎉 开始使用</h2>
+            <p>现在您已经了解了 Streamly 的所有功能，是时候开始享受音乐了！</p>
+
+            <div class="nav-buttons">
+                <a href="/" class="nav-btn">🎵 开始使用 Streamly</a>
+                <a href="/test-search.html" class="nav-btn">🔍 测试搜索功能</a>
+                <a href="/background-gallery.html" class="nav-btn">🎨 背景图库</a>
+                <a href="/background-showcase.html" class="nav-btn">✨ 背景演示</a>
+                <a href="/background-settings.html" class="nav-btn">⚙️ 背景设置</a>
+                <a href="/interface-comparison.html" class="nav-btn">📊 界面对比</a>
+                <a href="https://github.com/tonyhu2006/Streamly" target="_blank" class="nav-btn">📚 查看源代码</a>
+            </div>
+
+            <div class="success">
+                <strong>🎊 感谢使用 Streamly！</strong> 如果您喜欢这个项目，请考虑在 GitHub 上给我们一个星标 ⭐
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 平滑滚动到锚点
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 添加滚动效果
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // 初始化动画
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+        });
+    </script>
+</body>
+</html>
