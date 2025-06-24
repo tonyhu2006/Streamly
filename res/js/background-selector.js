@@ -66,6 +66,7 @@ class BackgroundSelector {
     
     init() {
         this.createSelector();
+        this.addRandomBackground(); // 添加随机背景按钮
         this.applyBackground(this.currentBackground);
         this.bindEvents();
         this.preloadBackgrounds();
@@ -80,17 +81,18 @@ class BackgroundSelector {
         selectorButton.title = '更换背景';
         selectorButton.className = 'headerButton';
         selectorButton.style.cssText = `
-            position: fixed;
-            top: 15px;
-            right: 20px;
-            z-index: 1001;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            background: rgba(79, 195, 247, 0.1) !important;
+            border: 1px solid rgba(79, 195, 247, 0.3) !important;
+            color: #4fc3f7 !important;
+            padding: 10px 15px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer !important;
+            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
         `;
         
         // 创建背景选择面板
@@ -99,8 +101,9 @@ class BackgroundSelector {
         selectorPanel.className = 'floatingMenu';
         selectorPanel.style.cssText = `
             position: fixed;
-            top: 70px;
-            right: 20px;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 320px;
             max-height: 500px;
             overflow-y: auto;
@@ -118,8 +121,21 @@ class BackgroundSelector {
                 ${this.backgrounds.map(bg => this.createBackgroundOption(bg)).join('')}
             </div>
         `;
-        
-        document.body.appendChild(selectorButton);
+
+        // 将按钮添加到header的按钮行中
+        const headerButtonsRow = document.querySelector('.header-buttons-row');
+        if (headerButtonsRow) {
+            // 在播放列表管理按钮之后插入
+            const playlistButton = document.getElementById('playlistManagerButton');
+            if (playlistButton && playlistButton.nextSibling) {
+                headerButtonsRow.insertBefore(selectorButton, playlistButton.nextSibling);
+            } else {
+                headerButtonsRow.appendChild(selectorButton);
+            }
+        } else {
+            // 如果没有找到按钮行，则添加到body
+            document.body.appendChild(selectorButton);
+        }
         document.body.appendChild(selectorPanel);
     }
     
@@ -272,9 +288,6 @@ class BackgroundSelector {
         // 添加背景信息显示
         this.addBackgroundInfo();
 
-        // 添加随机背景功能
-        this.addRandomBackground();
-
         // 添加背景切换动画
         this.addTransitionEffects();
     }
@@ -408,19 +421,16 @@ class BackgroundSelector {
         const randomButton = document.createElement('button');
         randomButton.innerHTML = '🎲';
         randomButton.title = '随机背景 (Ctrl+R)';
+        randomButton.className = 'headerButton';
         randomButton.style.cssText = `
-            position: fixed;
-            top: 15px;
-            right: 70px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(79, 195, 247, 0.1);
-            border: 1px solid rgba(79, 195, 247, 0.3);
-            color: #4fc3f7;
-            cursor: pointer;
-            z-index: 1001;
-            transition: all 0.3s ease;
+            background: rgba(79, 195, 247, 0.1) !important;
+            border: 1px solid rgba(79, 195, 247, 0.3) !important;
+            color: #4fc3f7 !important;
+            padding: 10px 15px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer !important;
+            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -441,7 +451,20 @@ class BackgroundSelector {
             randomButton.style.transform = 'scale(1) rotate(0deg)';
         });
 
-        document.body.appendChild(randomButton);
+        // 将按钮添加到header的按钮行中
+        const headerButtonsRow = document.querySelector('.header-buttons-row');
+        if (headerButtonsRow) {
+            // 在背景选择器按钮之后插入
+            const bgSelectorButton = document.getElementById('backgroundSelectorBtn');
+            if (bgSelectorButton && bgSelectorButton.nextSibling) {
+                headerButtonsRow.insertBefore(randomButton, bgSelectorButton.nextSibling);
+            } else {
+                headerButtonsRow.appendChild(randomButton);
+            }
+        } else {
+            // 如果没有找到按钮行，则添加到body
+            document.body.appendChild(randomButton);
+        }
     }
 
     /**
@@ -550,9 +573,18 @@ class BackgroundSelector {
 
 // 页面加载完成后初始化背景选择器
 document.addEventListener('DOMContentLoaded', () => {
-    // 延迟初始化，确保其他脚本已加载
+    // 延迟初始化，确保其他脚本已加载和header DOM结构完成
     setTimeout(() => {
-        window.backgroundSelector = new BackgroundSelector();
+        // 确保header结构已经存在
+        const headerButtonsRow = document.querySelector('.header-buttons-row');
+        if (headerButtonsRow) {
+            window.backgroundSelector = new BackgroundSelector();
+        } else {
+            // 如果header结构还没有准备好，再等待一段时间
+            setTimeout(() => {
+                window.backgroundSelector = new BackgroundSelector();
+            }, 1000);
+        }
     }, 500);
 });
 

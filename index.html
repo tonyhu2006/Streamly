@@ -60,32 +60,39 @@
 <body>
   <div id="dataFramesContainer"></div>
   <header>
-    <h1 id="title">
-      <a href="">
-        <img id="logo" src="https://raw.githubusercontent.com/LNFWebsite/Streamly/master/res/img/logo/logo_streamly_color/logo_streamly_color_low_res.png" />
-      </a>
-    </h1>
-    <div id="inputBoxContainer">
-      <form action="javascript:input(0);" method="get" id="searchForm">
-        <div class="search-input-wrapper">
-          <input type="text" id="inputBox" placeholder="🎬 搜索视频、电影、纪录片或频道..." />
-          <button type="submit" id="searchButton" class="search-btn" title="开始搜索">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </form>
-      <div id="searchProgress">
-        <div class="spinner">
-          <div class="bounce1"></div>
-          <div class="bounce2"></div>
-          <div class="bounce3"></div>
+    <!-- 第一行：Logo + 搜索框 -->
+    <div class="header-top-row">
+      <h1 id="title">
+        <a href="">
+          <img id="logo" src="https://raw.githubusercontent.com/LNFWebsite/Streamly/master/res/img/logo/logo_streamly_color/logo_streamly_color_low_res.png" />
+        </a>
+      </h1>
+      <div id="inputBoxContainer">
+        <form action="javascript:input(0);" method="get" id="searchForm">
+          <div class="search-input-wrapper">
+            <input type="text" id="inputBox" placeholder="🎬 搜索视频、电影、纪录片或频道..." />
+            <button type="submit" id="searchButton" class="search-btn" title="开始搜索">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </form>
+        <div id="searchProgress">
+          <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
         </div>
       </div>
     </div>
-    <button id="playlistManagerButton" onclick="togglePlaylistManager();" title="播放列表管理">📋</button>
-    <span class="fas fa-columns headerButton" id="sbsButton" onclick="toggleSBS();" title="Toggle side-by-side view"></span>
-    <span class="fas fa-cog headerButton" id="settingsButton" onclick="toggleMenu('settings');" title="Settings"></span>
-    <span class="fas fa-exchange" id="stationIcon" onclick="disconnectStation();" title="Streamly Station is connected. Click to disconnect..."></span>
+
+    <!-- 第二行：按钮区域 -->
+    <div class="header-buttons-row">
+      <button id="playlistManagerButton" onclick="togglePlaylistManager();" title="播放列表管理">📋</button>
+      <span class="fas fa-columns headerButton" id="sbsButton" onclick="toggleSBS();" title="Toggle side-by-side view"></span>
+      <span class="fas fa-cog headerButton" id="settingsButton" onclick="toggleMenu('settings');" title="Settings"></span>
+      <span class="fas fa-exchange" id="stationIcon" onclick="disconnectStation();" title="Streamly Station is connected. Click to disconnect..."></span>
+    </div>
   </header>
   <div id="main">
     <div id="dropShadow"></div>

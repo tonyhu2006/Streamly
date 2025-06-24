@@ -32,9 +32,13 @@ header {
   top: 0;
   width: 100%;
 }
-header,
-.ui-autocomplete {
+header {
   z-index: 1;
+}
+
+.ui-autocomplete {
+  z-index: 1001 !important;
+  position: absolute !important;
 }
 #inputBoxContainer {
   margin-left: 15px;
