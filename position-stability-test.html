@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹窗位置稳定性测试 - Streamly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 模拟Streamly的Header */
+        header {
+            background: rgba(15, 15, 35, 0.9);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+        }
+
+        /* 模拟Streamly的Footer */
+        footer {
+            background: rgba(15, 15, 35, 0.9);
+            height: 400px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-top: 1px solid rgba(79, 195, 247, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .test-content {
+            margin-top: 80px;
+            margin-bottom: 420px;
+            padding: 20px;
+            text-align: center;
+            min-height: calc(100vh - 500px);
+        }
+
+        .status-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 350px;
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 11px;
+            z-index: 3000;
+            font-family: monospace;
+        }
+
+        .test-btn {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 12px 20px;
+            margin: 10px;
+            font-size: 14px;
+        }
+
+        .position-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+
+        .stable {
+            color: #4caf50;
+        }
+
+        .unstable {
+            color: #f44336;
+        }
+
+        .warning {
+            color: #ff9800;
+        }
+    </style>
+    
+    <!-- 引入Streamly的CSS -->
+    <link rel="stylesheet" href="res/css/styles.css">
+    <link rel="stylesheet" href="res/css/modern-theme.css">
+</head>
+<body>
+    <header>
+        <div style="font-size: 18px; font-weight: bold; color: #4fc3f7;">📍 弹窗位置稳定性测试</div>
+    </header>
+
+    <div class="test-content">
+        <h3>🎯 测试搜索结果弹窗位置稳定性</h3>
+        <p>验证弹窗是否会在显示后自动跳跃</p>
+        
+        <button class="test-btn" onclick="simulateSearch()">模拟搜索显示弹窗</button>
+        <button class="test-btn" onclick="hideSearchWindow()">隐藏弹窗</button>
+        <button class="test-btn" onclick="clearLog()">清空日志</button>
+        
+        <div style="margin-top: 30px; font-size: 12px;">
+            <h4>🔧 测试内容：</h4>
+            <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+                <li>✅ 模拟搜索逻辑的弹窗显示过程</li>
+                <li>✅ 监控弹窗位置变化</li>
+                <li>✅ 检测是否有自动跳跃</li>
+                <li>✅ 验证时机冲突修复效果</li>
+            </ul>
+            
+            <div style="margin-top: 20px; padding: 15px; background: rgba(79, 195, 247, 0.1); border-radius: 8px;">
+                <strong>预期行为：</strong><br>
+                弹窗应该在显示后保持在中央位置，不应该有任何自动跳跃。
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="text-align: center;">
+            <div style="font-size: 16px; font-weight: bold; color: #4fc3f7;">Footer (400px)</div>
+        </div>
+    </footer>
+
+    <!-- 使用Streamly原始的搜索结果窗口结构 -->
+    <div id="searchResultsWindow" class="floatingMenu" style="display: none;">
+        <h2>搜索结果:</h2>
+        <div class="floatingMenuCloseButton" onclick="hideSearchWindow()">关闭</div>
+        <div id="searchStatus" style="padding: 10px; font-style: italic; color: #666; display: none;"></div>
+        <div id="searchResults" class="floatingMenuContents">
+            <div style="padding: 20px;">
+                <p><strong>🎯 位置稳定性测试弹窗</strong></p>
+                <p>这个弹窗用于测试位置是否稳定</p>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                    <strong>当前状态：</strong><br>
+                    <span id="stabilityStatus">等待测试</span>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(79, 195, 247, 0.1); border-radius: 8px;">
+                    <strong>位置历史：</strong><br>
+                    <span id="positionHistory">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 状态面板 -->
+    <div class="status-panel">
+        <div><strong>📊 位置稳定性监控</strong></div>
+        <div style="margin-top: 10px;">
+            <div><strong>当前位置:</strong> <span id="currentPos">-</span></div>
+            <div><strong>稳定性:</strong> <span id="stability">未测试</span></div>
+            <div><strong>跳跃次数:</strong> <span id="jumpCount">0</span></div>
+            <div><strong>最大偏差:</strong> <span id="maxDeviation">0px</span></div>
+        </div>
+        
+        <div class="position-log" id="positionLog">
+            等待测试开始...
+        </div>
+    </div>
+
+    <!-- 引入jQuery（Streamly依赖） -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    
+    <!-- 引入窗口管理器 -->
+    <script src="res/js/stable-window-manager.js"></script>
+
+    <script>
+        let searchWindow = document.getElementById('searchResultsWindow');
+        let positionHistory = [];
+        let jumpCount = 0;
+        let maxDeviation = 0;
+        let monitoringInterval = null;
+        let initialPosition = null;
+        
+        function addLog(message, type = 'normal') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('positionLog');
+            const className = type === 'stable' ? 'stable' : type === 'unstable' ? 'unstable' : type === 'warning' ? 'warning' : '';
+            
+            const logEntry = `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logElement.innerHTML = logEntry + logElement.innerHTML;
+            
+            // 保持最新50条记录
+            const entries = logElement.children;
+            if (entries.length > 50) {
+                logElement.removeChild(entries[entries.length - 1]);
+            }
+        }
+
+        function updateStatus() {
+            if (searchWindow.style.display === 'none') return;
+            
+            const rect = searchWindow.getBoundingClientRect();
+            const currentPos = { x: Math.round(rect.left), y: Math.round(rect.top) };
+            
+            document.getElementById('currentPos').textContent = `(${currentPos.x}, ${currentPos.y})`;
+            
+            if (initialPosition) {
+                const deltaX = Math.abs(currentPos.x - initialPosition.x);
+                const deltaY = Math.abs(currentPos.y - initialPosition.y);
+                const totalDeviation = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                if (totalDeviation > maxDeviation) {
+                    maxDeviation = totalDeviation;
+                    document.getElementById('maxDeviation').textContent = Math.round(maxDeviation) + 'px';
+                }
+                
+                if (totalDeviation > 10) {
+                    jumpCount++;
+                    document.getElementById('jumpCount').textContent = jumpCount;
+                    addLog(`❌ 检测到位置跳跃: 偏差 ${Math.round(totalDeviation)}px`, 'unstable');
+                    document.getElementById('stability').textContent = '❌ 不稳定';
+                    document.getElementById('stabilityStatus').textContent = `❌ 位置不稳定，偏差 ${Math.round(totalDeviation)}px`;
+                } else if (totalDeviation > 3) {
+                    addLog(`⚠️ 轻微位置变化: 偏差 ${Math.round(totalDeviation)}px`, 'warning');
+                } else {
+                    document.getElementById('stability').textContent = '✅ 稳定';
+                    document.getElementById('stabilityStatus').textContent = '✅ 位置稳定';
+                }
+            }
+            
+            positionHistory.push(currentPos);
+            if (positionHistory.length > 10) {
+                positionHistory.shift();
+            }
+            
+            document.getElementById('positionHistory').textContent = 
+                positionHistory.map(p => `(${p.x},${p.y})`).join(' → ');
+        }
+
+        function simulateSearch() {
+            // 重置监控数据
+            positionHistory = [];
+            jumpCount = 0;
+            maxDeviation = 0;
+            initialPosition = null;
+            
+            document.getElementById('jumpCount').textContent = '0';
+            document.getElementById('maxDeviation').textContent = '0px';
+            document.getElementById('stability').textContent = '监控中...';
+            
+            addLog('🔍 开始模拟搜索过程', 'normal');
+            
+            // 模拟toggleMenu("searchResults")
+            searchWindow.style.display = 'block';
+            addLog('📱 弹窗显示 (display: block)', 'normal');
+            
+            // 记录初始位置（可能是默认位置）
+            setTimeout(() => {
+                const rect = searchWindow.getBoundingClientRect();
+                addLog(`📍 记录初始位置: (${Math.round(rect.left)}, ${Math.round(rect.top)})`, 'normal');
+            }, 5);
+            
+            // 模拟搜索逻辑的居中（10ms延迟）
+            setTimeout(() => {
+                addLog('🎯 搜索逻辑开始居中...', 'normal');
+                
+                if (window.stableWindowManager) {
+                    window.stableWindowManager.centerWindow(searchWindow);
+                    searchWindow.dataset.centeredBySearch = 'true';
+                    addLog('✅ 使用窗口管理器居中完成', 'stable');
+                } else {
+                    // 备用居中逻辑
+                    const header = document.querySelector('header');
+                    const footer = document.querySelector('footer');
+                    const headerHeight = header ? header.offsetHeight : 70;
+                    const footerHeight = footer ? footer.offsetHeight : 400;
+                    
+                    const availableHeight = window.innerHeight - headerHeight - footerHeight;
+                    const rect = searchWindow.getBoundingClientRect();
+                    
+                    const centerX = (window.innerWidth - rect.width) / 2;
+                    const centerY = headerHeight + (availableHeight - rect.height) / 2;
+                    
+                    searchWindow.style.left = Math.max(0, centerX) + 'px';
+                    searchWindow.style.top = Math.max(headerHeight, centerY) + 'px';
+                    searchWindow.dataset.centeredBySearch = 'true';
+                    
+                    addLog('✅ 使用备用居中完成', 'stable');
+                }
+                
+                // 记录居中后的位置作为基准
+                setTimeout(() => {
+                    const rect = searchWindow.getBoundingClientRect();
+                    initialPosition = { x: Math.round(rect.left), y: Math.round(rect.top) };
+                    addLog(`📍 设置基准位置: (${initialPosition.x}, ${initialPosition.y})`, 'stable');
+                    
+                    // 开始监控
+                    if (monitoringInterval) clearInterval(monitoringInterval);
+                    monitoringInterval = setInterval(updateStatus, 100);
+                    
+                    addLog('👁️ 开始位置监控...', 'normal');
+                }, 5);
+            }, 10);
+            
+            // 模拟窗口管理器增强（50ms延迟）
+            setTimeout(() => {
+                addLog('🔧 窗口管理器增强触发...', 'normal');
+                // 这里会触发窗口管理器的观察器
+            }, 50);
+        }
+
+        function hideSearchWindow() {
+            searchWindow.style.display = 'none';
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+            }
+            addLog('🚫 弹窗已隐藏，停止监控', 'normal');
+            
+            document.getElementById('currentPos').textContent = '-';
+            document.getElementById('stabilityStatus').textContent = '弹窗已隐藏';
+            document.getElementById('positionHistory').textContent = '-';
+        }
+
+        function clearLog() {
+            document.getElementById('positionLog').innerHTML = '日志已清空';
+            positionHistory = [];
+            jumpCount = 0;
+            maxDeviation = 0;
+            document.getElementById('jumpCount').textContent = '0';
+            document.getElementById('maxDeviation').textContent = '0px';
+            document.getElementById('stability').textContent = '未测试';
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                // 自动创建窗口管理器实例
+                if (typeof StableWindowManager !== 'undefined' && !window.stableWindowManager) {
+                    window.stableWindowManager = new StableWindowManager();
+                    addLog('✅ 窗口管理器已创建', 'stable');
+                } else if (window.stableWindowManager) {
+                    addLog('✅ 窗口管理器已存在', 'stable');
+                } else {
+                    addLog('❌ 窗口管理器未找到', 'unstable');
+                }
+            }, 500);
+        });
+
+        // 重写console.log来捕获窗口管理器日志
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            if (args[0] && typeof args[0] === 'string') {
+                if (args[0].includes('🔧') || args[0].includes('🎯')) {
+                    addLog(args.join(' '), 'normal');
+                }
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拖拽功能测试 - Streamly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 模拟Streamly的Header */
+        header {
+            background: rgba(15, 15, 35, 0.9);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+        }
+
+        /* 模拟Streamly的Footer */
+        footer {
+            background: rgba(15, 15, 35, 0.9);
+            height: 400px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-top: 1px solid rgba(79, 195, 247, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .test-content {
+            margin-top: 80px;
+            margin-bottom: 420px;
+            padding: 20px;
+            text-align: center;
+            min-height: calc(100vh - 500px);
+        }
+
+        .status-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 300px;
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 11px;
+            z-index: 3000;
+            font-family: monospace;
+        }
+
+        .test-btn {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 12px 20px;
+            margin: 10px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #4caf50;
+        }
+
+        .error {
+            color: #f44336;
+        }
+
+        .warning {
+            color: #ff9800;
+        }
+    </style>
+    
+    <!-- 引入Streamly的CSS -->
+    <link rel="stylesheet" href="res/css/styles.css">
+    <link rel="stylesheet" href="res/css/modern-theme.css">
+</head>
+<body>
+    <header>
+        <div style="font-size: 18px; font-weight: bold; color: #4fc3f7;">🖱️ 拖拽功能测试</div>
+    </header>
+
+    <div class="test-content">
+        <h3>🎯 测试搜索结果弹窗拖拽功能</h3>
+        <p>验证修复后弹窗是否可以正常拖拽</p>
+        
+        <button class="test-btn" onclick="showSearchWindow()">显示搜索结果弹窗</button>
+        <button class="test-btn" onclick="hideSearchWindow()">隐藏弹窗</button>
+        <button class="test-btn" onclick="testDragFunction()">测试拖拽功能</button>
+        
+        <div style="margin-top: 30px; font-size: 12px;">
+            <h4>🔧 测试内容：</h4>
+            <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+                <li>✅ 弹窗正确居中显示</li>
+                <li>✅ 弹窗位置稳定（不跳跃）</li>
+                <li>✅ 可以正常拖拽移动</li>
+                <li>✅ 拖拽后位置保持</li>
+            </ul>
+            
+            <div style="margin-top: 20px; padding: 15px; background: rgba(79, 195, 247, 0.1); border-radius: 8px;">
+                <strong>测试步骤：</strong><br>
+                1. 点击"显示搜索结果弹窗"<br>
+                2. 观察弹窗是否居中且稳定<br>
+                3. 用鼠标或手指拖拽蓝色标题栏<br>
+                4. 验证弹窗是否跟随移动<br>
+                5. 检查拖拽后位置是否保持
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="text-align: center;">
+            <div style="font-size: 16px; font-weight: bold; color: #4fc3f7;">Footer (400px)</div>
+        </div>
+    </footer>
+
+    <!-- 使用Streamly原始的搜索结果窗口结构 -->
+    <div id="searchResultsWindow" class="floatingMenu" style="display: none;">
+        <h2>搜索结果:</h2>
+        <div class="floatingMenuCloseButton" onclick="hideSearchWindow()">关闭</div>
+        <div id="searchStatus" style="padding: 10px; font-style: italic; color: #666; display: none;"></div>
+        <div id="searchResults" class="floatingMenuContents">
+            <div style="padding: 20px;">
+                <p><strong>🖱️ 拖拽功能测试弹窗</strong></p>
+                <p>请拖拽蓝色标题栏测试移动功能</p>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                    <strong>预期行为：</strong><br>
+                    • 弹窗应该居中显示且位置稳定<br>
+                    • 可以通过拖拽标题栏移动弹窗<br>
+                    • 拖拽过程平滑跟随鼠标/手指<br>
+                    • 拖拽结束后位置保持不变
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(79, 195, 247, 0.1); border-radius: 8px;">
+                    <strong>当前状态：</strong><br>
+                    <span id="dragStatus">等待测试</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 状态面板 -->
+    <div class="status-panel">
+        <div><strong>📊 拖拽功能测试状态</strong></div>
+        <div style="margin-top: 10px;">
+            <div><strong>弹窗显示:</strong> <span id="windowVisible">❌ 未显示</span></div>
+            <div><strong>位置稳定:</strong> <span id="positionStable">未测试</span></div>
+            <div><strong>拖拽功能:</strong> <span id="dragFunction">未测试</span></div>
+            <div><strong>窗口增强:</strong> <span id="windowEnhanced">未检测</span></div>
+        </div>
+        
+        <div style="margin-top: 10px;">
+            <div><strong>当前位置:</strong> <span id="currentPosition">-</span></div>
+            <div><strong>拖拽次数:</strong> <span id="dragCount">0</span></div>
+        </div>
+        
+        <div style="margin-top: 10px; max-height: 100px; overflow-y: auto; font-size: 10px;">
+            <div id="testLog">等待测试开始...</div>
+        </div>
+    </div>
+
+    <!-- 引入jQuery（Streamly依赖） -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    
+    <!-- 引入窗口管理器 -->
+    <script src="res/js/stable-window-manager.js"></script>
+
+    <script>
+        let searchWindow = document.getElementById('searchResultsWindow');
+        let dragCount = 0;
+        let initialPosition = null;
+        let logs = [];
+        
+        function addLog(message, type = 'normal') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : '';
+            
+            logs.unshift(`<span class="${className}">[${timestamp}] ${message}</span>`);
+            if (logs.length > 10) logs.pop();
+            
+            document.getElementById('testLog').innerHTML = logs.join('<br>');
+        }
+
+        function updateStatus() {
+            if (searchWindow.style.display === 'none') {
+                document.getElementById('windowVisible').innerHTML = '❌ 未显示';
+                document.getElementById('currentPosition').textContent = '-';
+                return;
+            }
+            
+            document.getElementById('windowVisible').innerHTML = '✅ 已显示';
+            
+            const rect = searchWindow.getBoundingClientRect();
+            const currentPos = `(${Math.round(rect.left)}, ${Math.round(rect.top)})`;
+            document.getElementById('currentPosition').textContent = currentPos;
+            
+            // 检查是否被增强
+            const isEnhanced = searchWindow.dataset.enhanced === 'true';
+            document.getElementById('windowEnhanced').innerHTML = isEnhanced ? '✅ 已增强' : '❌ 未增强';
+            
+            // 检查位置稳定性
+            if (initialPosition) {
+                const deltaX = Math.abs(rect.left - initialPosition.x);
+                const deltaY = Math.abs(rect.top - initialPosition.y);
+                const deviation = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                if (deviation < 5) {
+                    document.getElementById('positionStable').innerHTML = '✅ 稳定';
+                } else if (deviation < 20) {
+                    document.getElementById('positionStable').innerHTML = `⚠️ 轻微偏移 (${Math.round(deviation)}px)`;
+                } else {
+                    document.getElementById('positionStable').innerHTML = `❌ 不稳定 (${Math.round(deviation)}px)`;
+                }
+            }
+        }
+
+        function showSearchWindow() {
+            addLog('🔍 开始显示搜索结果弹窗', 'normal');
+            
+            // 模拟搜索逻辑
+            searchWindow.style.display = 'block';
+            
+            setTimeout(() => {
+                if (window.stableWindowManager) {
+                    window.stableWindowManager.centerWindow(searchWindow);
+                    searchWindow.dataset.centeredBySearch = 'true';
+                    addLog('✅ 使用窗口管理器居中', 'success');
+                } else {
+                    addLog('❌ 窗口管理器未找到', 'error');
+                }
+                
+                // 记录初始位置
+                setTimeout(() => {
+                    const rect = searchWindow.getBoundingClientRect();
+                    initialPosition = { x: rect.left, y: rect.top };
+                    addLog(`📍 记录初始位置: (${Math.round(rect.left)}, ${Math.round(rect.top)})`, 'normal');
+                    updateStatus();
+                }, 100);
+            }, 10);
+        }
+
+        function hideSearchWindow() {
+            searchWindow.style.display = 'none';
+            initialPosition = null;
+            dragCount = 0;
+            document.getElementById('dragCount').textContent = '0';
+            document.getElementById('dragStatus').textContent = '弹窗已隐藏';
+            addLog('🚫 弹窗已隐藏', 'normal');
+            updateStatus();
+        }
+
+        function testDragFunction() {
+            if (searchWindow.style.display === 'none') {
+                addLog('❌ 请先显示弹窗', 'error');
+                return;
+            }
+            
+            addLog('🧪 开始测试拖拽功能...', 'normal');
+            
+            // 检查窗口是否被增强
+            const isEnhanced = searchWindow.dataset.enhanced === 'true';
+            if (isEnhanced) {
+                addLog('✅ 窗口已被增强，拖拽功能应该可用', 'success');
+                document.getElementById('dragFunction').innerHTML = '✅ 可用';
+            } else {
+                addLog('❌ 窗口未被增强，拖拽功能不可用', 'error');
+                document.getElementById('dragFunction').innerHTML = '❌ 不可用';
+            }
+            
+            // 检查搜索居中标记
+            const centeredBySearch = searchWindow.dataset.centeredBySearch;
+            addLog(`🏷️ 搜索居中标记: ${centeredBySearch}`, 'normal');
+        }
+
+        // 监听拖拽事件
+        document.addEventListener('mousedown', function(e) {
+            if (e.target.closest('#searchResultsWindow h2')) {
+                addLog('🖱️ 开始鼠标拖拽', 'normal');
+                document.getElementById('dragStatus').textContent = '🖱️ 鼠标拖拽中...';
+            }
+        });
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.closest('#searchResultsWindow h2')) {
+                addLog('📱 开始触摸拖拽', 'normal');
+                document.getElementById('dragStatus').textContent = '📱 触摸拖拽中...';
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (searchWindow.style.display !== 'none' && e.buttons === 1) {
+                updateStatus();
+            }
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (searchWindow.style.display !== 'none') {
+                updateStatus();
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (document.getElementById('dragStatus').textContent.includes('鼠标拖拽')) {
+                dragCount++;
+                document.getElementById('dragCount').textContent = dragCount;
+                document.getElementById('dragStatus').textContent = '✅ 鼠标拖拽完成';
+                addLog('✅ 鼠标拖拽结束', 'success');
+                updateStatus();
+            }
+        });
+
+        document.addEventListener('touchend', function(e) {
+            if (document.getElementById('dragStatus').textContent.includes('触摸拖拽')) {
+                dragCount++;
+                document.getElementById('dragCount').textContent = dragCount;
+                document.getElementById('dragStatus').textContent = '✅ 触摸拖拽完成';
+                addLog('✅ 触摸拖拽结束', 'success');
+                updateStatus();
+            }
+        });
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof StableWindowManager !== 'undefined' && !window.stableWindowManager) {
+                    window.stableWindowManager = new StableWindowManager();
+                    addLog('✅ 窗口管理器已创建', 'success');
+                } else if (window.stableWindowManager) {
+                    addLog('✅ 窗口管理器已存在', 'success');
+                } else {
+                    addLog('❌ 窗口管理器未找到', 'error');
+                }
+                updateStatus();
+            }, 500);
+        });
+
+        // 定期更新状态
+        setInterval(updateStatus, 1000);
+    </script>
+</body>
+</html>

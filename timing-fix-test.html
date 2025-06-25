@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时机修复测试 - Streamly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 模拟Streamly的Header */
+        header {
+            background: rgba(15, 15, 35, 0.9);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+        }
+
+        /* 模拟Streamly的Footer */
+        footer {
+            background: rgba(15, 15, 35, 0.9);
+            height: 400px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-top: 1px solid rgba(79, 195, 247, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .test-content {
+            margin-top: 80px;
+            margin-bottom: 420px;
+            padding: 20px;
+            text-align: center;
+            min-height: calc(100vh - 500px);
+        }
+
+        .test-btn {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 12px 20px;
+            margin: 10px;
+            font-size: 14px;
+        }
+
+        .status {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 350px;
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 11px;
+            z-index: 3000;
+            font-family: monospace;
+        }
+
+        .center-guide {
+            position: fixed;
+            border: 2px dashed rgba(255, 255, 0, 0.8);
+            pointer-events: none;
+            z-index: 2000;
+            display: none;
+        }
+
+        .center-guide.horizontal {
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .center-guide.vertical {
+            top: 0;
+            bottom: 0;
+            width: 2px;
+        }
+
+        .expected-center {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2001;
+            display: none;
+        }
+    </style>
+    
+    <!-- 引入Streamly的CSS -->
+    <link rel="stylesheet" href="res/css/styles.css">
+    <link rel="stylesheet" href="res/css/modern-theme.css">
+</head>
+<body>
+    <header>
+        <div style="font-size: 18px; font-weight: bold; color: #4fc3f7;">⏰ 时机修复测试</div>
+    </header>
+
+    <div class="test-content">
+        <h3>🎯 测试搜索结果弹窗时机修复</h3>
+        <p>验证立即执行居中逻辑是否解决了位置问题</p>
+        
+        <button class="test-btn" onclick="testSearchTiming()">测试搜索时机</button>
+        <button class="test-btn" onclick="hideSearchWindow()">隐藏弹窗</button>
+        <button class="test-btn" onclick="toggleGuides()">切换参考线</button>
+        <button class="test-btn" onclick="clearLog()">清空日志</button>
+        
+        <div style="margin-top: 30px; font-size: 12px;">
+            <h4>🔧 时机修复：</h4>
+            <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+                <li>✅ 搜索逻辑立即执行（0ms延迟）</li>
+                <li>✅ 窗口管理器延迟执行（100ms延迟）</li>
+                <li>✅ 避免时机冲突</li>
+                <li>✅ 确保正确居中</li>
+            </ul>
+            
+            <div style="margin-top: 20px; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                <strong>预期效果：</strong><br>
+                弹窗应该立即在正确的中央位置显示，不会有跳跃或偏移。
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="text-align: center;">
+            <div style="font-size: 16px; font-weight: bold; color: #4fc3f7;">Footer (400px)</div>
+        </div>
+    </footer>
+
+    <!-- 参考线和标记 -->
+    <div id="horizontalGuide" class="center-guide horizontal"></div>
+    <div id="verticalGuide" class="center-guide vertical"></div>
+    <div id="expectedCenter" class="expected-center"></div>
+
+    <!-- 搜索结果弹窗 -->
+    <div id="searchResultsWindow" class="floatingMenu" style="display: none;">
+        <h2>搜索结果:</h2>
+        <div class="floatingMenuCloseButton" onclick="hideSearchWindow()">关闭</div>
+        <div id="searchResults" class="floatingMenuContents">
+            <div style="padding: 20px;">
+                <p><strong>⏰ 时机修复测试弹窗</strong></p>
+                <p>测试立即执行居中逻辑的效果</p>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(79, 195, 247, 0.1); border-radius: 8px;">
+                    <strong>当前状态：</strong><br>
+                    <span id="timingStatus">等待测试</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 状态面板 -->
+    <div class="status">
+        <div><strong>📊 时机测试监控</strong></div>
+        <div style="margin-top: 10px;">
+            <div><strong>预期中心:</strong> <span id="expectedPos">-</span></div>
+            <div><strong>实际位置:</strong> <span id="actualPos">-</span></div>
+            <div><strong>偏差距离:</strong> <span id="deviation">-</span></div>
+            <div><strong>居中状态:</strong> <span id="centerResult">未测试</span></div>
+        </div>
+        
+        <div style="margin-top: 10px;">
+            <div><strong>执行时间线:</strong></div>
+            <div id="timeline" style="max-height: 120px; overflow-y: auto; font-size: 10px; margin-top: 5px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 3px;">
+                等待测试开始...
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入jQuery -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    
+    <!-- 引入窗口管理器 -->
+    <script src="res/js/stable-window-manager.js"></script>
+
+    <script>
+        let searchWindow = document.getElementById('searchResultsWindow');
+        let guidesVisible = false;
+        let timeline = [];
+        let testStartTime = 0;
+        
+        function addTimelineEvent(message, type = 'normal') {
+            const elapsed = Date.now() - testStartTime;
+            const className = type === 'success' ? 'color: #4caf50' : type === 'error' ? 'color: #f44336' : type === 'warning' ? 'color: #ff9800' : '';
+            
+            timeline.unshift(`<span style="${className}">[+${elapsed}ms] ${message}</span>`);
+            if (timeline.length > 15) timeline.pop();
+            
+            document.getElementById('timeline').innerHTML = timeline.join('<br>');
+        }
+
+        function testSearchTiming() {
+            testStartTime = Date.now();
+            timeline = [];
+            
+            addTimelineEvent('🚀 开始时机测试', 'normal');
+            
+            // 计算预期中心位置
+            const headerHeight = 70;
+            const footerHeight = 400;
+            const availableHeight = window.innerHeight - headerHeight - footerHeight;
+            const availableWidth = window.innerWidth;
+            
+            // 假设弹窗尺寸（实际会在显示后获取）
+            const estimatedWidth = Math.min(800, availableWidth * 0.9);
+            const estimatedHeight = Math.min(600, availableHeight * 0.8);
+            
+            const expectedCenterX = (availableWidth - estimatedWidth) / 2;
+            const expectedCenterY = headerHeight + (availableHeight - estimatedHeight) / 2;
+            
+            document.getElementById('expectedPos').textContent = `(${Math.round(expectedCenterX)}, ${Math.round(expectedCenterY)})`;
+            
+            // 显示预期中心点
+            document.getElementById('expectedCenter').style.left = (expectedCenterX + estimatedWidth/2 - 5) + 'px';
+            document.getElementById('expectedCenter').style.top = (expectedCenterY + estimatedHeight/2 - 5) + 'px';
+            document.getElementById('expectedCenter').style.display = 'block';
+            
+            addTimelineEvent('📍 计算预期中心位置', 'normal');
+            
+            // 模拟搜索逻辑：立即显示弹窗
+            searchWindow.style.display = 'block';
+            addTimelineEvent('📱 弹窗显示 (display: block)', 'normal');
+            
+            // 模拟搜索逻辑：立即执行居中（0ms延迟）
+            addTimelineEvent('🎯 搜索逻辑立即执行居中', 'success');
+            
+            if (window.stableWindowManager) {
+                window.stableWindowManager.centerWindow(searchWindow);
+                addTimelineEvent('✅ 窗口管理器居中完成', 'success');
+            } else {
+                addTimelineEvent('❌ 窗口管理器未找到', 'error');
+            }
+            
+            // 检查实际位置
+            setTimeout(() => {
+                const rect = searchWindow.getBoundingClientRect();
+                const actualX = rect.left;
+                const actualY = rect.top;
+                
+                document.getElementById('actualPos').textContent = `(${Math.round(actualX)}, ${Math.round(actualY)})`;
+                
+                // 计算偏差
+                const deltaX = Math.abs(actualX - expectedCenterX);
+                const deltaY = Math.abs(actualY - expectedCenterY);
+                const totalDeviation = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                document.getElementById('deviation').textContent = Math.round(totalDeviation) + 'px';
+                
+                if (totalDeviation < 10) {
+                    document.getElementById('centerResult').innerHTML = '<span style="color: #4caf50">✅ 完美居中</span>';
+                    document.getElementById('timingStatus').innerHTML = '<span style="color: #4caf50">✅ 时机修复成功</span>';
+                    addTimelineEvent('🎉 居中测试通过', 'success');
+                } else if (totalDeviation < 30) {
+                    document.getElementById('centerResult').innerHTML = `<span style="color: #ff9800">⚠️ 基本居中 (偏差${Math.round(totalDeviation)}px)</span>`;
+                    document.getElementById('timingStatus').innerHTML = `<span style="color: #ff9800">⚠️ 轻微偏差 (${Math.round(totalDeviation)}px)</span>`;
+                    addTimelineEvent(`⚠️ 轻微偏差: ${Math.round(totalDeviation)}px`, 'warning');
+                } else {
+                    document.getElementById('centerResult').innerHTML = `<span style="color: #f44336">❌ 偏离中心 (偏差${Math.round(totalDeviation)}px)</span>`;
+                    document.getElementById('timingStatus').innerHTML = `<span style="color: #f44336">❌ 时机修复失败 (${Math.round(totalDeviation)}px)</span>`;
+                    addTimelineEvent(`❌ 居中失败: ${Math.round(totalDeviation)}px`, 'error');
+                }
+                
+                updateGuides();
+                addTimelineEvent('📊 测试完成', 'normal');
+            }, 50);
+            
+            // 模拟窗口管理器增强（100ms延迟）
+            setTimeout(() => {
+                addTimelineEvent('🔧 窗口管理器增强触发', 'normal');
+            }, 100);
+        }
+
+        function hideSearchWindow() {
+            searchWindow.style.display = 'none';
+            document.getElementById('expectedCenter').style.display = 'none';
+            document.getElementById('actualPos').textContent = '-';
+            document.getElementById('deviation').textContent = '-';
+            document.getElementById('centerResult').textContent = '未测试';
+            document.getElementById('timingStatus').textContent = '弹窗已隐藏';
+        }
+
+        function toggleGuides() {
+            guidesVisible = !guidesVisible;
+            document.getElementById('horizontalGuide').style.display = guidesVisible ? 'block' : 'none';
+            document.getElementById('verticalGuide').style.display = guidesVisible ? 'block' : 'none';
+            if (guidesVisible) updateGuides();
+        }
+
+        function updateGuides() {
+            if (!guidesVisible || searchWindow.style.display === 'none') return;
+            
+            const rect = searchWindow.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            document.getElementById('horizontalGuide').style.top = centerY + 'px';
+            document.getElementById('verticalGuide').style.left = centerX + 'px';
+        }
+
+        function clearLog() {
+            timeline = [];
+            document.getElementById('timeline').innerHTML = '日志已清空';
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof StableWindowManager !== 'undefined' && !window.stableWindowManager) {
+                    window.stableWindowManager = new StableWindowManager();
+                    addTimelineEvent('✅ 窗口管理器已初始化', 'success');
+                }
+            }, 500);
+        });
+
+        // 重写console.log来捕获日志
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            if (testStartTime > 0 && args[0] && typeof args[0] === 'string') {
+                if (args[0].includes('🎯') || args[0].includes('🔧') || args[0].includes('🔍')) {
+                    addTimelineEvent(args.join(' '), 'normal');
+                }
+            }
+        };
+    </script>
+</body>
+</html>

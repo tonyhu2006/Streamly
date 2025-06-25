@@ -64,11 +64,26 @@ class StableWindowManager {
         const floatingMenus = document.querySelectorAll('.floatingMenu');
         const modals = document.querySelectorAll('.modal-content');
 
-        floatingMenus.forEach(window => this.enhanceWindow(window));
+        // 🔧 关键修复：只增强可见的浮动窗口，避免对隐藏窗口的预处理
+        floatingMenus.forEach(window => {
+            // 检查窗口是否可见
+            const isVisible = window.style.display !== 'none' &&
+                             window.offsetParent !== null &&
+                             window.getBoundingClientRect().width > 0;
+
+            if (isVisible) {
+                console.log(`🔧 增强可见浮动窗口: ${window.id || window.className}`);
+                this.enhanceWindow(window);
+            } else {
+                console.log(`⏭️ 跳过隐藏浮动窗口: ${window.id || window.className}`);
+            }
+        });
+
         modals.forEach(window => {
             // 只增强可见的模态框
             const modal = window.closest('.modal');
             if (modal && modal.style.display !== 'none') {
+                console.log(`🔧 增强可见模态框: ${modal.id || modal.className}`);
                 this.enhanceWindow(window);
             }
         });
@@ -135,8 +150,8 @@ class StableWindowManager {
         console.log('🔧 setupBasicStyles 被调用');
 
         // 记录当前窗口状态
-        const rect = windowElement.getBoundingClientRect();
-        console.log(`🔧 窗口当前位置: (${rect.left}, ${rect.top})`);
+        const currentRect = windowElement.getBoundingClientRect();
+        console.log(`🔧 窗口当前位置: (${currentRect.left}, ${currentRect.top})`);
         console.log(`🔧 窗口当前样式: position=${windowElement.style.position}, left=${windowElement.style.left}, top=${windowElement.style.top}`);
 
         // 设置基本样式
@@ -152,7 +167,7 @@ class StableWindowManager {
         windowElement.style.minWidth = this.minWidth + 'px';
         windowElement.style.minHeight = this.minHeight + 'px';
 
-        // 如果没有设置位置，或者位置为默认值，则居中显示
+        // 🔧 修复位置冲突：检查窗口是否已经被正确定位
         const hasValidPosition = windowElement.style.left &&
                                 windowElement.style.top &&
                                 windowElement.style.left !== '' &&
@@ -160,11 +175,16 @@ class StableWindowManager {
                                 windowElement.style.left !== 'auto' &&
                                 windowElement.style.top !== 'auto';
 
-        if (!hasValidPosition) {
+        // 检查窗口是否已经在合理位置（不在左上角）
+        const windowRect = windowElement.getBoundingClientRect();
+        const isInReasonablePosition = windowRect.left > 10 && windowRect.top > 10;
+
+        // 🔧 简化逻辑：只在窗口真正没有位置时才居中
+        if (!hasValidPosition && !isInReasonablePosition) {
             console.log('🔧 窗口没有有效位置，执行居中');
             this.centerWindow(windowElement);
         } else {
-            console.log('🔧 窗口已有有效位置，跳过居中');
+            console.log(`🔧 窗口已有位置，跳过居中 - CSS位置: (${windowElement.style.left}, ${windowElement.style.top}), 实际位置: (${windowRect.left}, ${windowRect.top})`);
         }
     }
     
@@ -323,30 +343,43 @@ class StableWindowManager {
         const touch = e.touches[0];
         if (!touch) return;
 
-        console.log('📱 触摸开始 - 稳定的垂直拖拽模式');
+        console.log('📱 触摸开始 - 使用CSS位置作为基准');
 
-        // 记录触摸开始前的窗口位置（使用计算样式，更稳定）
+        // 🔧 关键修复：使用CSS的left/top值作为基准，而不是getBoundingClientRect
+        // 这样可以避免transform等CSS属性的干扰
+
+        // 获取当前CSS位置值
         const computedStyle = window.getComputedStyle(windowElement);
-        const currentLeft = parseFloat(computedStyle.left) || 0;
-        const currentTop = parseFloat(computedStyle.top) || 0;
+        let cssLeft = parseFloat(windowElement.style.left) || 0;
+        let cssTop = parseFloat(windowElement.style.top) || 0;
 
-        // 记录触摸信息，但绝对不修改任何窗口属性
+        // 如果CSS位置为0或未设置，使用计算样式
+        if (cssLeft === 0 && windowElement.style.left === '') {
+            cssLeft = parseFloat(computedStyle.left) || 0;
+        }
+        if (cssTop === 0 && windowElement.style.top === '') {
+            cssTop = parseFloat(computedStyle.top) || 0;
+        }
+
+        // 记录触摸信息，使用CSS位置作为基准
         this.touchStartInfo = {
             startX: touch.clientX,
             startY: touch.clientY,
             windowElement: windowElement,
-            initialWindowTop: currentTop,
-            initialWindowLeft: currentLeft,
+            // 使用CSS位置值，确保与后续设置的位置一致
+            initialWindowTop: cssTop,
+            initialWindowLeft: cssLeft,
             hasMoved: false,
             isDragging: false
         };
 
-        console.log(`📱 记录触摸起始点: (${touch.clientX}, ${touch.clientY})`);
-        console.log(`📱 窗口稳定位置: left=${currentLeft}, top=${currentTop}`);
+        console.log(`📱 触摸起始点: (${touch.clientX}, ${touch.clientY})`);
+        console.log(`📱 窗口CSS位置: left=${cssLeft}px, top=${cssTop}px`);
+        console.log(`📱 窗口style属性: left=${windowElement.style.left}, top=${windowElement.style.top}`);
 
         // 只阻止默认行为，绝对不做任何其他操作
         e.preventDefault();
-        e.stopPropagation(); // 防止事件冒泡
+        e.stopPropagation();
     }
 
 
@@ -396,14 +429,35 @@ class StableWindowManager {
                 this.touchStartInfo.hasMoved = true;
                 this.touchStartInfo.isDragging = true;
 
-                // 激活拖拽状态，但不修改窗口位置
+                // 🔧 关键修复：重置触摸起始点为当前位置，避免跳跃
+                // 这样下次计算deltaY时就是从当前位置开始，而不是从最初的触摸点
+                this.touchStartInfo.startX = touch.clientX;
+                this.touchStartInfo.startY = touch.clientY;
+
+                // 同时更新初始窗口位置为当前CSS位置（保持一致性）
+                const windowElement = this.touchStartInfo.windowElement;
+                const computedStyle = window.getComputedStyle(windowElement);
+                let cssLeft = parseFloat(windowElement.style.left) || 0;
+                let cssTop = parseFloat(windowElement.style.top) || 0;
+
+                if (cssLeft === 0 && windowElement.style.left === '') {
+                    cssLeft = parseFloat(computedStyle.left) || 0;
+                }
+                if (cssTop === 0 && windowElement.style.top === '') {
+                    cssTop = parseFloat(computedStyle.top) || 0;
+                }
+
+                this.touchStartInfo.initialWindowLeft = cssLeft;
+                this.touchStartInfo.initialWindowTop = cssTop;
+
+                // 激活拖拽状态
                 this.isDragging = true;
                 this.activeWindow = this.touchStartInfo.windowElement;
 
                 // 获取Header高度
                 this.headerHeight = this.getHeaderHeight();
 
-                // 添加拖拽状态样式（但不修改位置）
+                // 添加拖拽状态样式
                 this.activeWindow.style.zIndex = '10001';
                 this.activeWindow.classList.add('being-dragged');
                 document.body.style.userSelect = 'none';
@@ -415,7 +469,10 @@ class StableWindowManager {
                     dragArea.style.background = 'rgba(79, 195, 247, 0.2)';
                 }
 
-                // 开始处理垂直拖拽
+                console.log(`📱 重置拖拽起始点: (${touch.clientX}, ${touch.clientY})`);
+                console.log(`📱 重置窗口起始位置: CSS(${cssLeft}, ${cssTop})`);
+
+                // 现在开始处理垂直拖拽，此时deltaY应该是0
                 this.handleStableVerticalDrag(touch);
             }
 
@@ -435,7 +492,8 @@ class StableWindowManager {
         const fixedLeft = this.touchStartInfo.initialWindowLeft; // 绝对固定的水平位置
 
         console.log(`📱 稳定垂直拖拽: 起始Y=${this.touchStartInfo.startY}, 当前Y=${touch.clientY}, 移动距离=${deltaY}`);
-        console.log(`📱 新位置: left=${fixedLeft}(固定不变), top=${newTop}`);
+        console.log(`📱 初始位置: left=${this.touchStartInfo.initialWindowLeft}, top=${this.touchStartInfo.initialWindowTop}`);
+        console.log(`📱 计算新位置: left=${fixedLeft}(固定不变), top=${newTop}`);
 
         // 改进的垂直边界限制：确保标题栏始终可见
         const headerHeight = this.headerHeight || this.getHeaderHeight();
@@ -450,28 +508,48 @@ class StableWindowManager {
         console.log(`📱 垂直边界: headerHeight=${headerHeight}, footerHeight=${footerHeight}`);
         console.log(`📱 边界限制: minY=${minY}, maxY=${maxY}, 限制后top=${constrainedTop}`);
 
-        // 使用transform而不是直接修改left/top，避免触发重新布局
-        this.activeWindow.style.transform = `translate(${fixedLeft}px, ${constrainedTop}px)`;
-        this.activeWindow.style.left = '0px'; // 重置left
-        this.activeWindow.style.top = '0px';  // 重置top
+        // 🔧 终极修复：统一使用left/top定位，避免transform混乱
+        // 确保水平位置在合理范围内
+        const safeLeft = Math.max(0, Math.min(fixedLeft, window.innerWidth - 100));
 
-        console.log(`📱 使用transform设置位置: translate(${fixedLeft}px, ${constrainedTop}px)`);
+        console.log(`📱 设置位置: left=${safeLeft}px, top=${constrainedTop}px`);
+
+        // 直接设置left/top，清除任何可能的transform
+        this.activeWindow.style.left = safeLeft + 'px';
+        this.activeWindow.style.top = constrainedTop + 'px';
+        this.activeWindow.style.transform = '';
+
+        // 验证设置后的实际位置
+        const verifyRect = this.activeWindow.getBoundingClientRect();
+        console.log(`📱 验证实际位置: (${verifyRect.left}, ${verifyRect.top})`);
+
+        // 如果位置设置后与预期不符，说明有其他因素干扰
+        const verifyDeltaX = Math.abs(verifyRect.left - safeLeft);
+        const verifyDeltaY = Math.abs(verifyRect.top - constrainedTop);
+        if (verifyDeltaX > 5 || verifyDeltaY > 5) {
+            console.warn(`📱 位置设置异常: 预期(${safeLeft}, ${constrainedTop}), 实际(${verifyRect.left}, ${verifyRect.top})`);
+        }
     }
     
     getHeaderHeight() {
         const header = document.querySelector('header');
         if (header && header.style.display !== 'none') {
-            return header.offsetHeight;
+            const height = header.offsetHeight;
+            console.log(`📏 Header高度: ${height}px`);
+            return height;
         }
-        return 0; // 如果header不存在或隐藏，返回0
+        // Streamly的标准Header高度
+        const streamlyHeaderHeight = 70;
+        console.log(`📏 使用Streamly标准Header高度: ${streamlyHeaderHeight}px`);
+        return streamlyHeaderHeight;
     }
 
     getFooterHeight() {
-        const footer = document.querySelector('footer');
-        if (footer && footer.style.display !== 'none') {
-            return footer.offsetHeight;
-        }
-        return 0; // 如果footer不存在或隐藏，返回0
+        // 🔧 简化Footer高度计算：直接使用Streamly的标准Footer高度
+        // Streamly的Footer是固定高度的播放列表区域
+        const streamlyFooterHeight = 400;
+        console.log(`📏 使用Streamly标准Footer高度: ${streamlyFooterHeight}px`);
+        return streamlyFooterHeight;
     }
 
     dragWindow(e) {
@@ -565,6 +643,8 @@ class StableWindowManager {
             if (dragArea) {
                 dragArea.style.background = 'rgba(79, 195, 247, 0.1)';
             }
+
+
         }
 
         // 重置所有状态
@@ -601,10 +681,21 @@ class StableWindowManager {
                 // 检查属性变化（如style.display）
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                     const target = mutation.target;
+
+                    // 处理模态框显示
                     if (target.classList && target.classList.contains('modal')) {
                         const modalContent = target.querySelector('.modal-content');
                         if (modalContent && target.style.display === 'flex' && !modalContent.dataset.enhanced) {
                             setTimeout(() => this.enhanceWindow(modalContent), 100);
+                        }
+                    }
+
+                    // 🔧 关键修复：处理浮动菜单显示（如搜索结果窗口）
+                    if (target.classList && target.classList.contains('floatingMenu')) {
+                        const isVisible = target.style.display === 'block' || target.style.display === '';
+                        if (isVisible && !target.dataset.enhanced) {
+                            console.log(`🔧 检测到浮动窗口显示: ${target.id || target.className}`);
+                            setTimeout(() => this.enhanceWindow(target), 100); // 增加延迟，让搜索逻辑先执行
                         }
                     }
                 }

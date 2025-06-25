@@ -166,47 +166,78 @@ async function serverSearch(query) {
     if ($("#searchResultsWindow").css("display") !== "block") {
       toggleMenu("searchResults");
 
-      // 设置搜索结果窗口的初始位置（如果还没有设置位置）
+      // 🔧 使用延迟执行居中逻辑，确保窗口完全显示后再居中
+      console.log('🔍 搜索成功，延迟执行居中逻辑');
+
+      // 使用短延迟确保窗口完全显示
       setTimeout(() => {
         const searchWindow = document.getElementById('searchResultsWindow');
-        // 更严格的条件：只有在窗口真正没有位置时才设置
-        const hasValidPosition = searchWindow &&
-                                searchWindow.style.left &&
-                                searchWindow.style.top &&
-                                searchWindow.style.left !== '' &&
-                                searchWindow.style.top !== '' &&
-                                searchWindow.style.left !== 'auto' &&
-                                searchWindow.style.top !== 'auto';
 
-        if (searchWindow && !hasValidPosition) {
-          console.log('🔍 搜索成功：使用窗口管理器居中搜索结果窗口');
-
-          // 使用窗口管理器的居中功能，确保在Header和Footer之间居中
-          if (window.windowManager) {
-            window.windowManager.centerWindow(searchWindow);
-          } else {
-            // 备用方案：手动计算居中位置
-            const header = document.querySelector('header');
-            const footer = document.querySelector('footer');
-            const headerHeight = header && header.style.display !== 'none' ? header.offsetHeight : 70;
-            const footerHeight = footer && footer.style.display !== 'none' ? footer.offsetHeight : 400;
-
-            const availableHeight = window.innerHeight - headerHeight - footerHeight;
-            const windowWidth = searchWindow.offsetWidth;
-            const windowHeight = searchWindow.offsetHeight;
-
-            const centerX = (window.innerWidth - windowWidth) / 2;
-            const centerY = headerHeight + (availableHeight - windowHeight) / 2;
-
-            searchWindow.style.left = Math.max(0, centerX) + 'px';
-            searchWindow.style.top = Math.max(headerHeight, centerY) + 'px';
-
-            console.log(`🔍 备用居中: left=${searchWindow.style.left}, top=${searchWindow.style.top}`);
-          }
-        } else {
-          console.log('🔍 搜索成功：窗口已有位置，跳过设置');
+        if (!searchWindow) {
+          console.log('🔍 搜索窗口未找到');
+          return;
         }
-      }, 50);
+
+        // 检查窗口是否真正可见
+        const isVisible = searchWindow.style.display === 'block' &&
+                         searchWindow.offsetParent !== null;
+
+        if (!isVisible) {
+          console.log('🔍 搜索窗口不可见，跳过居中');
+          return;
+        }
+
+        // 强制居中，不检查现有位置
+        console.log('🔍 强制居中搜索结果窗口');
+
+        // 优先使用窗口管理器
+        if (window.stableWindowManager && typeof window.stableWindowManager.centerWindow === 'function') {
+          console.log('🔍 使用窗口管理器居中');
+          window.stableWindowManager.centerWindow(searchWindow);
+        } else {
+          // 备用方案：手动计算居中位置
+          console.log('🔍 使用备用居中方案');
+
+          const header = document.querySelector('header');
+          const footer = document.querySelector('footer');
+
+          // Header高度计算
+          let headerHeight = 70; // 默认值
+          if (header && header.offsetHeight > 0) {
+            headerHeight = header.offsetHeight;
+          }
+
+          // Footer高度计算
+          let footerHeight = 400; // Streamly默认Footer高度
+          if (footer && footer.offsetHeight > 0) {
+            footerHeight = footer.offsetHeight;
+          }
+
+          // 获取窗口实际尺寸
+          const rect = searchWindow.getBoundingClientRect();
+          const windowWidth = rect.width || searchWindow.offsetWidth || 600;
+          const windowHeight = rect.height || searchWindow.offsetHeight || 400;
+
+          const availableHeight = window.innerHeight - headerHeight - footerHeight;
+          const availableWidth = window.innerWidth;
+
+          const centerX = (availableWidth - windowWidth) / 2;
+          const centerY = headerHeight + (availableHeight - windowHeight) / 2;
+
+          // 确保不超出边界
+          const constrainedX = Math.max(0, Math.min(centerX, availableWidth - windowWidth));
+          const constrainedY = Math.max(headerHeight, Math.min(centerY, headerHeight + availableHeight - windowHeight));
+
+          searchWindow.style.left = constrainedX + 'px';
+          searchWindow.style.top = constrainedY + 'px';
+
+          console.log(`🔍 手动居中完成:
+            Header高度=${headerHeight}, Footer高度=${footerHeight}
+            窗口尺寸=${windowWidth}x${windowHeight}
+            可用区域=${availableWidth}x${availableHeight}
+            最终位置=(${constrainedX}, ${constrainedY})`);
+        }
+      }, 150); // 150ms延迟，确保窗口完全显示
     }
 
     $("#searchProgress").css("display", "none");
@@ -227,47 +258,63 @@ async function serverSearch(query) {
     if ($("#searchResultsWindow").css("display") !== "block") {
       toggleMenu("searchResults");
 
-      // 设置搜索结果窗口的初始位置（如果还没有设置位置）
+      // 使用与成功情况相同的居中逻辑
       setTimeout(() => {
         const searchWindow = document.getElementById('searchResultsWindow');
-        // 更严格的条件：只有在窗口真正没有位置时才设置
-        const hasValidPosition = searchWindow &&
-                                searchWindow.style.left &&
-                                searchWindow.style.top &&
-                                searchWindow.style.left !== '' &&
-                                searchWindow.style.top !== '' &&
-                                searchWindow.style.left !== 'auto' &&
-                                searchWindow.style.top !== 'auto';
 
-        if (searchWindow && !hasValidPosition) {
-          console.log('❌ 搜索错误：使用窗口管理器居中搜索结果窗口');
-
-          // 使用窗口管理器的居中功能，确保在Header和Footer之间居中
-          if (window.windowManager) {
-            window.windowManager.centerWindow(searchWindow);
-          } else {
-            // 备用方案：手动计算居中位置
-            const header = document.querySelector('header');
-            const footer = document.querySelector('footer');
-            const headerHeight = header && header.style.display !== 'none' ? header.offsetHeight : 70;
-            const footerHeight = footer && footer.style.display !== 'none' ? footer.offsetHeight : 400;
-
-            const availableHeight = window.innerHeight - headerHeight - footerHeight;
-            const windowWidth = searchWindow.offsetWidth;
-            const windowHeight = searchWindow.offsetHeight;
-
-            const centerX = (window.innerWidth - windowWidth) / 2;
-            const centerY = headerHeight + (availableHeight - windowHeight) / 2;
-
-            searchWindow.style.left = Math.max(0, centerX) + 'px';
-            searchWindow.style.top = Math.max(headerHeight, centerY) + 'px';
-
-            console.log(`❌ 备用居中: left=${searchWindow.style.left}, top=${searchWindow.style.top}`);
-          }
-        } else {
-          console.log('❌ 搜索错误：窗口已有位置，跳过设置');
+        if (!searchWindow) {
+          console.log('❌ 搜索窗口未找到');
+          return;
         }
-      }, 50);
+
+        const isVisible = searchWindow.style.display === 'block' &&
+                         searchWindow.offsetParent !== null;
+
+        if (!isVisible) {
+          console.log('❌ 搜索窗口不可见，跳过居中');
+          return;
+        }
+
+        console.log('❌ 强制居中搜索错误窗口');
+
+        if (window.stableWindowManager && typeof window.stableWindowManager.centerWindow === 'function') {
+          console.log('❌ 使用窗口管理器居中');
+          window.stableWindowManager.centerWindow(searchWindow);
+        } else {
+          console.log('❌ 使用备用居中方案');
+
+          const header = document.querySelector('header');
+          const footer = document.querySelector('footer');
+
+          let headerHeight = 70;
+          if (header && header.offsetHeight > 0) {
+            headerHeight = header.offsetHeight;
+          }
+
+          let footerHeight = 400;
+          if (footer && footer.offsetHeight > 0) {
+            footerHeight = footer.offsetHeight;
+          }
+
+          const rect = searchWindow.getBoundingClientRect();
+          const windowWidth = rect.width || searchWindow.offsetWidth || 600;
+          const windowHeight = rect.height || searchWindow.offsetHeight || 400;
+
+          const availableHeight = window.innerHeight - headerHeight - footerHeight;
+          const availableWidth = window.innerWidth;
+
+          const centerX = (availableWidth - windowWidth) / 2;
+          const centerY = headerHeight + (availableHeight - windowHeight) / 2;
+
+          const constrainedX = Math.max(0, Math.min(centerX, availableWidth - windowWidth));
+          const constrainedY = Math.max(headerHeight, Math.min(centerY, headerHeight + availableHeight - windowHeight));
+
+          searchWindow.style.left = constrainedX + 'px';
+          searchWindow.style.top = constrainedY + 'px';
+
+          console.log(`❌ 错误居中完成: 位置=(${constrainedX}, ${constrainedY})`);
+        }
+      }, 150);
     }
 
     // 5秒后恢复正常占位符和隐藏状态

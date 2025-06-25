@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>触摸开始跳跃测试 - Streamly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(15, 15, 35, 0.9);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+
+        /* 完全模拟Streamly的搜索结果弹窗 */
+        #searchResultsWindow {
+            background: rgba(15, 15, 35, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(79, 195, 247, 0.3) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+            color: #e0e0e0 !important;
+            position: fixed !important;
+            width: 90vw !important;
+            max-width: 800px !important;
+            max-height: calc(100vh - 150px) !important;
+            z-index: 10000 !important;
+            padding: 20px;
+            display: none;
+        }
+
+        #searchResultsWindow h2 {
+            color: #4fc3f7 !important;
+            border-bottom: 2px solid rgba(79, 195, 247, 0.3) !important;
+            padding-bottom: 10px !important;
+            cursor: move !important;
+            user-select: none !important;
+            transition: all 0.2s ease !important;
+            margin: 0 0 15px 0;
+            padding: 15px 8px !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            -khtml-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            touch-action: none !important;
+        }
+
+        #searchResultsWindow h2:hover {
+            background: rgba(79, 195, 247, 0.15) !important;
+            border-radius: 8px 8px 0 0 !important;
+            transform: translateY(-1px) !important;
+        }
+
+        #searchResultsWindow.being-dragged h2 {
+            background: rgba(79, 195, 247, 0.2) !important;
+            border-radius: 8px 8px 0 0 !important;
+            box-shadow: 0 2px 10px rgba(79, 195, 247, 0.3) !important;
+        }
+
+        .floatingMenuCloseButton {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 82, 82, 0.1) !important;
+            border: 1px solid rgba(255, 82, 82, 0.3) !important;
+            color: #ff5252 !important;
+            border-radius: 8px !important;
+            padding: 5px 10px !important;
+            cursor: pointer;
+            transition: all 0.3s ease !important;
+        }
+
+        .test-content {
+            margin-top: 80px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .position-monitor {
+            position: fixed;
+            bottom: 20px;
+            left: 10px;
+            right: 10px;
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 11px;
+            z-index: 3000;
+            font-family: monospace;
+        }
+
+        .test-btn {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 12px 20px;
+            margin: 10px;
+            font-size: 14px;
+        }
+
+        .position-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .position-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .jump-detected {
+            background: rgba(255, 82, 82, 0.3) !important;
+            border: 2px solid #ff5252 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🔧 触摸开始跳跃测试</div>
+    </div>
+
+    <div class="test-content">
+        <h3>📱 测试触摸开始时的弹窗跳跃</h3>
+        <p>这个测试专门检测弹窗在触摸开始瞬间是否会跳跃</p>
+        
+        <button class="test-btn" onclick="showSearchWindow()">显示搜索结果弹窗</button>
+        <button class="test-btn" onclick="resetPosition()">重置位置</button>
+        
+        <div style="margin-top: 20px; font-size: 12px;">
+            <p><strong>测试方法：</strong></p>
+            <p>1. 点击"显示搜索结果弹窗"</p>
+            <p>2. 观察弹窗位置</p>
+            <p>3. 轻触标题栏（不要移动）</p>
+            <p>4. 观察弹窗是否跳跃</p>
+            <p>5. 查看下方位置监控信息</p>
+        </div>
+    </div>
+
+    <!-- 完全模拟的搜索结果弹窗 -->
+    <div id="searchResultsWindow" class="floatingMenu">
+        <h2>搜索结果:</h2>
+        <div class="floatingMenuCloseButton" onclick="hideSearchWindow()">关闭</div>
+        <div style="margin-top: 20px;">
+            <p><strong>这是搜索结果弹窗的模拟</strong></p>
+            <p>请轻触蓝色标题栏测试是否会跳跃</p>
+            
+            <div style="margin-top: 15px; padding: 10px; background: rgba(79, 195, 247, 0.1); border-radius: 8px;">
+                <strong>预期行为：</strong><br>
+                触摸标题栏时弹窗应该保持在原位，不应该跳跃。
+            </div>
+        </div>
+    </div>
+
+    <!-- 位置监控面板 -->
+    <div class="position-monitor">
+        <div><strong>📊 位置监控</strong> <button onclick="clearLog()" style="float: right; font-size: 10px;">清空</button></div>
+        <div class="position-info">
+            <div class="position-item">
+                <strong>触摸前:</strong><br>
+                <span id="beforeTouch">-</span>
+            </div>
+            <div class="position-item">
+                <strong>触摸后:</strong><br>
+                <span id="afterTouch">-</span>
+            </div>
+        </div>
+        <div style="margin-top: 10px;">
+            <strong>跳跃检测:</strong> <span id="jumpStatus">等待测试</span>
+        </div>
+        <div style="margin-top: 10px; max-height: 100px; overflow-y: auto;">
+            <div id="eventLog">等待操作...</div>
+        </div>
+    </div>
+
+    <!-- 引入修复后的窗口管理器 -->
+    <script src="res/js/stable-window-manager.js"></script>
+
+    <script>
+        let searchWindow = document.getElementById('searchResultsWindow');
+        let beforeTouchPos = null;
+        let eventLog = [];
+        
+        function showSearchWindow() {
+            searchWindow.style.display = 'block';
+            
+            // 清除任何transform
+            searchWindow.style.transform = '';
+            
+            // 居中显示
+            const rect = searchWindow.getBoundingClientRect();
+            const headerHeight = 60;
+            const availableHeight = window.innerHeight - headerHeight;
+            const availableWidth = window.innerWidth;
+            
+            const centerX = (availableWidth - rect.width) / 2;
+            const centerY = headerHeight + (availableHeight - rect.height) / 2;
+            
+            const constrainedX = Math.max(0, Math.min(centerX, availableWidth - rect.width));
+            const constrainedY = Math.max(headerHeight, Math.min(centerY, headerHeight + availableHeight - rect.height));
+            
+            searchWindow.style.left = constrainedX + 'px';
+            searchWindow.style.top = constrainedY + 'px';
+            
+            updatePositionDisplay();
+            addLog(`弹窗显示在: (${Math.round(constrainedX)}, ${Math.round(constrainedY)})`);
+        }
+
+        function hideSearchWindow() {
+            searchWindow.style.display = 'none';
+            addLog('弹窗已隐藏');
+        }
+
+        function resetPosition() {
+            if (searchWindow.style.display !== 'none') {
+                showSearchWindow();
+                addLog('位置已重置');
+            }
+        }
+
+        function updatePositionDisplay() {
+            if (searchWindow.style.display === 'none') return;
+            
+            const rect = searchWindow.getBoundingClientRect();
+            const computedStyle = window.getComputedStyle(searchWindow);
+            
+            const posInfo = `CSS: (${computedStyle.left}, ${computedStyle.top})\n实际: (${Math.round(rect.left)}, ${Math.round(rect.top)})`;
+            
+            if (beforeTouchPos) {
+                document.getElementById('beforeTouch').textContent = beforeTouchPos;
+                document.getElementById('afterTouch').textContent = posInfo;
+                
+                // 检测跳跃
+                const beforeRect = beforeTouchPos.match(/实际: \((\d+), (\d+)\)/);
+                const afterRect = [Math.round(rect.left), Math.round(rect.top)];
+                
+                if (beforeRect) {
+                    const beforeX = parseInt(beforeRect[1]);
+                    const beforeY = parseInt(beforeRect[2]);
+                    const deltaX = Math.abs(afterRect[0] - beforeX);
+                    const deltaY = Math.abs(afterRect[1] - beforeY);
+                    
+                    if (deltaX > 5 || deltaY > 5) {
+                        document.getElementById('jumpStatus').textContent = `❌ 检测到跳跃! ΔX=${deltaX}px, ΔY=${deltaY}px`;
+                        document.getElementById('jumpStatus').style.color = '#ff5252';
+                        searchWindow.classList.add('jump-detected');
+                        addLog(`❌ 跳跃检测: ΔX=${deltaX}px, ΔY=${deltaY}px`);
+                    } else {
+                        document.getElementById('jumpStatus').textContent = '✅ 无跳跃';
+                        document.getElementById('jumpStatus').style.color = '#4caf50';
+                        searchWindow.classList.remove('jump-detected');
+                    }
+                }
+            } else {
+                document.getElementById('beforeTouch').textContent = posInfo;
+            }
+        }
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            eventLog.unshift(`[${timestamp}] ${message}`);
+            if (eventLog.length > 10) eventLog.pop();
+            
+            document.getElementById('eventLog').innerHTML = eventLog.join('<br>');
+        }
+
+        function clearLog() {
+            eventLog = [];
+            beforeTouchPos = null;
+            document.getElementById('eventLog').textContent = '日志已清空';
+            document.getElementById('beforeTouch').textContent = '-';
+            document.getElementById('afterTouch').textContent = '-';
+            document.getElementById('jumpStatus').textContent = '等待测试';
+            searchWindow.classList.remove('jump-detected');
+        }
+
+        // 监听触摸事件
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.closest('#searchResultsWindow h2')) {
+                // 记录触摸前的位置
+                const rect = searchWindow.getBoundingClientRect();
+                const computedStyle = window.getComputedStyle(searchWindow);
+                beforeTouchPos = `CSS: (${computedStyle.left}, ${computedStyle.top})\n实际: (${Math.round(rect.left)}, ${Math.round(rect.top)})`;
+                
+                addLog('📱 触摸开始');
+                updatePositionDisplay();
+                
+                // 延迟检查位置变化
+                setTimeout(() => {
+                    updatePositionDisplay();
+                }, 50);
+            }
+        });
+
+        document.addEventListener('touchend', function(e) {
+            if (searchWindow.style.display !== 'none') {
+                addLog('📱 触摸结束');
+                updatePositionDisplay();
+            }
+        });
+
+        // 定期更新位置信息
+        setInterval(updatePositionDisplay, 1000);
+    </script>
+</body>
+</html>

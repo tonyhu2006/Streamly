@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端拖拽调试测试 - Streamly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(15, 15, 35, 0.9);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+
+        /* 模拟Streamly的搜索结果弹窗样式 */
+        .floatingMenu {
+            background: rgba(15, 15, 35, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(79, 195, 247, 0.3) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+            color: #e0e0e0 !important;
+            position: fixed !important;
+            width: 90vw !important;
+            max-width: 350px !important;
+            max-height: calc(100vh - 150px) !important;
+            z-index: 10000 !important;
+            padding: 20px;
+        }
+
+        .floatingMenu h2 {
+            color: #4fc3f7 !important;
+            border-bottom: 2px solid rgba(79, 195, 247, 0.3) !important;
+            padding: 15px 8px !important;
+            cursor: move !important;
+            user-select: none !important;
+            transition: all 0.2s ease !important;
+            margin: 0 0 15px 0;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            -khtml-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            touch-action: none !important;
+        }
+
+        .floatingMenu h2:active {
+            background: rgba(79, 195, 247, 0.25) !important;
+            transition: background 0.1s ease !important;
+        }
+
+        .floatingMenu.being-dragged h2 {
+            background: rgba(79, 195, 247, 0.3) !important;
+            box-shadow: 0 4px 20px rgba(79, 195, 247, 0.4) !important;
+        }
+
+        .test-content {
+            margin-top: 80px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 10px;
+            right: 10px;
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 10px;
+            z-index: 3000;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+
+        .test-btn {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 12px;
+        }
+
+        .coord-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 11px;
+        }
+
+        .error-highlight {
+            background: rgba(255, 82, 82, 0.2) !important;
+            border: 1px solid #ff5252 !important;
+        }
+
+        .success-highlight {
+            background: rgba(76, 175, 80, 0.2) !important;
+            border: 1px solid #4caf50 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🔧 移动端拖拽调试</div>
+        <div id="screenInfo"></div>
+    </div>
+
+    <div class="test-content">
+        <h3>📱 移动端弹窗拖拽问题调试</h3>
+        
+        <div class="coord-display">
+            <strong>屏幕信息:</strong> <span id="screenSize"></span><br>
+            <strong>弹窗状态:</strong> <span id="popupStatus">未显示</span><br>
+            <strong>当前位置:</strong> <span id="currentPos">-</span>
+        </div>
+        
+        <button class="test-btn" onclick="showDebugPopup()">显示调试弹窗</button>
+        <button class="test-btn" onclick="resetPosition()">重置位置</button>
+        <button class="test-btn" onclick="clearDebugLog()">清空日志</button>
+        
+        <div style="margin-top: 20px; font-size: 12px;">
+            <p><strong>测试步骤：</strong></p>
+            <p>1. 点击"显示调试弹窗"</p>
+            <p>2. 用手指按住蓝色标题栏</p>
+            <p>3. 观察弹窗是否跳跃</p>
+            <p>4. 查看下方调试日志</p>
+        </div>
+    </div>
+
+    <!-- 调试弹窗 -->
+    <div id="debugPopup" class="floatingMenu" style="display: none;">
+        <h2 id="popupHeader">🔍 调试弹窗</h2>
+        <div style="margin-top: 10px; font-size: 12px;">
+            <p><strong>拖拽测试弹窗</strong></p>
+            <p>请按住标题栏进行拖拽测试</p>
+            
+            <div style="margin-top: 15px; padding: 8px; background: rgba(79, 195, 247, 0.1); border-radius: 5px;">
+                <div><strong>初始位置:</strong> <span id="initialPos">-</span></div>
+                <div><strong>CSS位置:</strong> <span id="cssPos">-</span></div>
+                <div><strong>实际位置:</strong> <span id="actualPos">-</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 调试日志面板 -->
+    <div class="debug-panel" id="debugPanel">
+        <div><strong>📊 调试日志</strong> <button onclick="clearDebugLog()" style="float: right; font-size: 10px;">清空</button></div>
+        <div id="debugLog">等待操作...</div>
+    </div>
+
+    <!-- 引入修复后的窗口管理器 -->
+    <script src="res/js/stable-window-manager.js"></script>
+
+    <script>
+        let debugPopup = document.getElementById('debugPopup');
+        let debugLog = [];
+        
+        function updateScreenInfo() {
+            const info = `${window.innerWidth}x${window.innerHeight}`;
+            document.getElementById('screenInfo').textContent = info;
+            document.getElementById('screenSize').textContent = info;
+        }
+
+        function showDebugPopup() {
+            debugPopup.style.display = 'block';
+            
+            // 清除任何可能存在的transform
+            debugPopup.style.transform = '';
+            
+            // 计算居中位置
+            const rect = debugPopup.getBoundingClientRect();
+            const headerHeight = 60;
+            const availableHeight = window.innerHeight - headerHeight;
+            const availableWidth = window.innerWidth;
+            
+            const centerX = (availableWidth - rect.width) / 2;
+            const centerY = headerHeight + (availableHeight - rect.height) / 2;
+            
+            const constrainedX = Math.max(0, Math.min(centerX, availableWidth - rect.width));
+            const constrainedY = Math.max(headerHeight, Math.min(centerY, headerHeight + availableHeight - rect.height));
+            
+            debugPopup.style.left = constrainedX + 'px';
+            debugPopup.style.top = constrainedY + 'px';
+            
+            updatePositionInfo();
+            addDebugLog(`弹窗显示在: (${Math.round(constrainedX)}, ${Math.round(constrainedY)})`);
+            document.getElementById('popupStatus').textContent = '已显示';
+        }
+
+        function resetPosition() {
+            if (debugPopup.style.display !== 'none') {
+                showDebugPopup(); // 重新居中
+                addDebugLog('弹窗位置已重置');
+            }
+        }
+
+        function updatePositionInfo() {
+            if (debugPopup.style.display === 'none') return;
+            
+            const computedStyle = window.getComputedStyle(debugPopup);
+            const rect = debugPopup.getBoundingClientRect();
+            
+            const cssLeft = computedStyle.left;
+            const cssTop = computedStyle.top;
+            const actualLeft = Math.round(rect.left);
+            const actualTop = Math.round(rect.top);
+            
+            document.getElementById('currentPos').textContent = `CSS(${cssLeft}, ${cssTop}) 实际(${actualLeft}, ${actualTop})`;
+            document.getElementById('cssPos').textContent = `${cssLeft}, ${cssTop}`;
+            document.getElementById('actualPos').textContent = `${actualLeft}, ${actualTop}`;
+            
+            // 检查是否有异常
+            const leftNum = parseFloat(cssLeft);
+            const topNum = parseFloat(cssTop);
+            
+            if (leftNum < -50 || leftNum > window.innerWidth + 50) {
+                debugPopup.classList.add('error-highlight');
+                addDebugLog(`❌ 异常水平位置: ${leftNum}px`);
+            } else {
+                debugPopup.classList.remove('error-highlight');
+            }
+        }
+
+        function addDebugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.unshift(`[${timestamp}] ${message}`);
+            if (debugLog.length > 20) debugLog.pop(); // 保持最新20条
+            
+            document.getElementById('debugLog').innerHTML = debugLog.join('<br>');
+        }
+
+        function clearDebugLog() {
+            debugLog = [];
+            document.getElementById('debugLog').textContent = '日志已清空';
+        }
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', updateScreenInfo);
+        
+        // 监听触摸事件
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.closest('#debugPopup h2')) {
+                addDebugLog('📱 开始触摸拖拽...');
+                updatePositionInfo();
+            }
+        });
+        
+        document.addEventListener('touchmove', function(e) {
+            if (debugPopup.style.display !== 'none') {
+                updatePositionInfo();
+            }
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            if (debugPopup.style.display !== 'none') {
+                updatePositionInfo();
+                addDebugLog('📱 触摸结束');
+            }
+        });
+
+        // 定期更新位置信息
+        setInterval(updatePositionInfo, 500);
+        
+        // 初始化
+        updateScreenInfo();
+        
+        // 重写console.log来捕获窗口管理器的日志
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            if (args[0] && args[0].includes('📱')) {
+                addDebugLog(args.join(' '));
+            }
+        };
+    </script>
+</body>
+</html>
