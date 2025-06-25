@@ -13,7 +13,9 @@ class StableWindowManager {
         this.minWidth = 300;
         this.minHeight = 200;
         this.originalStyles = new Map();
-        
+        this.headerHeight = 0; // 缓存Header高度
+        this.touchStartInfo = null; // 触摸起始信息
+
         this.init();
     }
     
@@ -30,15 +32,23 @@ class StableWindowManager {
     }
     
     setupGlobalEvents() {
+        // 鼠标事件
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         document.addEventListener('mouseup', () => this.handleMouseUp());
-        
+
+        // 触摸事件（移动端）
+        document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+        document.addEventListener('touchend', () => this.handleTouchEnd());
+        document.addEventListener('touchcancel', () => this.handleTouchEnd());
+
         // 防止拖拽时选择文本
         document.addEventListener('selectstart', (e) => {
             if (this.isDragging || this.isResizing) {
                 e.preventDefault();
             }
         });
+
+
     }
     
     setupWindows() {
@@ -92,19 +102,19 @@ class StableWindowManager {
         }
 
         windowElement.dataset.enhanced = 'true';
-        
+
         // 保存原始样式
         this.saveOriginalStyles(windowElement);
-        
+
         // 设置基本样式
         this.setupBasicStyles(windowElement);
-        
+
         // 添加拖拽区域
         this.addDragArea(windowElement);
-        
+
         // 添加缩放手柄
         this.addResizeHandles(windowElement);
-        
+
         // 添加窗口控制
         this.addWindowControls(windowElement);
     }
@@ -122,32 +132,66 @@ class StableWindowManager {
     }
     
     setupBasicStyles(windowElement) {
-        // 只设置必要的样式，不破坏现有布局
+        console.log('🔧 setupBasicStyles 被调用');
+
+        // 记录当前窗口状态
+        const rect = windowElement.getBoundingClientRect();
+        console.log(`🔧 窗口当前位置: (${rect.left}, ${rect.top})`);
+        console.log(`🔧 窗口当前样式: position=${windowElement.style.position}, left=${windowElement.style.left}, top=${windowElement.style.top}`);
+
+        // 设置基本样式
         if (!windowElement.style.position || windowElement.style.position === 'static') {
             windowElement.style.position = 'fixed';
         }
-        
+
         if (!windowElement.style.zIndex) {
             windowElement.style.zIndex = '1000';
         }
-        
+
         // 设置最小尺寸
         windowElement.style.minWidth = this.minWidth + 'px';
         windowElement.style.minHeight = this.minHeight + 'px';
-        
-        // 如果没有设置位置，居中显示
-        if (!windowElement.style.left && !windowElement.style.top) {
+
+        // 如果没有设置位置，或者位置为默认值，则居中显示
+        const hasValidPosition = windowElement.style.left &&
+                                windowElement.style.top &&
+                                windowElement.style.left !== '' &&
+                                windowElement.style.top !== '' &&
+                                windowElement.style.left !== 'auto' &&
+                                windowElement.style.top !== 'auto';
+
+        if (!hasValidPosition) {
+            console.log('🔧 窗口没有有效位置，执行居中');
             this.centerWindow(windowElement);
+        } else {
+            console.log('🔧 窗口已有有效位置，跳过居中');
         }
     }
     
     centerWindow(windowElement) {
         const rect = windowElement.getBoundingClientRect();
-        const centerX = (window.innerWidth - rect.width) / 2;
-        const centerY = (window.innerHeight - rect.height) / 2;
-        
-        windowElement.style.left = Math.max(0, centerX) + 'px';
-        windowElement.style.top = Math.max(0, centerY) + 'px';
+        const headerHeight = this.getHeaderHeight();
+        const footerHeight = this.getFooterHeight();
+
+        // 计算Header和Footer之间的可用区域
+        const availableHeight = window.innerHeight - headerHeight - footerHeight;
+        const availableWidth = window.innerWidth;
+
+        // 在可用区域中居中
+        const centerX = (availableWidth - rect.width) / 2;
+        const centerY = headerHeight + (availableHeight - rect.height) / 2;
+
+        // 确保窗口不会超出边界
+        const constrainedX = Math.max(0, Math.min(centerX, availableWidth - rect.width));
+        const constrainedY = Math.max(headerHeight, Math.min(centerY, headerHeight + availableHeight - rect.height));
+
+        windowElement.style.left = constrainedX + 'px';
+        windowElement.style.top = constrainedY + 'px';
+
+        console.log(`🎯 窗口居中: Header高度=${headerHeight}, Footer高度=${footerHeight}`);
+        console.log(`🎯 可用区域: 宽度=${availableWidth}, 高度=${availableHeight}`);
+        console.log(`🎯 窗口尺寸: 宽度=${rect.width}, 高度=${rect.height}`);
+        console.log(`🎯 居中位置: (${constrainedX}, ${constrainedY})`);
     }
     
     addDragArea(windowElement) {
@@ -168,8 +212,25 @@ class StableWindowManager {
         dragArea.style.padding = '8px';
         dragArea.style.background = 'rgba(79, 195, 247, 0.1)';
         dragArea.style.borderBottom = '1px solid rgba(79, 195, 247, 0.3)';
-        
+        dragArea.style.transition = 'all 0.2s ease';
+
+        // 增强鼠标悬停效果
+        dragArea.addEventListener('mouseenter', () => {
+            dragArea.style.background = 'rgba(79, 195, 247, 0.15)';
+            dragArea.style.cursor = 'move';
+        });
+
+        dragArea.addEventListener('mouseleave', () => {
+            if (!this.isDragging) {
+                dragArea.style.background = 'rgba(79, 195, 247, 0.1)';
+            }
+        });
+
+        // 鼠标事件
         dragArea.addEventListener('mousedown', (e) => this.startDrag(e, windowElement));
+
+        // 触摸事件（移动端）
+        dragArea.addEventListener('touchstart', (e) => this.startTouchDrag(e, windowElement), { passive: false });
     }
     
     addResizeHandles(windowElement) {
@@ -228,19 +289,67 @@ class StableWindowManager {
         if (e.target.closest('.floatingMenuCloseButton, .modal-close, .window-controls')) {
             return;
         }
-        
+
         this.isDragging = true;
         this.activeWindow = windowElement;
-        
+
         const rect = windowElement.getBoundingClientRect();
         this.dragOffset.x = e.clientX - rect.left;
         this.dragOffset.y = e.clientY - rect.top;
-        
+
+        // 获取Header高度，用于后续边界检查
+        this.headerHeight = this.getHeaderHeight();
+
+        // 不要在拖拽开始时立即修正位置，这会导致窗口跳跃
+        // 边界检查将在拖拽过程中进行
+
+        // 添加拖拽状态样式
         windowElement.style.zIndex = '10001';
+        windowElement.classList.add('being-dragged');
         document.body.style.userSelect = 'none';
-        
+        document.body.style.cursor = 'move';
+        document.body.classList.add('window-dragging');
+
         e.preventDefault();
     }
+
+    startTouchDrag(e, windowElement) {
+        // 避免在控制按钮上开始拖拽
+        if (e.target.closest('.floatingMenuCloseButton, .modal-close, .window-controls')) {
+            return;
+        }
+
+        // 获取第一个触摸点
+        const touch = e.touches[0];
+        if (!touch) return;
+
+        console.log('📱 触摸开始 - 稳定的垂直拖拽模式');
+
+        // 记录触摸开始前的窗口位置（使用计算样式，更稳定）
+        const computedStyle = window.getComputedStyle(windowElement);
+        const currentLeft = parseFloat(computedStyle.left) || 0;
+        const currentTop = parseFloat(computedStyle.top) || 0;
+
+        // 记录触摸信息，但绝对不修改任何窗口属性
+        this.touchStartInfo = {
+            startX: touch.clientX,
+            startY: touch.clientY,
+            windowElement: windowElement,
+            initialWindowTop: currentTop,
+            initialWindowLeft: currentLeft,
+            hasMoved: false,
+            isDragging: false
+        };
+
+        console.log(`📱 记录触摸起始点: (${touch.clientX}, ${touch.clientY})`);
+        console.log(`📱 窗口稳定位置: left=${currentLeft}, top=${currentTop}`);
+
+        // 只阻止默认行为，绝对不做任何其他操作
+        e.preventDefault();
+        e.stopPropagation(); // 防止事件冒泡
+    }
+
+
     
     startResize(e, windowElement, direction) {
         this.isResizing = true;
@@ -261,18 +370,143 @@ class StableWindowManager {
             this.resizeWindow(e);
         }
     }
+
+    handleTouchMove(e) {
+        const touch = e.touches[0];
+        if (!touch) return;
+
+        // 如果已经在拖拽中，继续垂直拖拽
+        if (this.touchStartInfo && this.touchStartInfo.isDragging) {
+            this.handleStableVerticalDrag(touch);
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
+        // 如果有触摸起始信息，检查是否应该开始拖拽
+        if (this.touchStartInfo && !this.touchStartInfo.hasMoved) {
+            const deltaX = touch.clientX - this.touchStartInfo.startX;
+            const deltaY = touch.clientY - this.touchStartInfo.startY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+            // 只有当垂直移动距离超过阈值时才激活拖拽
+            if (Math.abs(deltaY) > 15) { // 增加阈值，只响应明显的垂直移动
+                console.log(`📱 检测到垂直移动距离 ${Math.abs(deltaY)}px，激活垂直拖拽`);
+
+                this.touchStartInfo.hasMoved = true;
+                this.touchStartInfo.isDragging = true;
+
+                // 激活拖拽状态，但不修改窗口位置
+                this.isDragging = true;
+                this.activeWindow = this.touchStartInfo.windowElement;
+
+                // 获取Header高度
+                this.headerHeight = this.getHeaderHeight();
+
+                // 添加拖拽状态样式（但不修改位置）
+                this.activeWindow.style.zIndex = '10001';
+                this.activeWindow.classList.add('being-dragged');
+                document.body.style.userSelect = 'none';
+                document.body.classList.add('window-dragging');
+
+                // 添加触摸反馈
+                const dragArea = this.activeWindow.querySelector('h2, .modal-header, .window-drag-area');
+                if (dragArea) {
+                    dragArea.style.background = 'rgba(79, 195, 247, 0.2)';
+                }
+
+                // 开始处理垂直拖拽
+                this.handleStableVerticalDrag(touch);
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }
+
+    handleStableVerticalDrag(touch) {
+        if (!this.touchStartInfo || !this.activeWindow) return;
+
+        // 计算垂直移动距离
+        const deltaY = touch.clientY - this.touchStartInfo.startY;
+
+        // 计算新的垂直位置（保持水平位置绝对不变）
+        const newTop = this.touchStartInfo.initialWindowTop + deltaY;
+        const fixedLeft = this.touchStartInfo.initialWindowLeft; // 绝对固定的水平位置
+
+        console.log(`📱 稳定垂直拖拽: 起始Y=${this.touchStartInfo.startY}, 当前Y=${touch.clientY}, 移动距离=${deltaY}`);
+        console.log(`📱 新位置: left=${fixedLeft}(固定不变), top=${newTop}`);
+
+        // 改进的垂直边界限制：确保标题栏始终可见
+        const headerHeight = this.headerHeight || this.getHeaderHeight();
+        const footerHeight = this.getFooterHeight();
+        const titleBarHeight = 50; // 标题栏高度（确保标题栏可见）
+
+        const minY = headerHeight; // 不能超出Header上方
+        const maxY = window.innerHeight - footerHeight - titleBarHeight; // 确保标题栏不被footer遮挡
+
+        const constrainedTop = Math.max(minY, Math.min(newTop, maxY));
+
+        console.log(`📱 垂直边界: headerHeight=${headerHeight}, footerHeight=${footerHeight}`);
+        console.log(`📱 边界限制: minY=${minY}, maxY=${maxY}, 限制后top=${constrainedTop}`);
+
+        // 使用transform而不是直接修改left/top，避免触发重新布局
+        this.activeWindow.style.transform = `translate(${fixedLeft}px, ${constrainedTop}px)`;
+        this.activeWindow.style.left = '0px'; // 重置left
+        this.activeWindow.style.top = '0px';  // 重置top
+
+        console.log(`📱 使用transform设置位置: translate(${fixedLeft}px, ${constrainedTop}px)`);
+    }
     
+    getHeaderHeight() {
+        const header = document.querySelector('header');
+        if (header && header.style.display !== 'none') {
+            return header.offsetHeight;
+        }
+        return 0; // 如果header不存在或隐藏，返回0
+    }
+
+    getFooterHeight() {
+        const footer = document.querySelector('footer');
+        if (footer && footer.style.display !== 'none') {
+            return footer.offsetHeight;
+        }
+        return 0; // 如果footer不存在或隐藏，返回0
+    }
+
     dragWindow(e) {
+        // 使用传统的鼠标位置拖拽
         const newX = e.clientX - this.dragOffset.x;
         const newY = e.clientY - this.dragOffset.y;
-        
-        // 限制在屏幕内
-        const maxX = window.innerWidth - this.activeWindow.offsetWidth;
-        const maxY = window.innerHeight - this.activeWindow.offsetHeight;
-        
-        this.activeWindow.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
-        this.activeWindow.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+
+        // 获取Header和Footer高度
+        const headerHeight = this.headerHeight || this.getHeaderHeight();
+        const footerHeight = this.getFooterHeight();
+
+        // 改进的边界限制：确保弹窗始终有足够的可见区域
+        const minVisibleWidth = 150; // 最小可见宽度（增加到150px）
+        const titleBarHeight = 50; // 标题栏高度（确保标题栏可见）
+
+        // 计算边界限制 - 防止弹窗完全移出屏幕
+        const minX = 0; // 不允许左侧超出屏幕边界
+        const maxX = window.innerWidth - minVisibleWidth; // 右侧必须保留最小可见宽度
+        const minY = headerHeight; // 不能超出Header上方
+        const maxY = window.innerHeight - footerHeight - titleBarHeight; // 确保标题栏不被footer遮挡
+
+        // 应用边界限制
+        const constrainedX = Math.max(minX, Math.min(newX, maxX));
+        const constrainedY = Math.max(minY, Math.min(newY, maxY));
+
+        console.log(`🖱️ 拖拽边界: headerHeight=${headerHeight}, footerHeight=${footerHeight}`);
+        console.log(`🖱️ 边界限制: minX=${minX}, maxX=${maxX}, minY=${minY}, maxY=${maxY}`);
+        console.log(`🖱️ 新位置: (${newX}, ${newY}) → 限制后: (${constrainedX}, ${constrainedY})`);
+
+        // 更新窗口位置
+        this.activeWindow.style.left = constrainedX + 'px';
+        this.activeWindow.style.top = constrainedY + 'px';
     }
+
+
     
     resizeWindow(e) {
         const rect = this.activeWindow.getBoundingClientRect();
@@ -302,12 +536,47 @@ class StableWindowManager {
     
     handleMouseUp() {
         if (this.isDragging || this.isResizing) {
-            this.isDragging = false;
-            this.isResizing = false;
-            this.activeWindow = null;
-            this.resizeHandle = null;
-            document.body.style.userSelect = '';
+            this.cleanupDragState();
         }
+    }
+
+    handleTouchEnd() {
+        if (this.isDragging || this.isResizing) {
+            console.log('📱 结束垂直拖拽');
+            this.cleanupDragState();
+        }
+
+        // 清理触摸起始信息
+        if (this.touchStartInfo) {
+            if (!this.touchStartInfo.hasMoved) {
+                console.log('📱 触摸结束，未发生拖拽');
+            }
+            this.touchStartInfo = null;
+        }
+    }
+
+    cleanupDragState() {
+        // 清理拖拽状态样式
+        if (this.activeWindow) {
+            this.activeWindow.classList.remove('being-dragged');
+
+            // 恢复标题栏背景
+            const dragArea = this.activeWindow.querySelector('h2, .modal-header, .window-drag-area');
+            if (dragArea) {
+                dragArea.style.background = 'rgba(79, 195, 247, 0.1)';
+            }
+        }
+
+        // 重置所有状态
+        this.isDragging = false;
+        this.isResizing = false;
+        this.activeWindow = null;
+        this.resizeHandle = null;
+
+        // 清理全局样式
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        document.body.classList.remove('window-dragging');
     }
     
     observeNewWindows() {
