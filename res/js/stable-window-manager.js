@@ -495,18 +495,57 @@ class StableWindowManager {
         console.log(`📱 初始位置: left=${this.touchStartInfo.initialWindowLeft}, top=${this.touchStartInfo.initialWindowTop}`);
         console.log(`📱 计算新位置: left=${fixedLeft}(固定不变), top=${newTop}`);
 
-        // 改进的垂直边界限制：确保标题栏始终可见
+        // 🔧 手机端专用边界限制：严格按照用户需求调整
         const headerHeight = this.headerHeight || this.getHeaderHeight();
         const footerHeight = this.getFooterHeight();
-        const titleBarHeight = 50; // 标题栏高度（确保标题栏可见）
+        const titleBarHeight = 50; // 弹窗标题栏高度
+        const extraDownwardSpace = 150; // 向下额外移动空间（原50px + 增加100px）
 
-        const minY = headerHeight; // 不能超出Header上方
-        const maxY = window.innerHeight - footerHeight - titleBarHeight; // 确保标题栏不被footer遮挡
+        // 计算Footer的实际位置
+        const footerTop = window.innerHeight - footerHeight;
 
-        const constrainedTop = Math.max(minY, Math.min(newTop, maxY));
+        // 边界限制规则：
+        // 1. 向上移动：弹窗标题栏不能超过搜索栏区域（Header下边界）
+        // 弹窗顶部不能超过Header下边界，确保标题栏完全在Header下方
+        const minY = headerHeight; // 弹窗顶部最高位置就是Header下边界
 
-        console.log(`📱 垂直边界: headerHeight=${headerHeight}, footerHeight=${footerHeight}`);
-        console.log(`📱 边界限制: minY=${minY}, maxY=${maxY}, 限制后top=${constrainedTop}`);
+        // 2. 向下移动：标题栏可以到Footer上边界，弹窗还能再向下50px
+        // 这意味着弹窗顶部可以到 footerTop + extraDownwardSpace - titleBarHeight
+        const maxY = footerTop + extraDownwardSpace - titleBarHeight;
+
+        let constrainedTop = Math.max(minY, Math.min(newTop, maxY));
+
+        console.log(`📱 严格手机端边界限制:`);
+        console.log(`📱   Header高度=${headerHeight}px, Footer高度=${footerHeight}px`);
+        console.log(`📱   Footer顶部位置=${footerTop}px, 标题栏高度=${titleBarHeight}px`);
+        console.log(`📱   额外向下空间=${extraDownwardSpace}px`);
+        console.log(`📱   最小Y=${minY}px (Header下边界，标题栏不能超过)`);
+        console.log(`📱   最大Y=${maxY}px (Footer上边界+${extraDownwardSpace}px-标题栏高度)`);
+        console.log(`📱   原始位置=${newTop}px, 限制后=${constrainedTop}px`);
+
+        // 🔍 显示关键坐标信息到对话框
+        console.log(`\n🎯 关键坐标信息:`);
+        console.log(`📍 手机浏览器页面最顶端坐标: Y = 0px`);
+        console.log(`📍 Header下边界坐标: Y = ${headerHeight}px`);
+        console.log(`📍 弹窗当前能移动到的最高位置: Y = ${minY}px`);
+        console.log(`📍 弹窗实际设置位置: Y = ${constrainedTop}px`);
+        console.log(`📊 坐标对比: 页面顶端(0px) → Header下边界(${headerHeight}px) → 弹窗最高位置(${minY}px)`);
+
+        // 验证边界逻辑
+        if (constrainedTop === minY) {
+            console.log(`📱   ⬆️ 触及上边界：弹窗顶部在Header下边界，标题栏不能超过搜索栏区域`);
+        }
+        if (constrainedTop === maxY) {
+            console.log(`📱   ⬇️ 触及下边界：标题栏在Footer上边界，弹窗向下延伸${extraDownwardSpace}px`);
+        }
+
+        // 额外验证：确保弹窗顶部确实不会超过Header
+        if (constrainedTop < headerHeight) {
+            console.warn(`📱   ⚠️ 边界验证失败：弹窗顶部${constrainedTop}px < Header高度${headerHeight}px`);
+            // 强制修正
+            constrainedTop = headerHeight;
+            console.log(`📱   🔧 强制修正：弹窗顶部设置为${constrainedTop}px`);
+        }
 
         // 🔧 终极修复：统一使用left/top定位，避免transform混乱
         // 确保水平位置在合理范围内
