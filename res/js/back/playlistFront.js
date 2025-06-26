@@ -39,11 +39,11 @@ function addVideoToList(name, time, spot, smooth) {
 
   let trElement = "<tr" + smooth + "><td class=\"tableLeft\">" +
   "<span class=\"video-title-text\">" + name + "</span>" +
-  "<div class=\"tableButtons\" style=\"pointer-events: auto; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 9999; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 8px;\">" +
-  "<span class=\"fa fa-rss autoplayButton\" onclick=\"playlistButtons.autoplay(this); event.stopPropagation();\" title=\"Start Radio\" style=\"color: #ff9800; margin-right: 8px;\"></span>" +
-  "<span class=\"fa fa-play playButton\" onclick=\"playlistButtons.play(this); event.stopPropagation();\" title=\"Play\" style=\"color: #4fc3f7; margin-right: 8px;\"></span>" +
-  "<span class=\"fa fa-times removeButton\" onclick=\"playlistButtons.remove(this); event.stopPropagation();\" title=\"Remove\" style=\"color: #f44336; margin-right: 8px;\"></span>" +
-  "<span class=\"fa fa-plus-circle addToPlaylistButton\" onclick=\"playlistButtons.addToPlaylist(this); event.stopPropagation();\" title=\"加入播放列表\" style=\"color: #4caf50; z-index: 10000; position: relative;\"></span>" +
+  "<div class=\"tableButtons\">" +
+  "<span class=\"fa fa-rss autoplayButton\" onclick=\"playlistButtons.autoplay(this); event.stopPropagation();\" title=\"Start Radio\"></span>" +
+  "<span class=\"fa fa-play playButton\" onclick=\"playlistButtons.play(this); event.stopPropagation();\" title=\"Play\"></span>" +
+  "<span class=\"fa fa-times removeButton\" onclick=\"playlistButtons.remove(this); event.stopPropagation();\" title=\"Remove\"></span>" +
+  "<span class=\"fa fa-plus-circle addToPlaylistButton\" onclick=\"playlistButtons.addToPlaylist(this); event.stopPropagation();\" title=\"加入播放列表\"></span>" +
   "</div></td><td>" + time + "</td></tr>";
   
   if ($("#videosTable > tr").length > 0) {
