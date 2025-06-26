@@ -2680,31 +2680,120 @@ footer {
         padding: 10px 5px !important;
     }
 
-    /* 视频表格 */
+    /* 移动端播放列表重新设计 */
     #videosTable {
         font-size: 12px !important;
     }
 
+    #videosTable tr {
+        display: block !important; /* 改为块级元素 */
+        position: relative !important; /* 为绝对定位的时间标签提供参考 */
+        margin-bottom: 15px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px !important;
+        padding: 12px !important;
+        border: 1px solid rgba(79, 195, 247, 0.2) !important;
+    }
+
+    #videosTable td {
+        display: block !important; /* 改为块级元素 */
+        width: 100% !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
     .tableLeft {
-        padding-right: 120px !important;
-        font-size: 13px !important;
+        padding-right: 0 !important; /* 移除右边距 */
+        font-size: 14px !important;
+        position: relative !important;
+        margin-bottom: 8px !important; /* 与按钮行保持间距 */
     }
 
+    /* 视频标题样式 */
     .video-title-text {
-        font-size: 13px !important;
-        line-height: 1.3 !important;
+        display: block !important;
+        width: calc(100% - 60px) !important; /* 为时间标签留出空间 */
+        font-weight: 500 !important;
+        color: #e0e0e0 !important;
+        line-height: 1.4 !important;
+        margin-bottom: 8px !important;
+        cursor: move !important;
+        padding-right: 10px !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
     }
 
+    /* 按钮容器重新设计 */
     .tableButtons {
-        right: 5px !important;
-        padding: 2px 4px !important;
-        gap: 4px !important;
+        position: static !important; /* 改为静态定位 */
+        transform: none !important;
+        background: none !important;
+        padding: 8px 0 !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 20px !important; /* 增大按钮间距 */
+        margin-top: 8px !important;
+        width: 100% !important;
+        right: auto !important;
+        top: auto !important;
+        flex-wrap: wrap !important; /* 允许换行 */
     }
 
     .tableButtons span {
-        font-size: 12px !important;
-        padding: 3px 4px !important;
+        background: rgba(79, 195, 247, 0.1) !important;
+        border: 1px solid rgba(79, 195, 247, 0.3) !important;
+        border-radius: 50% !important;
+        width: 40px !important; /* 增大触摸区域 */
+        height: 40px !important; /* 增大触摸区域 */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 16px !important; /* 增大图标 */
+        margin: 0 !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        touch-action: manipulation !important; /* 优化触摸响应 */
     }
+
+    .tableButtons span:hover {
+        background: rgba(79, 195, 247, 0.3) !important;
+        transform: scale(1.1) !important;
+    }
+
+    /* 时间列样式调整 */
+    #videosTable td:last-child {
+        text-align: right !important;
+        font-size: 11px !important;
+        color: #999 !important;
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        padding: 2px 6px !important;
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+        pointer-events: none !important; /* 防止时间标签干扰拖拽 */
+    }
+
+    /* 移动端拖拽优化 */
+    .ui-sortable-helper {
+        background: rgba(79, 195, 247, 0.2) !important;
+        border: 2px solid rgba(79, 195, 247, 0.5) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        transform: rotate(2deg) !important;
+    }
+
+    .ui-sortable-placeholder {
+        background: rgba(79, 195, 247, 0.1) !important;
+        border: 2px dashed rgba(79, 195, 247, 0.4) !important;
+        height: 80px !important;
+        margin-bottom: 15px !important;
+        border-radius: 12px !important;
+    }
+
+
 
     /* 浮动窗口 */
     .floatingMenu {
