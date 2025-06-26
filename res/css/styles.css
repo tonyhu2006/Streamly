@@ -639,7 +639,7 @@ tr.placeholder:before {
     background: none;
   }
   #main {
-    margin: 35px 0px calc(35vh + 50px) !important;
+    margin: 35px 0px calc(25vh + 30px) !important;
     padding: 5px 0px 5px 0px !important;
     font-size: 0.8em;
   }
@@ -656,15 +656,15 @@ tr.placeholder:before {
     background: none !important;
   }
   #previousVideo, #nextVideo {
-    z-index: 1;
-    top: 30%;
-    transform: translateY(-30%);
+    z-index: 2;
+    top: 50%;
+    transform: translateY(-50%);
   }
   #previousVideo {
-    left: 0 !important;
+    left: 2% !important;
   }
   #nextVideo {
-    right: 0 !important;
+    right: 2% !important;
   }
   .videoNameContainer, .videoImage, .videoTime {
     display: none;
@@ -690,9 +690,9 @@ tr.placeholder:before {
     width: 99%;
     position: relative;
     top: auto;
-    left: auto;
+    left: 50%;
     margin-right: auto;
-    transform: initial;
+    transform: translateX(-50%);
   }
   #youtubeContainer {
     height: 85%;
