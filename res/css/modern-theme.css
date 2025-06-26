@@ -2331,9 +2331,13 @@ footer {
         display: none !important;
     }
 
+    /* 移动端Footer - 改为随页面滚动 */
     footer {
+        position: relative !important; /* 改为相对定位，随页面滚动 */
+        bottom: auto !important;
         padding: 10px !important;
         min-height: 220px !important;
+        margin-top: 20px !important; /* 与主内容区域保持间距 */
     }
 
     /* 移动端播放器界面调整 */
@@ -2879,7 +2883,7 @@ footer {
         margin: 120px 15px 15px 15px !important; /* 增加顶部边距避免被控制按钮遮挡 */
         padding: 15px !important;
         padding-top: 30px !important; /* 内部顶部间距 */
-        padding-bottom: 280px !important; /* 为底部播放器留出空间 */
+        padding-bottom: 30px !important; /* 减少底部间距，因为Footer不再固定 */
     }
 
     .mainContent {
@@ -2905,9 +2909,13 @@ footer {
         z-index: 1 !important;
     }
 
+    /* 小屏幕Footer - 保持随页面滚动 */
     footer {
+        position: relative !important; /* 保持相对定位 */
+        bottom: auto !important;
         min-height: 200px !important;
         padding: 8px !important;
+        margin-top: 20px !important;
     }
 
     /* 播放控制区域进一步优化 */
@@ -3247,9 +3255,13 @@ footer {
 
 /* 极小屏幕优化 (320px以下) */
 @media (max-width: 320px) {
+    /* 极小屏幕Footer - 保持随页面滚动 */
     footer {
+        position: relative !important; /* 保持相对定位 */
+        bottom: auto !important;
         min-height: 180px !important;
         padding: 6px !important;
+        margin-top: 15px !important;
     }
 
     #playlistInterface {
