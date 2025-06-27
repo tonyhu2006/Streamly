@@ -3174,6 +3174,9 @@ footer {
     .searchResult {
         padding: 10px !important;
         margin-bottom: 8px !important;
+        height: 80px !important;
+        min-height: 80px !important;
+        max-height: 80px !important;
     }
 
     .searchResultTitle {

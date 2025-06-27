@@ -572,7 +572,9 @@ tr.placeholder:before {
   display: flex;
   padding: 5px;
   cursor: pointer;
-  height: 25%;
+  height: 80px;
+  min-height: 80px;
+  max-height: 80px;
 }
 .searchResult:hover {
   background-color: #4B4B4B;
