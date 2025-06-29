@@ -261,7 +261,7 @@ table {
 }
 
 td {
-    background: rgba(255, 255, 255, 0.03) !important;
+    background: transparent !important; /* 测试：去掉td背景 */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     padding: 15px !important;
     transition: all 0.3s ease !important;
@@ -1597,31 +1597,46 @@ body:has(#quickCreatePlaylistModal[style*="display: flex"]) footer *,
 /* 桌面端按钮样式 */
 @media (min-width: 769px) {
     .tableButtons span {
-        background: rgba(79, 195, 247, 0.8) !important; /* 高亮背景 */
-        border: 2px solid rgba(79, 195, 247, 1) !important; /* 明亮边框 */
-        border-radius: 50% !important; /* 圆形按钮 */
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        max-width: 36px !important;
-        max-height: 36px !important;
+        /* 彻底清晰的按钮设计 */
+        width: 48px !important; /* 增大按钮尺寸 */
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        max-width: 48px !important;
+        max-height: 48px !important;
+        font-size: 18px !important; /* 增大图标尺寸 */
+
+        /* 极度明显的视觉效果 */
+        background: #FFFFFF !important; /* 纯白色背景，最高对比度 */
+        border: 3px solid #000000 !important; /* 黑色粗边框 */
+        border-radius: 50% !important;
+        color: #000000 !important; /* 黑色图标 */
+
+        /* 布局和定位 */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 14px !important;
-        color: #ffffff !important; /* 白色图标 */
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important; /* 文字阴影 */
-        box-shadow: 0 2px 8px rgba(79, 195, 247, 0.4) !important; /* 发光效果 */
-        transition: all 0.3s ease !important;
+        position: relative !important;
+        z-index: 1000 !important;
+
+        /* 简洁的视觉效果 - 无光晕 */
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
+
+        /* 交互和可见性 */
         cursor: pointer !important;
         pointer-events: auto !important;
-        position: relative !important;
-        z-index: 101 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
         margin: 0 !important;
-        padding: 0 !important; /* 覆盖原始样式 */
+        padding: 0 !important;
         flex-shrink: 0 !important;
-        box-sizing: border-box !important; /* 确保边框包含在尺寸内 */
+        transition: all 0.2s ease !important;
+        box-sizing: border-box !important;
+
+        /* 防止被覆盖 */
+        isolation: isolate !important;
+        transform: translateZ(0) !important;
     }
 
     /* 覆盖原始styles.css中的last-child样式 */
@@ -1631,79 +1646,106 @@ body:has(#quickCreatePlaylistModal[style*="display: flex"]) footer *,
     }
 }
 
-/* 桌面端按钮悬停效果 */
+/* 桌面端按钮悬停效果 - 极度明显 */
 @media (min-width: 769px) {
     .tableButtons span:hover {
-        background: rgba(79, 195, 247, 1) !important; /* 完全不透明的背景 */
-        border-color: rgba(255, 255, 255, 0.9) !important; /* 白色边框 */
-        box-shadow: 0 4px 16px rgba(79, 195, 247, 0.6) !important; /* 增强发光 */
-        transform: scale(1.1) !important; /* 轻微放大 */
+        transform: scale(1.1) !important; /* 放大效果 */
+        filter: brightness(1.2) !important; /* 增加亮度 */
+        transition: all 0.2s ease !important; /* 平滑过渡 */
     }
 
-    /* 特定按钮颜色 */
+    /* 桌面端按钮特定颜色 - 极度明显设计 */
     .tableButtons .autoplayButton {
-        background: rgba(255, 152, 0, 0.8) !important;
-        border-color: rgba(255, 152, 0, 1) !important;
-        box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4) !important;
+        /* 橙色 - 自动播放 */
+        background: #FF6600 !important; /* 纯橙色背景 */
+        border: 3px solid #000000 !important; /* 黑色边框 */
+        color: #FFFFFF !important; /* 白色图标 */
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
     }
 
     .tableButtons .autoplayButton:hover {
-        background: rgba(255, 152, 0, 1) !important;
-        border-color: rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 4px 16px rgba(255, 152, 0, 0.6) !important;
+        transform: scale(1.1) !important;
+        filter: brightness(1.2) !important;
+        box-shadow:
+            0 0 0 3px #FF6600,
+            0 0 0 7px #000000,
+            0 8px 25px rgba(0, 0, 0, 1),
+            0 0 35px rgba(255, 102, 0, 1) !important;
     }
 
     .tableButtons .playButton {
-        background: rgba(76, 175, 80, 0.8) !important;
-        border-color: rgba(76, 175, 80, 1) !important;
-        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4) !important;
+        /* 绿色 - 播放 */
+        background: #00CC00 !important; /* 纯绿色背景 */
+        border: 3px solid #000000 !important;
+        color: #FFFFFF !important;
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
     }
 
     .tableButtons .playButton:hover {
-        background: rgba(76, 175, 80, 1) !important;
-        border-color: rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 4px 16px rgba(76, 175, 80, 0.6) !important;
+        transform: scale(1.1) !important;
+        filter: brightness(1.2) !important;
+        box-shadow:
+            0 0 0 3px #00CC00,
+            0 0 0 7px #000000,
+            0 8px 25px rgba(0, 0, 0, 1),
+            0 0 35px rgba(0, 204, 0, 1) !important;
     }
 
     .tableButtons .removeButton {
-        background: rgba(244, 67, 54, 0.8) !important;
-        border-color: rgba(244, 67, 54, 1) !important;
-        box-shadow: 0 2px 8px rgba(244, 67, 54, 0.4) !important;
+        /* 红色 - 删除 */
+        background: #FF0000 !important; /* 纯红色背景 */
+        border: 3px solid #000000 !important;
+        color: #FFFFFF !important;
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
     }
 
     .tableButtons .removeButton:hover {
-        background: rgba(244, 67, 54, 1) !important;
-        border-color: rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 4px 16px rgba(244, 67, 54, 0.6) !important;
+        transform: scale(1.1) !important;
+        filter: brightness(1.2) !important;
+        box-shadow:
+            0 0 0 3px #FF0000,
+            0 0 0 7px #000000,
+            0 8px 25px rgba(0, 0, 0, 1),
+            0 0 35px rgba(255, 0, 0, 1) !important;
     }
 
     .tableButtons .addToPlaylistButton,
     .tableButtons span.addToPlaylistButton,
     .tableButtons .fa-plus-circle.addToPlaylistButton {
-        background: rgba(33, 150, 243, 0.8) !important; /* 蓝色背景 */
-        border-color: rgba(33, 150, 243, 1) !important; /* 蓝色边框 */
-        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4) !important; /* 蓝色发光 */
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        max-width: 36px !important;
-        max-height: 36px !important;
+        /* 蓝色 - 添加到播放列表 */
+        background: #0066FF !important; /* 纯蓝色背景 */
+        border: 3px solid #000000 !important; /* 黑色边框 */
+        color: #FFFFFF !important; /* 白色图标 */
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
+        width: 48px !important; /* 与其他按钮一致 */
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        max-width: 48px !important;
+        max-height: 48px !important;
         border-radius: 50% !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 0 !important; /* 覆盖原始样式的padding-right */
-        margin: 0 !important; /* 确保没有外边距 */
-        box-sizing: border-box !important; /* 确保边框包含在尺寸内 */
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
     }
 
     .tableButtons .addToPlaylistButton:hover,
     .tableButtons span.addToPlaylistButton:hover,
     .tableButtons .fa-plus-circle.addToPlaylistButton:hover {
-        background: rgba(33, 150, 243, 1) !important; /* 蓝色悬停背景 */
-        border-color: rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 4px 16px rgba(33, 150, 243, 0.6) !important; /* 蓝色悬停发光 */
+        transform: scale(1.1) !important;
+        filter: brightness(1.2) !important;
+        box-shadow:
+            0 0 0 3px #0066FF,
+            0 0 0 7px #000000,
+            0 8px 25px rgba(0, 0, 0, 1),
+            0 0 35px rgba(0, 102, 255, 1) !important;
     }
 }
 
@@ -2837,13 +2879,18 @@ footer {
         display: block !important; /* 改为块级元素 */
         position: relative !important; /* 为绝对定位的时间标签提供参考 */
         margin-bottom: 15px !important;
-        background: rgba(255, 255, 255, 0.05) !important;
+        background: transparent !important; /* 测试：去掉黑色背景 */
         border-radius: 12px !important;
-        padding: 12px !important;
+        /* 动态内边距：顶部和底部12px，左右12px */
+        padding: 12px 12px 12px 12px !important;
         border: 1px solid rgba(79, 195, 247, 0.2) !important;
-        /* 确保背景覆盖所有内容，包括换行文本 */
+        /* 关键修复：让高度完全自适应内容 */
+        height: auto !important;
         min-height: auto !important;
+        max-height: none !important;
         overflow: visible !important;
+        /* 确保背景能覆盖所有内容 */
+        box-sizing: border-box !important;
     }
 
     #videosTable td {
@@ -2858,18 +2905,24 @@ footer {
         font-size: 14px !important;
         position: relative !important;
         margin-bottom: 8px !important; /* 与按钮行保持间距 */
-        /* 确保容器能包含所有换行内容 */
-        min-height: auto !important;
+        /* 关键：让容器完全自适应内容高度 */
         height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
         overflow: visible !important;
-        /* 继承父元素的背景 */
-        background: inherit !important;
+        /* 使用flex布局确保内容正确排列 */
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+        /* 添加黑色背景，覆盖整个视频标题区域 */
+        background: rgba(0, 0, 0, 0.6) !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
     }
 
-    /* 移动端选中状态样式 - 确保背景覆盖多行文本 */
+    /* 移动端选中状态样式 - 确保背景覆盖多行文本，但排除时间标签 */
     #videosTable tr.selected,
-    #videosTable tr.selected .tableLeft,
-    #videosTable tr.selected td {
+    #videosTable tr.selected .tableLeft {
         background: rgba(255, 131, 0, 0.4) !important;
         /* 确保背景覆盖所有内容，包括换行文本 */
         background-clip: padding-box !important;
@@ -2877,34 +2930,27 @@ footer {
         -webkit-box-decoration-break: clone !important;
     }
 
-    /* 移动端选中状态样式 - 简化版本 */
-    #videosTable tr.selected .tableLeft,
-    #videosTable tr.selected td {
+    /* 移动端选中状态样式 - 简化版本，只针对tableLeft */
+    #videosTable tr.selected .tableLeft {
         background: rgba(255, 131, 0, 0.4) !important;
     }
 
-    /* 移动端表格行高度修复 - 确保背景能覆盖换行文本 */
-    @media (max-width: 768px) {
-        /* 只修复高度问题，不改变背景 */
-        #videosTable tr {
-            /* 确保容器能自适应内容高度 */
-            height: auto !important;
-            min-height: 60px !important;
-            /* 增加底部内边距，为换行文本留出背景空间 */
-            padding-bottom: 16px !important;
-        }
+    /* 强制确保选中状态下时间标签背景仍然透明 */
+    #videosTable tr.selected td:last-child {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
 
-        /* 确保tableLeft不限制高度 */
-        .tableLeft {
+    /* 移动端特殊处理 - 确保背景完全覆盖多行文本 */
+    @media (max-width: 768px) {
+        /* 移动端表格行 - 确保高度完全自适应 */
+        #videosTable tr {
+            /* 移除任何高度限制 */
             height: auto !important;
             min-height: auto !important;
-        }
-
-        /* 确保视频标题有足够的行间距 */
-        .video-title-text {
-            line-height: 1.5 !important;
-            /* 增加底部边距，确保换行文本在背景范围内 */
-            margin-bottom: 10px !important;
+            max-height: none !important;
+            /* 确保内边距足够包含所有内容 */
+            padding: 15px !important;
         }
     }
 
@@ -2914,16 +2960,21 @@ footer {
         width: calc(100% - 60px) !important; /* 为时间标签留出空间 */
         font-weight: 500 !important;
         color: #e0e0e0 !important;
-        line-height: 1.4 !important;
+        line-height: 1.5 !important; /* 增加行高让文字更清晰 */
         margin-bottom: 8px !important;
         cursor: move !important;
-        padding: 0 !important; /* 移除内边距，让背景自然显示 */
+        padding: 0 !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
         /* 确保文字不会创建自己的背景层 */
         background: transparent !important;
-        /* 确保文字能正常换行 */
+        /* 确保文字能正常换行，不限制高度 */
         white-space: normal !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        /* 让文字自然流动，不限制父容器高度 */
+        flex-shrink: 0 !important;
     }
 
     /* 移动端按钮容器重新设计 - 仅适用于移动端 */
@@ -2945,6 +2996,7 @@ footer {
             flex-wrap: nowrap !important; /* 防止换行，保持一行显示 */
             height: 60px !important; /* 增加容器高度确保对齐 */
             box-sizing: border-box !important;
+            z-index: 9999 !important; /* 确保按钮容器在最顶层 */
             /* 强制覆盖内联样式 */
             left: auto !important;
             margin-left: 0 !important;
@@ -2955,20 +3007,22 @@ footer {
     /* 移动端按钮样式 - 仅适用于移动端 */
     @media (max-width: 768px) {
         .tableButtons span {
-            background: rgba(79, 195, 247, 0.4) !important; /* 大幅增加背景透明度 */
-            border: 2px solid rgba(79, 195, 247, 0.8) !important; /* 增强边框可见度和厚度 */
+            /* 极度明显的静态样式 */
+            background: #ffffff !important; /* 纯白色背景，最高对比度 */
+            border: 4px solid #000000 !important; /* 黑色厚边框 */
             border-radius: 50% !important;
-            width: 44px !important; /* 稍微增大尺寸 */
-            height: 44px !important; /* 稍微增大尺寸 */
-            min-width: 44px !important; /* 防止压缩 */
-            min-height: 44px !important; /* 防止压缩 */
-            max-width: 44px !important; /* 防止拉伸 */
-            max-height: 44px !important; /* 防止拉伸 */
+            width: 52px !important; /* 进一步增大尺寸 */
+            height: 52px !important; /* 进一步增大尺寸 */
+            min-width: 52px !important; /* 防止压缩 */
+            min-height: 52px !important; /* 防止压缩 */
+            max-width: 52px !important; /* 防止拉伸 */
+            max-height: 52px !important; /* 防止拉伸 */
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            font-size: 16px !important;
-            margin: 0 !important;
+            font-size: 20px !important; /* 更大的图标 */
+            font-weight: 900 !important; /* 最粗字体 */
+            margin: 0 10px !important; /* 更大间距 */
             padding: 0 !important; /* 确保无内边距 */
             transition: all 0.3s ease !important;
             cursor: pointer !important;
@@ -2977,7 +3031,7 @@ footer {
             box-sizing: border-box !important; /* 包含边框在尺寸内 */
             /* 强制垂直对齐 */
             vertical-align: middle !important;
-            line-height: 44px !important;
+            line-height: 52px !important;
             /* 强制覆盖任何内联样式 */
             position: relative !important;
             top: 0 !important;
@@ -2985,6 +3039,16 @@ footer {
             right: 0 !important;
             bottom: 0 !important;
             transform: none !important;
+            /* 极强的视觉效果 */
+            color: #000000 !important; /* 黑色图标，与白色背景形成最大对比 */
+            box-shadow:
+                0 0 0 2px #ffffff,
+                0 0 0 6px #000000,
+                0 8px 16px rgba(0, 0, 0, 0.8) !important; /* 多层阴影 */
+            filter:
+                drop-shadow(0 0 12px rgba(0, 0, 0, 1))
+                drop-shadow(0 0 24px rgba(255, 255, 255, 1)) !important; /* 双重发光 */
+            z-index: 9999 !important; /* 确保在最顶层，高于所有其他元素 */
         }
     }
 
@@ -2996,49 +3060,97 @@ footer {
             transform: scale(1.05) !important; /* 减小缩放避免布局跳动 */
         }
 
-        /* 为不同按钮设置特定颜色，大幅增强可见度 */
+        /* 极度明显的按钮特定颜色 - 静态状态就非常突出 */
         .tableButtons .autoplayButton {
-            color: #ffb74d !important; /* 更亮的橙色 - 电台按钮 */
-            background: rgba(255, 152, 0, 0.5) !important; /* 大幅增加背景透明度 */
-            border-color: rgba(255, 152, 0, 0.8) !important; /* 增强边框 */
+            color: #000000 !important; /* 黑色图标 */
+            background: #FF9800 !important; /* 纯橙色背景 */
+            border-color: #000000 !important; /* 黑色边框 */
+            box-shadow:
+                0 0 0 2px #FF9800,
+                0 0 0 6px #000000,
+                0 8px 16px rgba(255, 152, 0, 0.8),
+                0 0 20px #FF9800 !important; /* 橙色发光 */
+            filter:
+                drop-shadow(0 0 12px #FF9800)
+                drop-shadow(0 0 24px #FF9800) !important;
         }
 
         .tableButtons .autoplayButton:hover {
-            background: rgba(255, 152, 0, 0.7) !important;
-            border-color: rgba(255, 152, 0, 1.0) !important;
+            transform: scale(1.15) !important;
+            box-shadow:
+                0 0 0 2px #FF9800,
+                0 0 0 6px #000000,
+                0 12px 24px rgba(255, 152, 0, 1),
+                0 0 30px #FF9800 !important;
         }
 
         .tableButtons .playButton {
-            color: #81c784 !important; /* 更亮的绿色 - 播放按钮 */
-            background: rgba(76, 175, 80, 0.5) !important; /* 绿色背景透明度 */
-            border-color: rgba(76, 175, 80, 0.8) !important; /* 绿色边框 */
+            color: #000000 !important; /* 黑色图标 */
+            background: #4CAF50 !important; /* 纯绿色背景 */
+            border-color: #000000 !important; /* 黑色边框 */
+            box-shadow:
+                0 0 0 2px #4CAF50,
+                0 0 0 6px #000000,
+                0 8px 16px rgba(76, 175, 80, 0.8),
+                0 0 20px #4CAF50 !important; /* 绿色发光 */
+            filter:
+                drop-shadow(0 0 12px #4CAF50)
+                drop-shadow(0 0 24px #4CAF50) !important;
         }
 
         .tableButtons .playButton:hover {
-            background: rgba(76, 175, 80, 0.7) !important;
-            border-color: rgba(76, 175, 80, 1.0) !important;
+            transform: scale(1.15) !important;
+            box-shadow:
+                0 0 0 2px #4CAF50,
+                0 0 0 6px #000000,
+                0 12px 24px rgba(76, 175, 80, 1),
+                0 0 30px #4CAF50 !important;
         }
 
         .tableButtons .removeButton {
-            color: #ef5350 !important; /* 更亮的红色 - 删除按钮 */
-            background: rgba(244, 67, 54, 0.5) !important; /* 大幅增加背景透明度 */
-            border-color: rgba(244, 67, 54, 0.8) !important; /* 增强边框 */
+            color: #000000 !important; /* 黑色图标 */
+            background: #F44336 !important; /* 纯红色背景 */
+            border-color: #000000 !important; /* 黑色边框 */
+            box-shadow:
+                0 0 0 2px #F44336,
+                0 0 0 6px #000000,
+                0 8px 16px rgba(244, 67, 54, 0.8),
+                0 0 20px #F44336 !important; /* 红色发光 */
+            filter:
+                drop-shadow(0 0 12px #F44336)
+                drop-shadow(0 0 24px #F44336) !important;
         }
 
         .tableButtons .removeButton:hover {
-            background: rgba(244, 67, 54, 0.7) !important;
-            border-color: rgba(244, 67, 54, 1.0) !important;
+            transform: scale(1.15) !important;
+            box-shadow:
+                0 0 0 2px #F44336,
+                0 0 0 6px #000000,
+                0 12px 24px rgba(244, 67, 54, 1),
+                0 0 30px #F44336 !important;
         }
 
         .tableButtons .addToPlaylistButton {
-            color: #64b5f6 !important; /* 更亮的蓝色 - 添加按钮 */
-            background: rgba(33, 150, 243, 0.5) !important; /* 蓝色背景透明度 */
-            border-color: rgba(33, 150, 243, 0.8) !important; /* 蓝色边框 */
+            color: #000000 !important; /* 黑色图标 */
+            background: #2196F3 !important; /* 纯蓝色背景 */
+            border-color: #000000 !important; /* 黑色边框 */
+            box-shadow:
+                0 0 0 2px #2196F3,
+                0 0 0 6px #000000,
+                0 8px 16px rgba(33, 150, 243, 0.8),
+                0 0 20px #2196F3 !important; /* 蓝色发光 */
+            filter:
+                drop-shadow(0 0 12px #2196F3)
+                drop-shadow(0 0 24px #2196F3) !important;
         }
 
         .tableButtons .addToPlaylistButton:hover {
-            background: rgba(33, 150, 243, 0.7) !important;
-            border-color: rgba(33, 150, 243, 1.0) !important;
+            transform: scale(1.15) !important;
+            box-shadow:
+                0 0 0 2px #2196F3,
+                0 0 0 6px #000000,
+                0 12px 24px rgba(33, 150, 243, 1),
+                0 0 30px #2196F3 !important;
         }
     }
 
@@ -3090,54 +3202,146 @@ footer {
         }
 
         .tableButtons span {
-            width: 42px !important; /* 保持与桌面端一致的尺寸 */
-            height: 42px !important;
-            min-width: 42px !important;
-            min-height: 42px !important;
-            max-width: 42px !important;
-            max-height: 42px !important;
-            font-size: 15px !important;
-            line-height: 42px !important; /* 确保垂直居中 */
-            /* 移动端也使用更亮的样式 */
-            background: rgba(79, 195, 247, 0.4) !important;
-            border: 2px solid rgba(79, 195, 247, 0.8) !important;
+            /* 彻底清晰的按钮设计 - 超大尺寸 */
+            width: 55px !important; /* 增大按钮尺寸 */
+            height: 55px !important;
+            min-width: 55px !important;
+            min-height: 55px !important;
+            max-width: 55px !important;
+            max-height: 55px !important;
+            font-size: 22px !important; /* 增大图标尺寸 */
+            line-height: 55px !important;
+
+            /* 极度明显的视觉效果 */
+            background: #FFFFFF !important; /* 纯白色背景，最高对比度 */
+            border: 4px solid #000000 !important; /* 黑色粗边框 */
+            border-radius: 50% !important;
+            color: #000000 !important; /* 黑色图标 */
+
+            /* 最高层级和定位 */
+            z-index: 99999 !important; /* 超高z-index */
+            position: relative !important;
+
+            /* 简洁的视觉效果 - 无光晕 */
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
+
+            /* 强制可见性 */
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            /* 防止被覆盖 */
+            isolation: isolate !important;
+            transform: translateZ(0) !important; /* 强制硬件加速 */
         }
 
-        /* 移动端按钮特定颜色也更亮 */
+        /* 移动端按钮特定颜色 - 极度明显设计 */
         .tableButtons .autoplayButton {
-            background: rgba(255, 152, 0, 0.5) !important;
-            border-color: rgba(255, 152, 0, 0.8) !important;
+            /* 橙色 - 自动播放 */
+            background: #FF6600 !important; /* 纯橙色背景 */
+            border: 4px solid #000000 !important; /* 黑色边框 */
+            color: #FFFFFF !important; /* 白色图标 */
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
         }
 
         .tableButtons .playButton {
-            background: rgba(76, 175, 80, 0.5) !important;
-            border-color: rgba(76, 175, 80, 0.8) !important;
+            /* 绿色 - 播放 */
+            background: #00CC00 !important; /* 纯绿色背景 */
+            border: 4px solid #000000 !important;
+            color: #FFFFFF !important;
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
         }
 
         .tableButtons .removeButton {
-            background: rgba(244, 67, 54, 0.5) !important;
-            border-color: rgba(244, 67, 54, 0.8) !important;
+            /* 红色 - 删除 */
+            background: #FF0000 !important; /* 纯红色背景 */
+            border: 4px solid #000000 !important;
+            color: #FFFFFF !important;
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
         }
 
         .tableButtons .addToPlaylistButton {
-            background: rgba(33, 150, 243, 0.5) !important;
-            border-color: rgba(33, 150, 243, 0.8) !important;
+            /* 蓝色 - 添加到播放列表 */
+            background: #0066FF !important; /* 纯蓝色背景 */
+            border: 4px solid #000000 !important;
+            color: #FFFFFF !important;
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3) !important; /* 仅基础阴影 */
+        }
+
+        /* 移动端按钮悬停效果 - 极度明显 */
+        .tableButtons span:hover,
+        .tableButtons span:active {
+            transform: scale(1.2) !important; /* 更大的放大效果 */
+            filter: brightness(1.3) !important; /* 增加亮度 */
+            transition: all 0.2s ease !important; /* 平滑过渡 */
+        }
+
+        /* 每个按钮的悬停效果 */
+        .tableButtons .autoplayButton:hover,
+        .tableButtons .autoplayButton:active {
+            box-shadow:
+                0 0 0 5px #FF6600,
+                0 0 0 10px #000000,
+                0 12px 35px rgba(0, 0, 0, 1),
+                0 0 50px rgba(255, 102, 0, 1) !important;
+        }
+
+        .tableButtons .playButton:hover,
+        .tableButtons .playButton:active {
+            box-shadow:
+                0 0 0 5px #00CC00,
+                0 0 0 10px #000000,
+                0 12px 35px rgba(0, 0, 0, 1),
+                0 0 50px rgba(0, 204, 0, 1) !important;
+        }
+
+        .tableButtons .removeButton:hover,
+        .tableButtons .removeButton:active {
+            box-shadow:
+                0 0 0 5px #FF0000,
+                0 0 0 10px #000000,
+                0 12px 35px rgba(0, 0, 0, 1),
+                0 0 50px rgba(255, 0, 0, 1) !important;
+        }
+
+        .tableButtons .addToPlaylistButton:hover,
+        .tableButtons .addToPlaylistButton:active {
+            box-shadow:
+                0 0 0 5px #0066FF,
+                0 0 0 10px #000000,
+                0 12px 35px rgba(0, 0, 0, 1),
+                0 0 50px rgba(0, 102, 255, 1) !important;
         }
     }
 
-    /* 时间列样式调整 */
-    #videosTable td:last-child {
-        text-align: right !important;
-        font-size: 11px !important;
-        color: #999 !important;
-        position: absolute !important;
-        top: 12px !important;
-        right: 12px !important;
-        background: rgba(0, 0, 0, 0.6) !important;
-        padding: 2px 6px !important;
-        border-radius: 8px !important;
-        font-weight: 500 !important;
-        pointer-events: none !important; /* 防止时间标签干扰拖拽 */
+    /* 强制移除时间标签的大背景 */
+    @media (max-width: 768px) {
+        #videosTable td:last-child {
+            text-align: right !important;
+            font-size: 11px !important;
+            color: #999 !important;
+            position: absolute !important;
+            top: 18px !important; /* 调整时间标签位置，与视频标题第一行对齐 */
+            right: 12px !important;
+            background: transparent !important; /* 完全透明背景 */
+            padding: 2px 6px !important;
+            border-radius: 4px !important;
+            font-weight: 500 !important;
+            pointer-events: none !important;
+            z-index: 10 !important;
+            /* 强制覆盖任何可能的背景设置 */
+            background-color: transparent !important;
+            background-image: none !important;
+            /* 给时间文字添加文字阴影以确保可读性 */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+        }
     }
 
     /* 移动端拖拽优化 */

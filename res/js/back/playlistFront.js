@@ -57,6 +57,8 @@ function addVideoToList(name, time, spot, smooth) {
   else {
     $("#videosTable").append(trElement);
   }
+
+
 }
 
 // * This function removes video elements from the playlist
