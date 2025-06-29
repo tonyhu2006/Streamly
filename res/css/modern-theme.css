@@ -1569,11 +1569,11 @@ body:has(#quickCreatePlaylistModal[style*="display: flex"]) footer *,
     z-index: 1000 !important;
 }
 
-/* 桌面端表格按钮容器样式优化 */
+/* 桌面端表格按钮容器样式优化 - 适应新行高 */
 @media (min-width: 769px) {
     .tableButtons {
         display: flex !important;
-        gap: 12px !important;
+        gap: 8px !important; /* 减小间距以适应统一的按钮尺寸 */
         align-items: center !important;
         justify-content: flex-end !important; /* 右对齐 */
         margin-top: 0 !important; /* 移除上边距，与标题对齐 */
@@ -1585,30 +1585,31 @@ body:has(#quickCreatePlaylistModal[style*="display: flex"]) footer *,
         z-index: 100 !important;
         cursor: default !important;
         background: rgba(0, 0, 0, 0.7) !important; /* 增强背景 */
-        padding: 6px 12px !important; /* 调整内边距 */
+        padding: 6px 10px !important; /* 调整内边距以适应较小按钮 */
         border-radius: 25px !important; /* 圆角背景 */
         backdrop-filter: blur(10px) !important; /* 背景模糊 */
+        min-height: 48px !important; /* 确保容器有足够高度 */
         border: 1px solid rgba(79, 195, 247, 0.3) !important; /* 边框 */
         height: auto !important; /* 自动高度 */
         width: auto !important; /* 自动宽度 */
     }
 }
 
-/* 桌面端按钮样式 */
+/* 桌面端按钮样式 - 统一尺寸设计 */
 @media (min-width: 769px) {
     .tableButtons span {
-        /* 彻底清晰的按钮设计 */
-        width: 48px !important; /* 增大按钮尺寸 */
-        height: 48px !important;
-        min-width: 48px !important;
-        min-height: 48px !important;
-        max-width: 48px !important;
-        max-height: 48px !important;
-        font-size: 18px !important; /* 增大图标尺寸 */
+        /* 统一的按钮尺寸 - 与第四个按钮保持一致 */
+        width: 36px !important; /* 恢复到与addToPlaylistButton一致的尺寸 */
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
+        font-size: 14px !important; /* 恢复到合适的图标尺寸 */
 
-        /* 极度明显的视觉效果 */
+        /* 清晰的视觉效果 */
         background: #FFFFFF !important; /* 纯白色背景，最高对比度 */
-        border: 3px solid #000000 !important; /* 黑色粗边框 */
+        border: 2px solid #000000 !important; /* 适中的边框 */
         border-radius: 50% !important;
         color: #000000 !important; /* 黑色图标 */
 
@@ -1848,12 +1849,19 @@ body:has(#quickCreatePlaylistModal[style*="display: flex"]) footer *,
     }
 }
 
-/* 桌面端表格行样式 */
+/* 桌面端表格基础样式 - 修复重叠问题 */
 @media (min-width: 769px) {
+    #videosTable {
+        border-collapse: separate !important; /* 分离边框模式 */
+        border-spacing: 0 8px !important; /* 行间距 */
+    }
+
     #videosTable tr {
         position: relative !important;
         z-index: 1 !important;
-        height: 50px !important; /* 固定行高 */
+        height: auto !important; /* 改为自动高度，避免重叠 */
+        min-height: 60px !important; /* 设置最小高度确保足够空间 */
+        display: table-row !important; /* 确保表格行显示 */
     }
 
     #videosTable tr td {
@@ -1861,11 +1869,14 @@ body:has(#quickCreatePlaylistModal[style*="display: flex"]) footer *,
         z-index: 2 !important;
         overflow: visible !important;
         vertical-align: middle !important; /* 垂直居中 */
-        padding: 8px 12px !important;
+        padding: 12px !important; /* 增加内边距 */
+        border: none !important; /* 移除边框避免重叠 */
     }
 
     #videosTable tr td.tableLeft {
         padding-right: 200px !important; /* 为按钮留出空间 */
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
     }
 
     /* 视频标题样式 */
@@ -1874,6 +1885,8 @@ body:has(#quickCreatePlaylistModal[style*="display: flex"]) footer *,
         line-height: 1.4 !important;
         color: rgba(255, 255, 255, 0.9) !important;
         font-weight: 500 !important;
+        margin: 0 !important;
+        padding: 4px 0 !important; /* 添加一些垂直间距 */
     }
 }
 
