@@ -13,10 +13,119 @@
 
 // Start Quick Search
 
-function addSearchResult(name, id) {
+// 翻译相对时间文本
+function translateRelativeTime(timeText) {
+  if (!timeText) return '';
+
+  const translations = {
+    'second': '秒',
+    'seconds': '秒',
+    'minute': '分钟',
+    'minutes': '分钟',
+    'hour': '小时',
+    'hours': '小时',
+    'day': '天',
+    'days': '天',
+    'week': '周',
+    'weeks': '周',
+    'month': '个月',
+    'months': '个月',
+    'year': '年',
+    'years': '年',
+    'ago': '前'
+  };
+
+  let result = timeText.toLowerCase();
+
+  // 替换英文时间单位为中文
+  for (const [english, chinese] of Object.entries(translations)) {
+    result = result.replace(new RegExp(english, 'g'), chinese);
+  }
+
+  // 处理特殊情况
+  result = result.replace(/(\d+)\s*秒前/, '$1秒前');
+  result = result.replace(/(\d+)\s*分钟前/, '$1分钟前');
+  result = result.replace(/(\d+)\s*小时前/, '$1小时前');
+  result = result.replace(/(\d+)\s*天前/, '$1天前');
+  result = result.replace(/(\d+)\s*周前/, '$1周前');
+  result = result.replace(/(\d+)\s*个月前/, '$1个月前');
+  result = result.replace(/(\d+)\s*年前/, '$1年前');
+
+  return result;
+}
+
+function addSearchResult(name, id, publishedAt = null, channelTitle = null) {
   searchResultsNameStorage.push(name);
   name = escape(name);
-  $("#searchResults").append("<div class=\"searchResult\" onclick=\"loadSearchResult(this);\"><div class=\"left\"><p>" + name + "</p></div><div class=\"right\"><img src=\"https://i.ytimg.com/vi/" + id + "/default.jpg\" /></div></div>");
+
+  // 格式化发布时间
+  let publishedText = '';
+  if (publishedAt) {
+    console.log('🕒 原始发布时间:', publishedAt, '类型:', typeof publishedAt); // 调试日志
+
+    // 如果已经是相对时间格式（如 "2 days ago", "1 week ago"），直接翻译使用
+    if (typeof publishedAt === 'string' && publishedAt.toLowerCase().includes('ago')) {
+      publishedText = translateRelativeTime(publishedAt);
+    } else {
+      // 尝试解析为日期
+      try {
+        const publishedDate = new Date(publishedAt);
+
+        // 检查日期是否有效
+        if (isNaN(publishedDate.getTime())) {
+          console.warn('无法解析日期:', publishedAt);
+          publishedText = String(publishedAt);
+        } else {
+          const now = new Date();
+          const diffTime = Math.abs(now - publishedDate);
+          const diffMinutes = Math.floor(diffTime / (1000 * 60));
+          const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+          console.log('时间差计算:', { diffMinutes, diffHours, diffDays }); // 调试日志
+
+          if (diffMinutes < 60) {
+            publishedText = diffMinutes < 1 ? '刚刚' : `${diffMinutes}分钟前`;
+          } else if (diffHours < 24) {
+            publishedText = `${diffHours}小时前`;
+          } else if (diffDays < 7) {
+            publishedText = `${diffDays}天前`;
+          } else if (diffDays < 30) {
+            const weeks = Math.floor(diffDays / 7);
+            publishedText = `${weeks}周前`;
+          } else if (diffDays < 365) {
+            const months = Math.floor(diffDays / 30);
+            publishedText = `${months}个月前`;
+          } else {
+            const years = Math.floor(diffDays / 365);
+            publishedText = `${years}年前`;
+          }
+        }
+      } catch (e) {
+        console.error('日期解析错误:', e, publishedAt);
+        publishedText = String(publishedAt);
+      }
+    }
+
+    console.log('最终发布时间文本:', publishedText); // 调试日志
+  }
+
+  // 构建HTML结构
+  const channelInfo = channelTitle ? `<div class="searchResultChannel">${escape(channelTitle)}</div>` : '';
+  const publishedInfo = publishedText ? `<div class="searchResultPublished">${publishedText}</div>` : '';
+
+  $("#searchResults").append(`
+    <div class="searchResult" onclick="loadSearchResult(this);">
+      <div class="left">
+        <div class="searchResultTitle">${name}</div>
+        ${channelInfo}
+        ${publishedInfo}
+      </div>
+      <div class="right">
+        <img src="https://i.ytimg.com/vi/${id}/default.jpg" />
+      </div>
+    </div>
+  `);
 }
 
 function loadSearchResult(element) {
@@ -129,8 +238,11 @@ async function serverSearch(query) {
     $("#searchProgress").css("display", "flex");
     $("#searchStatus").text("正在搜索...").css("display", "block");
 
+    // 获取用户设置的搜索结果数量
+    const maxResults = settingsManager ? settingsManager.settings.searchResultsCount : 20;
+
     // 调用服务器端搜索 API
-    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&maxResults=10`);
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&maxResults=${maxResults}`);
 
     if (!response.ok) {
       if (response.status === 403) {
@@ -154,7 +266,7 @@ async function serverSearch(query) {
       // 添加搜索结果
       data.items.forEach((item, index) => {
         quickSearchVideos.push(item.id);
-        addSearchResult(item.title, item.id);
+        addSearchResult(item.title, item.id, item.publishedAt, item.channelTitle);
       });
 
       $("#searchStatus").text(`找到 ${data.items.length} 个结果`).css("color", "#4CAF50");

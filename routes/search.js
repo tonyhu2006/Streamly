@@ -53,15 +53,18 @@ router.get('/', async (req, res) => {
 
     // 格式化结果
     const results = {
-      items: response.data.items.map(item => ({
-        id: item.id.videoId,
-        title: item.snippet.title,
-        description: item.snippet.description,
-        thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url,
-        channelTitle: item.snippet.channelTitle,
-        publishedAt: item.snippet.publishedAt,
-        duration: null // 需要额外的API调用获取
-      })),
+      items: response.data.items.map(item => {
+        console.log('🔍 API返回的发布时间:', item.snippet.publishedAt); // 调试日志
+        return {
+          id: item.id.videoId,
+          title: item.snippet.title,
+          description: item.snippet.description,
+          thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url,
+          channelTitle: item.snippet.channelTitle,
+          publishedAt: item.snippet.publishedAt,
+          duration: null // 需要额外的API调用获取
+        };
+      }),
       nextPageToken: response.data.nextPageToken,
       prevPageToken: response.data.prevPageToken,
       totalResults: response.data.pageInfo.totalResults,
@@ -260,7 +263,7 @@ function generateMockResults(query, maxResults) {
       description: `这是关于 "${query}" 的示例视频描述。`,
       thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg',
       channelTitle: '示例频道',
-      publishedAt: '2023-01-01',
+      publishedAt: '2023-01-01T00:00:00Z',
       duration: '3:32',
       viewCount: '1,000,000 views'
     },
@@ -270,7 +273,7 @@ function generateMockResults(query, maxResults) {
       description: `另一个关于 "${query}" 的示例视频。`,
       thumbnail: 'https://img.youtube.com/vi/jNQXAC9IVRw/mqdefault.jpg',
       channelTitle: '音乐频道',
-      publishedAt: '2023-02-01',
+      publishedAt: '2023-02-01T00:00:00Z',
       duration: '4:15',
       viewCount: '500,000 views'
     }

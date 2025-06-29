@@ -588,6 +588,12 @@ tr.placeholder:before {
 }
 .searchResult .left {
   width: 75%;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
 }
 .searchResult .right {
   width: 25%;
@@ -600,6 +606,55 @@ tr.placeholder:before {
 .searchResult img {
   border-radius: 5px;
   max-width: 100%;
+}
+
+/* 搜索结果详细信息样式 */
+.searchResultTitle {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #e0e0e0;
+  margin-bottom: 3px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.searchResultChannel {
+  font-size: 0.75rem;
+  color: #b0bec5;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.searchResultPublished {
+  font-size: 0.7rem;
+  color: #90a4ae;
+  font-style: italic;
+}
+
+/* 搜索结果响应式调整 */
+@media (max-width: 600px) {
+  .searchResult .left {
+    padding: 3px !important;
+  }
+
+  .searchResultTitle {
+    font-size: 0.8rem !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .searchResultChannel {
+    font-size: 0.7rem !important;
+  }
+
+  .searchResultPublished {
+    font-size: 0.65rem !important;
+  }
 }
 
 /** Mobile Interface **/

@@ -80,7 +80,7 @@ function getVideoData(id) {
     else {
       //skip and remove 'undefined' videos from quickSearchVideos on inBoxSearch
       if (videoName !== "undefined") {
-        addSearchResult(videoName, id);
+        addSearchResult(videoName, id, null, null);
         searchResultsIteration++;
       }
       else {
