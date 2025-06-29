@@ -189,7 +189,43 @@ class StableWindowManager {
     }
     
     centerWindow(windowElement) {
-        const rect = windowElement.getBoundingClientRect();
+        // 🔧 Firefox移动端修复：检测浏览器类型
+        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+        const isMobile = window.innerWidth <= 768;
+
+        console.log(`🎯 居中窗口 - Firefox: ${isFirefox}, 移动端: ${isMobile}`);
+
+        // 🔧 Firefox移动端特殊处理：使用多次尝试获取准确尺寸
+        let rect;
+        let attempts = 0;
+        const maxAttempts = 3;
+
+        const getRectWithRetry = () => {
+            rect = windowElement.getBoundingClientRect();
+            attempts++;
+
+            // 检查尺寸是否合理（不为0且不过大）
+            const isValidSize = rect.width > 0 && rect.height > 0 &&
+                               rect.width <= window.innerWidth &&
+                               rect.height <= window.innerHeight;
+
+            console.log(`🎯 尝试 ${attempts}: 窗口尺寸 ${rect.width}x${rect.height}, 有效: ${isValidSize}`);
+
+            if (!isValidSize && attempts < maxAttempts && isFirefox && isMobile) {
+                // Firefox移动端：短暂延迟后重试
+                setTimeout(() => {
+                    getRectWithRetry();
+                }, 50);
+                return false;
+            }
+            return true;
+        };
+
+        // 开始获取尺寸
+        if (!getRectWithRetry()) {
+            return; // 等待重试
+        }
+
         const headerHeight = this.getHeaderHeight();
         const footerHeight = this.getFooterHeight();
 
@@ -197,21 +233,54 @@ class StableWindowManager {
         const availableHeight = window.innerHeight - headerHeight - footerHeight;
         const availableWidth = window.innerWidth;
 
+        // 🔧 Firefox移动端：使用备用尺寸计算
+        let windowWidth = rect.width;
+        let windowHeight = rect.height;
+
+        if (isFirefox && isMobile && (windowWidth <= 0 || windowHeight <= 0)) {
+            // 使用CSS样式或默认值作为备用
+            const computedStyle = window.getComputedStyle(windowElement);
+            windowWidth = parseFloat(computedStyle.width) || window.innerWidth * 0.9;
+            windowHeight = parseFloat(computedStyle.height) || window.innerHeight * 0.6;
+            console.log(`🎯 Firefox移动端备用尺寸: ${windowWidth}x${windowHeight}`);
+        }
+
         // 在可用区域中居中
-        const centerX = (availableWidth - rect.width) / 2;
-        const centerY = headerHeight + (availableHeight - rect.height) / 2;
+        const centerX = (availableWidth - windowWidth) / 2;
+        const centerY = headerHeight + (availableHeight - windowHeight) / 2;
 
         // 确保窗口不会超出边界
-        const constrainedX = Math.max(0, Math.min(centerX, availableWidth - rect.width));
-        const constrainedY = Math.max(headerHeight, Math.min(centerY, headerHeight + availableHeight - rect.height));
+        const constrainedX = Math.max(0, Math.min(centerX, availableWidth - windowWidth));
+        const constrainedY = Math.max(headerHeight, Math.min(centerY, headerHeight + availableHeight - windowHeight));
+
+        // 🔧 Firefox移动端：强制清除可能的transform干扰
+        if (isFirefox && isMobile) {
+            windowElement.style.transform = '';
+            windowElement.style.webkitTransform = '';
+        }
 
         windowElement.style.left = constrainedX + 'px';
         windowElement.style.top = constrainedY + 'px';
 
-        console.log(`🎯 窗口居中: Header高度=${headerHeight}, Footer高度=${footerHeight}`);
+        console.log(`🎯 窗口居中完成: Header高度=${headerHeight}, Footer高度=${footerHeight}`);
         console.log(`🎯 可用区域: 宽度=${availableWidth}, 高度=${availableHeight}`);
-        console.log(`🎯 窗口尺寸: 宽度=${rect.width}, 高度=${rect.height}`);
+        console.log(`🎯 窗口尺寸: 宽度=${windowWidth}, 高度=${windowHeight}`);
         console.log(`🎯 居中位置: (${constrainedX}, ${constrainedY})`);
+
+        // 🔧 Firefox移动端：验证最终位置
+        if (isFirefox && isMobile) {
+            setTimeout(() => {
+                const finalRect = windowElement.getBoundingClientRect();
+                console.log(`🎯 Firefox验证最终位置: (${finalRect.left}, ${finalRect.top})`);
+
+                // 如果位置仍然不对，再次尝试修正
+                if (finalRect.left < 0 || finalRect.top < headerHeight) {
+                    console.log('🎯 Firefox位置异常，再次修正');
+                    windowElement.style.left = Math.max(0, constrainedX) + 'px';
+                    windowElement.style.top = Math.max(headerHeight, constrainedY) + 'px';
+                }
+            }, 100);
+        }
     }
     
     addDragArea(windowElement) {

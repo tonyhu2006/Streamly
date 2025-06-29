@@ -278,10 +278,14 @@ async function serverSearch(query) {
     if ($("#searchResultsWindow").css("display") !== "block") {
       toggleMenu("searchResults");
 
-      // 🔧 使用延迟执行居中逻辑，确保窗口完全显示后再居中
-      console.log('🔍 搜索成功，延迟执行居中逻辑');
+      // 🔧 Firefox移动端特殊处理：使用更长延迟和多次尝试
+      const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+      const isMobile = window.innerWidth <= 768;
+      const delay = (isFirefox && isMobile) ? 300 : 150; // Firefox移动端使用更长延迟
 
-      // 使用短延迟确保窗口完全显示
+      console.log(`🔍 搜索成功，延迟执行居中逻辑 - Firefox: ${isFirefox}, 移动端: ${isMobile}, 延迟: ${delay}ms`);
+
+      // 使用适应性延迟确保窗口完全显示
       setTimeout(() => {
         const searchWindow = document.getElementById('searchResultsWindow');
 
@@ -297,6 +301,13 @@ async function serverSearch(query) {
         if (!isVisible) {
           console.log('🔍 搜索窗口不可见，跳过居中');
           return;
+        }
+
+        // 🔧 Firefox移动端：强制清除可能的transform干扰
+        if (isFirefox && isMobile) {
+          searchWindow.style.transform = '';
+          searchWindow.style.webkitTransform = '';
+          console.log('🔍 Firefox移动端：清除transform干扰');
         }
 
         // 强制居中，不检查现有位置
@@ -325,10 +336,21 @@ async function serverSearch(query) {
             footerHeight = footer.offsetHeight;
           }
 
-          // 获取窗口实际尺寸
-          const rect = searchWindow.getBoundingClientRect();
-          const windowWidth = rect.width || searchWindow.offsetWidth || 600;
-          const windowHeight = rect.height || searchWindow.offsetHeight || 400;
+          // 🔧 Firefox移动端：获取窗口尺寸的特殊处理
+          let windowWidth, windowHeight;
+
+          if (isFirefox && isMobile) {
+            // Firefox移动端：优先使用CSS样式值
+            const computedStyle = window.getComputedStyle(searchWindow);
+            windowWidth = parseFloat(computedStyle.width) || window.innerWidth * 0.9;
+            windowHeight = parseFloat(computedStyle.height) || window.innerHeight * 0.6;
+            console.log(`🔍 Firefox移动端使用CSS尺寸: ${windowWidth}x${windowHeight}`);
+          } else {
+            // 其他浏览器：使用getBoundingClientRect
+            const rect = searchWindow.getBoundingClientRect();
+            windowWidth = rect.width || searchWindow.offsetWidth || 600;
+            windowHeight = rect.height || searchWindow.offsetHeight || 400;
+          }
 
           const availableHeight = window.innerHeight - headerHeight - footerHeight;
           const availableWidth = window.innerWidth;
@@ -348,8 +370,22 @@ async function serverSearch(query) {
             窗口尺寸=${windowWidth}x${windowHeight}
             可用区域=${availableWidth}x${availableHeight}
             最终位置=(${constrainedX}, ${constrainedY})`);
+
+          // 🔧 Firefox移动端：验证并修正位置
+          if (isFirefox && isMobile) {
+            setTimeout(() => {
+              const finalRect = searchWindow.getBoundingClientRect();
+              console.log(`🔍 Firefox验证最终位置: (${finalRect.left}, ${finalRect.top})`);
+
+              if (finalRect.left < 0 || finalRect.top < headerHeight) {
+                console.log('🔍 Firefox位置异常，再次修正');
+                searchWindow.style.left = Math.max(0, constrainedX) + 'px';
+                searchWindow.style.top = Math.max(headerHeight, constrainedY) + 'px';
+              }
+            }, 100);
+          }
         }
-      }, 150); // 150ms延迟，确保窗口完全显示
+      }, delay); // 使用适应性延迟
     }
 
     $("#searchProgress").css("display", "none");
