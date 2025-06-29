@@ -820,6 +820,12 @@ body.window-dragging * {
     font-weight: 500 !important;
     margin-bottom: 5px !important;
     font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    /* 确保背景能覆盖多行文本 */
+    box-decoration-break: clone !important;
+    -webkit-box-decoration-break: clone !important;
 }
 
 .video-duration {
@@ -2835,6 +2841,9 @@ footer {
         border-radius: 12px !important;
         padding: 12px !important;
         border: 1px solid rgba(79, 195, 247, 0.2) !important;
+        /* 确保背景覆盖所有内容，包括换行文本 */
+        min-height: auto !important;
+        overflow: visible !important;
     }
 
     #videosTable td {
@@ -2849,6 +2858,54 @@ footer {
         font-size: 14px !important;
         position: relative !important;
         margin-bottom: 8px !important; /* 与按钮行保持间距 */
+        /* 确保容器能包含所有换行内容 */
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        /* 继承父元素的背景 */
+        background: inherit !important;
+    }
+
+    /* 移动端选中状态样式 - 确保背景覆盖多行文本 */
+    #videosTable tr.selected,
+    #videosTable tr.selected .tableLeft,
+    #videosTable tr.selected td {
+        background: rgba(255, 131, 0, 0.4) !important;
+        /* 确保背景覆盖所有内容，包括换行文本 */
+        background-clip: padding-box !important;
+        box-decoration-break: clone !important;
+        -webkit-box-decoration-break: clone !important;
+    }
+
+    /* 移动端选中状态样式 - 简化版本 */
+    #videosTable tr.selected .tableLeft,
+    #videosTable tr.selected td {
+        background: rgba(255, 131, 0, 0.4) !important;
+    }
+
+    /* 移动端表格行高度修复 - 确保背景能覆盖换行文本 */
+    @media (max-width: 768px) {
+        /* 只修复高度问题，不改变背景 */
+        #videosTable tr {
+            /* 确保容器能自适应内容高度 */
+            height: auto !important;
+            min-height: 60px !important;
+            /* 增加底部内边距，为换行文本留出背景空间 */
+            padding-bottom: 16px !important;
+        }
+
+        /* 确保tableLeft不限制高度 */
+        .tableLeft {
+            height: auto !important;
+            min-height: auto !important;
+        }
+
+        /* 确保视频标题有足够的行间距 */
+        .video-title-text {
+            line-height: 1.5 !important;
+            /* 增加底部边距，确保换行文本在背景范围内 */
+            margin-bottom: 10px !important;
+        }
     }
 
     /* 视频标题样式 */
@@ -2860,9 +2917,13 @@ footer {
         line-height: 1.4 !important;
         margin-bottom: 8px !important;
         cursor: move !important;
-        padding-right: 10px !important;
+        padding: 0 !important; /* 移除内边距，让背景自然显示 */
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
+        /* 确保文字不会创建自己的背景层 */
+        background: transparent !important;
+        /* 确保文字能正常换行 */
+        white-space: normal !important;
     }
 
     /* 移动端按钮容器重新设计 - 仅适用于移动端 */
@@ -3172,35 +3233,65 @@ footer {
 
     /* 搜索结果 */
     .searchResult {
-        padding: 10px !important;
+        padding: 8px !important;
         margin-bottom: 8px !important;
-        height: 80px !important;
-        min-height: 80px !important;
-        max-height: 80px !important;
+        height: 90px !important;
+        min-height: 90px !important;
+        max-height: 90px !important;
     }
 
     .searchResult .left {
-        padding: 3px !important;
+        padding: 4px !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
 
     .searchResultTitle {
         font-size: 13px !important;
-        line-height: 1.2 !important;
+        line-height: 1.4 !important;
         -webkit-line-clamp: 2 !important;
+        margin-bottom: 4px !important;
+        height: auto !important;
+        max-height: 36px !important; /* 2行 * 18px行高 */
+        overflow: hidden !important;
     }
 
     .searchResultChannel {
         font-size: 11px !important;
-        margin-bottom: 1px !important;
+        margin-bottom: 2px !important;
+        line-height: 1.2 !important;
     }
 
     .searchResultPublished {
         font-size: 10px !important;
+        line-height: 1.2 !important;
     }
 
     .searchResultDescription {
         font-size: 12px !important;
         line-height: 1.4 !important;
+    }
+
+    /* 移动端播放列表视频项样式 */
+    .playlist-video-item {
+        padding: 12px !important;
+        margin-bottom: 10px !important;
+        /* 确保背景能覆盖多行文本 */
+        background-clip: padding-box !important;
+        box-decoration-break: clone !important;
+        -webkit-box-decoration-break: clone !important;
+    }
+
+    .playlist-video-item .video-title {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+        margin-bottom: 6px !important;
+        /* 确保文字换行时背景正确覆盖 */
+        padding: 2px 0 !important;
+        box-decoration-break: clone !important;
+        -webkit-box-decoration-break: clone !important;
     }
 }
 
@@ -3428,6 +3519,24 @@ footer {
         max-width: 700px !important;
         max-height: calc(100vh - 180px) !important;
         /* 移除固定top定位，让窗口管理器控制 */
+    }
+
+    /* 小屏幕平板搜索结果样式 */
+    .searchResult {
+        height: 85px !important;
+        min-height: 85px !important;
+        max-height: 85px !important;
+        padding: 8px !important;
+    }
+
+    .searchResult .left {
+        padding: 4px !important;
+    }
+
+    .searchResultTitle {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+        max-height: 38px !important;
     }
 
     /* 模态框 */
